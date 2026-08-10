@@ -170,24 +170,27 @@ h1, h2, h3, h4, .brand-font {
   background: rgba(13, 9, 10, 0.94);
   backdrop-filter: blur(20px);
   border-bottom: 1px solid rgba(212, 175, 55, 0.25);
-  padding: 16px 50px;
+  padding: 14px 40px;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 20px;
   transition: var(--tr-smooth);
 }
 
 .brand-container {
   display: flex;
   align-items: center;
-  gap: 18px;
+  gap: 14px;
   text-decoration: none;
   cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .brand-logo-img {
-  width: 52px;
-  height: 52px;
+  width: 48px;
+  height: 48px;
   filter: drop-shadow(0 0 10px rgba(212, 175, 55, 0.5));
   transition: var(--tr-fast);
 }
@@ -197,36 +200,42 @@ h1, h2, h3, h4, .brand-font {
 }
 
 .brand-title-group h1 {
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 800;
   color: #fff;
   line-height: 1.1;
-  letter-spacing: 1px;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
 }
 
 .brand-title-group p {
-  font-size: 11px;
+  font-size: 10px;
   color: var(--gold-primary);
   text-transform: uppercase;
-  letter-spacing: 2.5px;
+  letter-spacing: 2px;
   font-weight: 600;
+  white-space: nowrap;
 }
 
 .nav-links {
   display: flex;
   align-items: center;
-  gap: 45px;
+  gap: clamp(10px, 1.6vw, 24px);
   list-style: none;
+  margin: 0;
+  padding: 0;
 }
 
 .nav-link {
   color: var(--text-main);
   text-decoration: none;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 600;
   transition: var(--tr-fast);
   position: relative;
-  padding: 8px 4px;
+  padding: 6px 4px;
+  white-space: nowrap;
+  display: inline-block;
 }
 
 .nav-link:hover, .nav-link.active {
@@ -252,7 +261,8 @@ h1, h2, h3, h4, .brand-font {
 .nav-actions {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
+  flex-shrink: 0;
 }
 
 /* Custom Buttons */
@@ -1716,19 +1726,22 @@ h1, h2, h3, h4, .brand-font {
    ULTRA MOBILE RESPONSIVE SYSTEM
    ======================================================================== */
 
-@media (max-width: 992px) {
-  .app-header { padding: 14px 24px; }
-  .brand-title-group h1 { font-size: 17px; }
-  .brand-title-group p { font-size: 10px; letter-spacing: 1.5px; }
-  .nav-links { gap: 20px; }
-  .footer-grid { grid-template-columns: 1fr 1fr; }
+/* ========================================================================
+   ULTRA MOBILE RESPONSIVE SYSTEM
+   ======================================================================== */
+
+@media (max-width: 1150px) {
+  .app-header { padding: 12px 20px; }
+  .nav-links { display: none !important; }
+  .mobile-menu-btn { display: inline-flex !important; align-items: center; justify-content: center; }
+  .brand-title-group h1 { font-size: 16px; }
+  .brand-title-group p { font-size: 9px; letter-spacing: 1.2px; }
 }
 
 @media (max-width: 768px) {
   .usa-top-banner { padding: 8px 12px; font-size: 11px; flex-direction: column; justify-content: center; text-align: center; }
   .banner-left, .banner-right { flex-wrap: wrap; justify-content: center; gap: 6px; }
   .app-header { padding: 10px 14px; gap: 8px; }
-  .nav-links { display: none; }
 
   .hero-section { padding: 40px 14px 60px; }
   .hero-title { font-size: clamp(26px, 5.5vw, 42px); }
@@ -1785,7 +1798,8 @@ h1, h2, h3, h4, .brand-font {
 }
 
 @media (max-width: 576px) {
-  .brand-title-group p { display: none; }
+  #navAdminBtn { display: none !important; }
+  .brand-title-group p { display: none !important; }
   .brand-title-group h1 { font-size: 14px; letter-spacing: 0.5px; white-space: nowrap; }
   .brand-logo-img { width: 36px; height: 36px; }
   .hero-stats-row { grid-template-columns: 1fr; }
@@ -1803,9 +1817,10 @@ h1, h2, h3, h4, .brand-font {
 
 @media (max-width: 380px) {
   .brand-title-group h1 { font-size: 12px; }
-  .brand-logo-img { width: 32px; height: 32px; }
+  .brand-logo-img { width: 30px; height: 30px; }
   .hero-title { font-size: 24px; }
   .section-title { font-size: 22px; }
   .stat-num { font-size: 20px; }
 }
+
 
