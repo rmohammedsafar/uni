@@ -1289,13 +1289,15 @@ async function handleApplicationSubmit(event) {
 async function sendRealEmailNotification(record) {
   console.log(`✉️ Dispatching Real Email Notification to ${record.email} and ${SENDER_EMAIL}...`);
   
-  // 1. FormSubmit Direct Real Email Dispatcher (Delivers real email to inbox)
+  // 1. FormSubmit Direct Real Email Dispatcher with Autoresponder to Student
   try {
     fetch(`https://formsubmit.co/ajax/${SENDER_EMAIL}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
       body: JSON.stringify({
         _subject: `[UEF CONFIRMATION] Application Received (${record.trackingId})`,
+        _replyto: record.email,
+        _autorespond: `Dear ${record.fullName},\n\nThank you for submitting your official application to the University of East Florida.\n\n📋 APPLICATION DETAILS:\n- Tracking ID: ${record.trackingId}\n- Degree Program: ${record.degree} in ${record.programTitle}\n- Tuition Fee: ${record.finalFeeDisplay || record.tuition}\n- Admissions Status: ${record.status}\n\nOur Office of Admissions will evaluate your uploaded marksheets and respond within 24 to 48 hours.\n\nBest regards,\nOffice of the University Registrar\nUniversity of East Florida | Orlando, FL, USA\nRegistrar Email: ${SENDER_EMAIL}`,
         student_name: record.fullName,
         student_email: record.email,
         phone: record.phone,
@@ -1307,22 +1309,6 @@ async function sendRealEmailNotification(record) {
         submitted_at: record.submittedAt
       })
     });
-
-    if (record.email && record.email.toLowerCase() !== SENDER_EMAIL.toLowerCase()) {
-      fetch(`https://formsubmit.co/ajax/${record.email}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-        body: JSON.stringify({
-          _subject: `[UEF CONFIRMATION] Official Application Received (${record.trackingId})`,
-          student_name: record.fullName,
-          program: `${record.degree} in ${record.programTitle}`,
-          tuition: record.finalFeeDisplay || record.tuition,
-          status: record.status,
-          tracking_id: record.trackingId,
-          message: `Dear ${record.fullName}, your application for ${record.degree} in ${record.programTitle} has been received and saved into UEF Firestore.`
-        })
-      });
-    }
   } catch (e) {
     console.warn("FormSubmit email dispatcher notice:", e);
   }
