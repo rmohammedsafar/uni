@@ -676,12 +676,10 @@ function initLiveClocks() {
     if (clockJst) clockJst.innerText = `Japan (Tokyo/JST): ${jstStr}`;
 
     for (let i of [1, 2]) {
-      const mEst = document.getElementById(`marqueeClockEST${i}`);
       const mGmt = document.getElementById(`marqueeClockGMT${i}`);
       const mJst = document.getElementById(`marqueeClockJST${i}`);
       const mIst = document.getElementById(`marqueeClockIST${i}`);
 
-      if (mEst) mEst.innerText = `🇺🇸 USA (Orlando/EST): ${estStr}`;
       if (mGmt) mGmt.innerText = `🇬🇧 UK (London/GMT): ${gmtStr}`;
       if (mJst) mJst.innerText = `🇯🇵 Japan (Tokyo/JST): ${jstStr}`;
       if (mIst) mIst.innerText = `🇮🇳 India (New Delhi/IST): ${istStr}`;
