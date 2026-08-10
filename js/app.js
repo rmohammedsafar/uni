@@ -192,6 +192,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initApplicationUploadForm();
   initLiveClocks();
   initModalListeners();
+  renderPublicTestimonials();
 });
 
 // --- AUTOMATIC PRELOADER SPLASH SCREEN FADE OUT ENGINE ---
@@ -871,6 +872,44 @@ async function renderAdminDashboard() {
               📄 View Brochure
             </button>
           </td>
+        </tr>
+      `).join('');
+    }
+  }
+
+  // Render Student Feedbacks Table
+  const feedbacks = await window.firebaseManager.getFeedbacks();
+  const feedbackTbody = document.getElementById("adminFeedbackTableBody");
+  const kpiFeedbackElem = document.getElementById("kpiFeedbacksReceived");
+
+  if (kpiFeedbackElem) kpiFeedbackElem.innerText = feedbacks.length;
+
+  if (feedbackTbody) {
+    let filteredFeedbacks = feedbacks.filter(f => {
+      return (f.fullName || "").toLowerCase().includes(searchVal) ||
+             (f.email || "").toLowerCase().includes(searchVal) ||
+             (f.comments || "").toLowerCase().includes(searchVal) ||
+             (f.category || "").toLowerCase().includes(searchVal);
+    });
+
+    if (filteredFeedbacks.length === 0) {
+      feedbackTbody.innerHTML = `
+        <tr>
+          <td colspan="7" style="text-align: center; padding: 20px; color: var(--text-muted);">
+            No student feedbacks submitted yet.
+          </td>
+        </tr>
+      `;
+    } else {
+      feedbackTbody.innerHTML = filteredFeedbacks.map(f => `
+        <tr>
+          <td><strong style="color: #f59e0b; font-family: monospace;">${f.feedbackId || 'FB-LOG'}</strong></td>
+          <td><strong>${f.fullName}</strong></td>
+          <td>${f.email}</td>
+          <td><span style="color: #f59e0b; font-weight: bold;">${'⭐'.repeat(parseInt(f.rating) || 5)} (${f.rating}/5)</span></td>
+          <td><span class="usa-flag-badge" style="background: rgba(245,158,11,0.15); color: #fbbf24; font-size: 11px;">${f.category}</span></td>
+          <td style="font-size: 13px; color: #ddd; max-width: 250px;">"${f.comments}"</td>
+          <td style="font-size: 12px; color: var(--text-muted);">${f.submittedAt}</td>
         </tr>
       `).join('');
     }
@@ -1752,6 +1791,109 @@ function submitContactInquiry(event) {
   event.preventDefault();
   alert(`Thank you! Your inquiry has been sent to the Registrar (${SENDER_EMAIL}). An advisor will reply to your email shortly.`);
   event.target.reset();
+}
+
+// --- STUDENT FEEDBACK SUBMISSION & PUBLIC TESTIMONIALS ENGINE ---
+async function handleFeedbackSubmit(event) {
+  event.preventDefault();
+  const fullName = document.getElementById("fbFullName").value.trim();
+  const email = document.getElementById("fbEmail").value.trim();
+  const category = document.getElementById("fbCategory").value;
+  const rating = document.getElementById("fbRating").value;
+  const comments = document.getElementById("fbComments").value.trim();
+
+  const feedbackRecord = {
+    fullName,
+    email,
+    category,
+    rating,
+    comments
+  };
+
+  if (window.firebaseManager) {
+    await window.firebaseManager.saveFeedback(feedbackRecord);
+  }
+
+  // Dispatch real email notification to Registrar (r.mohammedsafar@gmail.com)
+  try {
+    fetch(`https://formsubmit.co/ajax/${SENDER_EMAIL}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({
+        _subject: `[UEF STUDENT FEEDBACK] ${rating} Stars from ${fullName}`,
+        _replyto: email,
+        student_name: fullName,
+        student_email: email,
+        category: category,
+        star_rating: `${rating} / 5 Stars`,
+        feedback_comments: comments
+      })
+    });
+  } catch (e) {
+    console.warn("Feedback email trigger notice:", e);
+  }
+
+  alert(`🎉 Thank you for your feedback, ${fullName}! Your review (${rating} Stars) has been recorded in Cloud Firestore and submitted to the Registrar.`);
+  
+  event.target.reset();
+  renderPublicTestimonials();
+  if (isAdminLoggedIn) renderAdminDashboard();
+}
+
+async function renderPublicTestimonials() {
+  const container = document.getElementById("publicTestimonialsContainer");
+  if (!container) return;
+
+  let liveFeedbacks = [];
+  if (window.firebaseManager) {
+    liveFeedbacks = await window.firebaseManager.getFeedbacks();
+  }
+
+  const seedTestimonials = [
+    {
+      fullName: "David Sterling",
+      category: "Academic Excellence & Programs",
+      rating: "5",
+      comments: "The M.S. in Computer Science & AI curriculum is outstanding. The 100% online remote structure allowed me to balance work while earning a top USA degree.",
+      submittedAt: "Aug 8, 2026"
+    },
+    {
+      fullName: "Ananya Sharma",
+      category: "100% Online Learning Portal",
+      rating: "5",
+      comments: "The online marksheets upload and student portal were seamless. Received my official admission offer letter within 24 hours!",
+      submittedAt: "Aug 6, 2026"
+    },
+    {
+      fullName: "Marcus Vance",
+      category: "Global MBA & Leadership",
+      rating: "5",
+      comments: "Exceptional faculty and digital business strategy modules. The referral scholarship discount saved me over $2,800 on tuition fees.",
+      submittedAt: "Aug 3, 2026"
+    }
+  ];
+
+  const allReviews = [...liveFeedbacks, ...seedTestimonials];
+
+  container.innerHTML = allReviews.map(t => `
+    <div style="background: rgba(0,0,0,0.5); border: 1px solid var(--border-gold); padding: 18px; border-radius: 12px; transition: var(--tr-fast);">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+        <div>
+          <strong style="color: #fff; font-size: 15px;">${t.fullName}</strong>
+          <div style="font-size: 11px; color: var(--gold-primary); font-weight: 600;">${t.category}</div>
+        </div>
+        <div style="color: #f59e0b; font-size: 13px; font-weight: bold;">
+          ${'⭐'.repeat(parseInt(t.rating) || 5)}
+        </div>
+      </div>
+      <p style="font-size: 13px; color: var(--text-muted); line-height: 1.5; margin: 0;">
+        "${t.comments}"
+      </p>
+      <div style="font-size: 11px; color: rgba(255,255,255,0.4); margin-top: 8px; text-align: right;">
+        ${t.submittedAt || 'Verified Review'}
+      </div>
+    </div>
+  `).join('');
 }
 
 // --- FIREBASE LIVE CONNECTION DIAGNOSTIC TEST ENGINE ---

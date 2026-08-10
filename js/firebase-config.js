@@ -30,15 +30,71 @@ if (typeof firebase !== 'undefined' && firebase.apps.length > 0) {
   }
 }
 
-// Global Firebase Storage, Users, Applications & Brochure Leads Manager
+// Global Firebase Storage, Users, Applications, Brochure Leads & Feedbacks Manager
 class FirebaseStorageManager {
   constructor() {
     this.collectionName = 'student_applications';
     this.usersCollection = 'users';
     this.leadsCollection = 'brochure_downloads';
+    this.feedbacksCollection = 'student_feedbacks';
     this.fallbackStorageKey = 'uef_student_applications_backup';
     this.fallbackUsersKey = 'uef_users_backup';
     this.fallbackLeadsKey = 'uef_brochure_leads_backup';
+    this.fallbackFeedbacksKey = 'uef_student_feedbacks_backup';
+  }
+
+  // Save Student Feedback into Firestore
+  async saveFeedback(feedbackData) {
+    console.log("⭐ Saving Student Feedback into Firestore:", feedbackData);
+    const feedbackId = "FB-" + Math.floor(10000 + Math.random() * 90000);
+    const record = {
+      ...feedbackData,
+      feedbackId,
+      submittedAt: new Date().toLocaleDateString("en-US", { month: 'short', day: 'numeric', year: 'numeric' }) + " at " + new Date().toLocaleTimeString("en-US", { hour: '2-digit', minute: '2-digit' }),
+      timestamp: new Date().toISOString()
+    };
+
+    if (window.db) {
+      try {
+        await window.db.collection(this.feedbacksCollection).doc(feedbackId).set(record);
+        console.log("✅ Successfully saved feedback to Firestore collection `student_feedbacks`:", feedbackId);
+      } catch (err) {
+        console.warn("⚠️ Firestore feedback save warning:", err);
+      }
+    }
+
+    let local = this.getLocalFeedbacks();
+    local.unshift(record);
+    localStorage.setItem(this.fallbackFeedbacksKey, JSON.stringify(local));
+    return record;
+  }
+
+  async getFeedbacks() {
+    let firestoreRecords = [];
+    if (window.db) {
+      try {
+        const snapshot = await window.db.collection(this.feedbacksCollection).get();
+        snapshot.forEach(doc => {
+          firestoreRecords.push(doc.data());
+        });
+      } catch (err) {
+        console.warn("⚠️ Firestore feedbacks fetch warning:", err);
+      }
+    }
+
+    const localRecords = this.getLocalFeedbacks();
+    const mergedMap = new Map();
+    localRecords.forEach(rec => mergedMap.set(rec.feedbackId || rec.timestamp, rec));
+    firestoreRecords.forEach(rec => mergedMap.set(rec.feedbackId || rec.timestamp, rec));
+
+    const result = Array.from(mergedMap.values());
+    result.sort((a, b) => new Date(b.timestamp || b.submittedAt) - new Date(a.timestamp || a.submittedAt));
+    return result;
+  }
+
+  getLocalFeedbacks() {
+    const raw = localStorage.getItem(this.fallbackFeedbacksKey);
+    return raw ? JSON.parse(raw) : [];
   }
 
   // Save Brochure Download Lead Record into Firestore
@@ -58,7 +114,6 @@ class FirebaseStorageManager {
       }
     }
 
-    // Save to local storage backup
     let localLeads = this.getLocalLeads();
     localLeads.unshift({
       ...leadData,
@@ -108,7 +163,6 @@ class FirebaseStorageManager {
       }
     }
     
-    // Save to local storage backup
     let localUsers = this.getLocalUsers();
     const idx = localUsers.findIndex(u => u.email.toLowerCase() === userData.email.toLowerCase());
     if (idx >= 0) localUsers[idx] = userData;
@@ -124,8 +178,6 @@ class FirebaseStorageManager {
   // Save new student application
   async saveApplication(appData) {
     console.log("💾 Saving application record:", appData);
-    
-    // 1. Live Cloud Firestore Sync
     if (window.db) {
       try {
         await window.db.collection(this.collectionName).doc(appData.trackingId).set(appData);
@@ -135,12 +187,10 @@ class FirebaseStorageManager {
       }
     }
 
-    // 2. Persistent Local Storage Engine
     this.saveToLocalStorage(appData);
     return appData;
   }
 
-  // Fetch all applications for Admin Dashboard
   async getApplications() {
     let firestoreRecords = [];
 
@@ -166,7 +216,6 @@ class FirebaseStorageManager {
     return result;
   }
 
-  // Update Decision Status
   async updateStatus(trackingId, newStatus) {
     if (window.db) {
       try {

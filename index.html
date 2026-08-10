@@ -476,6 +476,7 @@
       <li><a href="#programs" class="nav-link">Programs</a></li>
       <li><a href="#studentDashboardSection" class="nav-link" id="navDashboardLink" style="display:none;">My Dashboard</a></li>
       <li><a href="#studentPortal" class="nav-link">Student Portal</a></li>
+      <li><a href="#feedbackSection" class="nav-link">Feedback & Reviews</a></li>
       <li><a href="#usaHeadquarters" class="nav-link">USA HQ</a></li>
     </ul>
 
@@ -636,12 +637,21 @@
           </div>
         </div>
 
-        <!-- NEW BROCHURE LEADS KPI CARD -->
+        <!-- BROCHURE LEADS KPI CARD -->
         <div class="admin-kpi-card" style="border-color: #34d399;">
           <div class="kpi-icon" style="color: #34d399;">📥</div>
           <div>
             <div class="kpi-val" id="kpiBrochureLeads" style="color: #34d399;">0</div>
             <div class="kpi-lbl">Brochure Downloads</div>
+          </div>
+        </div>
+
+        <!-- NEW FEEDBACKS RECEIVED KPI CARD -->
+        <div class="admin-kpi-card" style="border-color: #f59e0b;">
+          <div class="kpi-icon" style="color: #f59e0b;">⭐</div>
+          <div>
+            <div class="kpi-val" id="kpiFeedbacksReceived" style="color: #f59e0b;">0</div>
+            <div class="kpi-lbl">Student Feedbacks</div>
           </div>
         </div>
       </div>
@@ -686,11 +696,11 @@
         </table>
       </div>
 
-      <!-- NEW BROCHURE DOWNLOAD LEADS ROSTER TABLE -->
+      <!-- BROCHURE DOWNLOAD LEADS ROSTER TABLE -->
       <h4 style="color: #34d399; font-family: var(--font-serif); margin-bottom: 12px;">
         📥 Recorded Brochure Download Leads (Firebase Firestore: `brochure_downloads`)
       </h4>
-      <div class="admin-table-container">
+      <div class="admin-table-container" style="margin-bottom: 36px;">
         <table class="admin-table">
           <thead>
             <tr style="background: rgba(16, 185, 129, 0.2);">
@@ -704,6 +714,29 @@
             </tr>
           </thead>
           <tbody id="adminBrochureTableBody">
+            <!-- Injected by JS -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- NEW STUDENT FEEDBACKS & REVIEWS TABLE -->
+      <h4 style="color: #f59e0b; font-family: var(--font-serif); margin-bottom: 12px;">
+        ⭐ Student Feedbacks & Ratings (Firebase Firestore: `student_feedbacks`)
+      </h4>
+      <div class="admin-table-container">
+        <table class="admin-table">
+          <thead>
+            <tr style="background: rgba(245, 158, 11, 0.2);">
+              <th>Feedback ID</th>
+              <th>Student Name</th>
+              <th>Email</th>
+              <th>Rating</th>
+              <th>Category</th>
+              <th>Feedback Message</th>
+              <th>Submitted Date</th>
+            </tr>
+          </thead>
+          <tbody id="adminFeedbackTableBody">
             <!-- Injected by JS -->
           </tbody>
         </table>
@@ -1259,6 +1292,88 @@
 
     </div>
   </div>
+
+  <!-- OFFICIAL STUDENT FEEDBACK & REVIEWS SECTION -->
+  <section class="section-wrapper" id="feedbackSection">
+    <div class="section-header">
+      <span class="section-tag">Student Experience & Voice</span>
+      <h2 class="section-title">Student Feedback & Ratings</h2>
+      <p class="section-desc">
+        Your voice matters! Share your experience with our 100% online programs, virtual campus portal, or admissions process.
+      </p>
+    </div>
+
+    <div class="contact-grid">
+      <!-- Left Column: Interactive Feedback Submission Form -->
+      <div class="application-portal-box" style="margin-bottom: 0; padding: 32px;">
+        <h3 style="font-size: 22px; color: var(--gold-light); margin-bottom: 16px; font-family: var(--font-serif);">
+          ⭐ Submit Student Feedback
+        </h3>
+        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 20px;">
+          All reviews are saved to Cloud Firestore and dispatched directly to the Registrar Office (<strong style="color: var(--gold-light);">r.mohammedsafar@gmail.com</strong>).
+        </p>
+
+        <form id="studentFeedbackForm" onsubmit="handleFeedbackSubmit(event)">
+          <div class="form-group">
+            <label class="form-label" for="fbFullName">Your Full Name *</label>
+            <input type="text" id="fbFullName" class="form-control" placeholder="e.g. Eleanor Vance" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="fbEmail">Your Student Email *</label>
+            <input type="email" id="fbEmail" class="form-control" placeholder="eleanor@example.com" required>
+          </div>
+
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label" for="fbCategory">Feedback Category *</label>
+              <select id="fbCategory" class="form-select" required>
+                <option value="Academic Excellence & Programs">Academic Excellence & Programs</option>
+                <option value="100% Online Learning Portal">100% Online Learning Portal</option>
+                <option value="Admissions & Registrar Support">Admissions & Registrar Support</option>
+                <option value="Tuition Fee & Scholarships">Tuition Fee & Scholarships</option>
+                <option value="General Student Experience">General Student Experience</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="fbRating">Star Rating *</label>
+              <select id="fbRating" class="form-select" required>
+                <option value="5">⭐⭐⭐⭐⭐ 5 Stars - Outstanding</option>
+                <option value="4">⭐⭐⭐⭐ 4 Stars - Excellent</option>
+                <option value="3">⭐⭐⭐ 3 Stars - Good</option>
+                <option value="2">⭐⭐ 2 Stars - Average</option>
+                <option value="1">⭐ 1 Star - Needs Improvement</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="fbComments">Your Feedback & Experience Comments *</label>
+            <textarea id="fbComments" class="form-control" rows="4" placeholder="Share your experience studying 100% online with UEF..." required style="resize: vertical;"></textarea>
+          </div>
+
+          <button type="submit" class="btn btn-gold" style="width: 100%; padding: 12px; font-size: 15px;">
+            ⭐ Send Student Feedback to Firestore & Registrar
+          </button>
+        </form>
+      </div>
+
+      <!-- Right Column: Recent Student Testimonials Grid -->
+      <div class="address-box">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+          <h3 style="font-size: 22px; color: #fff; font-family: var(--font-serif); margin: 0;">
+            💬 Recent Student Reviews
+          </h3>
+          <span class="usa-flag-badge" style="background: rgba(245,158,11,0.2); color: #fbbf24;">VERIFIED REVIEWS</span>
+        </div>
+
+        <div id="publicTestimonialsContainer" style="display: flex; flex-direction: column; gap: 16px; max-height: 420px; overflow-y: auto; padding-right: 6px;">
+          <!-- Injected by JS -->
+        </div>
+      </div>
+    </div>
+  </section>
 
   <!-- Accreditation Disclaimer Banner -->
   <section class="section-wrapper" id="accreditation" style="padding-top: 0;">
