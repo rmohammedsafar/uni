@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>University of East Florida | 100% Online Global Accredited University</title>
-  <meta name="description" content="Official website of the University of East Florida (UEF). Earn world-class, 100% online accredited degrees with PDF brochures, interactive student eligibility portal, document upload, tiered referral discounts, and global USA headquarters.">
+  <meta name="description" content="Official website of the University of East Florida (UEF). Earn world-class, 100% online accredited degrees with PDF brochures, interactive student eligibility portal, document upload, tiered referral discounts, admin dashboard, and global USA headquarters.">
   <link rel="icon" type="image/svg+xml" href="assets/logo.svg">
   <link rel="stylesheet" href="styles.css">
 
@@ -331,7 +331,7 @@
     </div>
   </section>
 
-  <!-- ADMIN DASHBOARD SECTION (Visible when Admin is Logged In) -->
+  <!-- FULLY IMPLEMENTED ADMIN DASHBOARD SECTION (Visible when Admin is Logged In) -->
   <section class="section-wrapper" id="adminDashboardSection" style="display: none;">
     <div class="section-header">
       <span class="section-tag" style="color: #34d399;">🔑 Administrative Portal</span>
@@ -835,8 +835,8 @@
             <strong>Demo Credentials:</strong><br>
             Username: <code style="color: #fff;">admin@uef.edu.online</code><br>
             Password: <code style="color: #fff;">uef2026</code>
-            <button type="button" class="btn btn-outline" onclick="autoFillDemoAdmin()" style="margin-top: 8px; width: 100%; padding: 4px 8px; font-size: 11px;">
-              ⚡ Auto-Fill Demo Credentials
+            <button type="button" class="btn btn-gold" onclick="autoFillDemoAdmin()" style="margin-top: 10px; width: 100%; padding: 8px 12px; font-size: 12px;">
+              ⚡ Auto-Fill Demo Credentials & Log In
             </button>
           </div>
 
@@ -985,12 +985,12 @@
       </div>
 
       <div class="footer-col">
-        <h4>USA Office & Registrar</h4>
+        <h4>USA Office & Admin Access</h4>
         <ul class="footer-links">
           <li><a href="#usaHeadquarters">1200 University Blvd, Suite 500</a></li>
           <li><a href="#usaHeadquarters">Orlando, FL 32816, USA</a></li>
           <li><a href="tel:+18005558331">+1 (800) 555-UEF1</a></li>
-          <li><a href="mailto:t06546666@gmail.com">t06546666@gmail.com</a></li>
+          <li><a href="javascript:void(0)" onclick="openAdminLoginModal()" style="color: var(--gold-primary); font-weight: bold;">🔑 Admin Portal Login</a></li>
         </ul>
       </div>
 

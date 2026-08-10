@@ -9,7 +9,7 @@ const SENDER_EMAIL = "t06546666@gmail.com";
 // Initialize EmailJS Browser SDK if available
 if (typeof emailjs !== "undefined") {
   try {
-    emailjs.init({ publicKey: "YOUR_EMAILJS_PUBLIC_KEY" }); // Optional EmailJS Public Key
+    emailjs.init({ publicKey: "YOUR_EMAILJS_PUBLIC_KEY" });
   } catch (e) {
     console.log("EmailJS initialized");
   }
@@ -269,10 +269,12 @@ function closeAdminLoginModal() {
 function autoFillDemoAdmin() {
   document.getElementById("adminEmailInput").value = "admin@uef.edu.online";
   document.getElementById("adminPasswordInput").value = "uef2026";
+  const fakeEvent = { preventDefault: () => {} };
+  handleAdminLoginSubmit(fakeEvent);
 }
 
 function handleAdminLoginSubmit(event) {
-  event.preventDefault();
+  if (event && event.preventDefault) event.preventDefault();
   const email = document.getElementById("adminEmailInput").value.trim();
   const pass = document.getElementById("adminPasswordInput").value.trim();
 
