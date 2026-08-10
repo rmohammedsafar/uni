@@ -3,6 +3,7 @@
    ========================================================================== */
 
 // Firebase SDK Configuration Template
+// Replace the keys below with your actual Firebase Console Project Keys:
 const firebaseConfig = {
   apiKey: "YOUR_FIREBASE_API_KEY",
   authDomain: "university-east-florida.firebaseapp.com",
@@ -11,6 +12,17 @@ const firebaseConfig = {
   messagingSenderId: "123456789012",
   appId: "1:123456789012:web:abc123def456789"
 };
+
+// Initialize Live Firebase SDK if available
+if (typeof firebase !== "undefined" && firebase.apps && !firebase.apps.length) {
+  try {
+    firebase.initializeApp(firebaseConfig);
+    window.db = firebase.firestore();
+    console.log("🔥 [Firebase] Live Firebase Firestore Connected Successfully!");
+  } catch (err) {
+    console.warn("⚠️ Live Firebase initialization notice:", err);
+  }
+}
 
 // Fallback Local Storage Persistence Engine (Used when live Firebase API Key is pending)
 class FirebaseStorageManager {
@@ -22,7 +34,6 @@ class FirebaseStorageManager {
   initSeedData() {
     let existingApps = JSON.parse(localStorage.getItem(this.collectionName) || "[]");
     if (existingApps.length === 0) {
-      // Seed initial sample applications for demo testing
       const seedApps = [
         {
           trackingId: "UEF-2026-REG-9482",
@@ -83,13 +94,36 @@ class FirebaseStorageManager {
   }
 
   async getApplications() {
+    try {
+      if (window.db && typeof window.db.collection === "function") {
+        const snapshot = await window.db.collection("student_applications").get();
+        let firestoreApps = [];
+        snapshot.forEach(doc => firestoreApps.push({ id: doc.id, ...doc.data() }));
+        if (firestoreApps.length > 0) return firestoreApps;
+      }
+    } catch (err) {
+      console.warn("⚠️ Reading from local storage fallback:", err);
+    }
+
     return JSON.parse(localStorage.getItem(this.collectionName) || "[]");
   }
 
   async updateStatus(trackingId, newStatus) {
-    let existingApps = JSON.parse(localStorage.getItem(this.collectionName) || "[]");
     let updated = false;
 
+    try {
+      if (window.db && typeof window.db.collection === "function") {
+        const query = await window.db.collection("student_applications").where("trackingId", "==", trackingId).get();
+        query.forEach(async (doc) => {
+          await window.db.collection("student_applications").doc(doc.id).update({ status: newStatus });
+        });
+        updated = true;
+      }
+    } catch (err) {
+      console.warn("⚠️ Status update local fallback:", err);
+    }
+
+    let existingApps = JSON.parse(localStorage.getItem(this.collectionName) || "[]");
     existingApps = existingApps.map(app => {
       if (app.trackingId === trackingId) {
         app.status = newStatus;
