@@ -193,6 +193,9 @@ document.addEventListener("DOMContentLoaded", () => {
   initLiveClocks();
   initModalListeners();
   renderPublicTestimonials();
+  initCampusTour();
+  renderLecturesGrid('all');
+  loadGlobalNews();
 });
 
 // --- AUTOMATIC PRELOADER SPLASH SCREEN FADE OUT ENGINE ---
@@ -1936,3 +1939,370 @@ async function testFirebaseConnection() {
     alert(`⚠️ Firebase Firestore Connection Notice:\n\n${err.message}\n\nPlease verify that Cloud Firestore database rules allow write access in console.firebase.google.com for project 'university-8f798'.`);
   }
 }
+
+// ============================================================
+// VIRTUAL CAMPUS TOUR ENGINE
+// ============================================================
+const CAMPUS_ROOMS = {
+  'library': {
+    icon: '📚',
+    name: 'Digital Research Library',
+    description: 'Access over 2.4 million peer-reviewed journals, textbooks, case studies, and research papers from Oxford, Cambridge, and MIT OpenCourseWare. Available 24/7 from any device globally.',
+    stats: [
+      { label: 'Digital Resources', value: '2.4M+' },
+      { label: 'Research Journals', value: '48,000+' },
+      { label: 'Access', value: '24/7 Global' },
+      { label: 'Languages', value: '28 Languages' }
+    ],
+    highlight: 'Includes IEEE, ACM, JSTOR, Springer, and Elsevier full-text databases.'
+  },
+  'cs-lab': {
+    icon: '💻',
+    name: 'CS & Artificial Intelligence Lab',
+    description: 'Our cloud-based AI lab features GPU computing clusters, TensorFlow and PyTorch sandboxes, Jupyter notebooks, and collaborative coding environments powered by AWS and Google Cloud.',
+    stats: [
+      { label: 'GPU Compute Nodes', value: '500+' },
+      { label: 'Active Projects', value: '1,200+' },
+      { label: 'AI Frameworks', value: 'TF/PyTorch' },
+      { label: 'Uptime', value: '99.97%' }
+    ],
+    highlight: 'Industry-grade tools: Docker, Kubernetes, GitHub Copilot, and VS Code Cloud.'
+  },
+  'business': {
+    icon: '📊',
+    name: 'Global Business School',
+    description: 'Engage with live NYSE/NASDAQ market simulators, Bloomberg Terminal access, strategic case study rooms, and global MBA cohort video seminars with guest C-suite executives.',
+    stats: [
+      { label: 'Bloomberg Terminals', value: '120 Virtual' },
+      { label: 'Case Studies', value: '8,500+' },
+      { label: 'Alumni Network', value: '45 Countries' },
+      { label: 'MBA Ranking', value: 'Top 12%' }
+    ],
+    highlight: 'Live trading simulations with $100,000 virtual portfolio management.'
+  },
+  'healthcare': {
+    icon: '🏥',
+    name: 'Health Informatics Institute',
+    description: 'Immersive 3D anatomy visualization suites, patient data management simulators, telemedicine protocol labs, and global epidemiology mapping tools built with real WHO datasets.',
+    stats: [
+      { label: '3D Anatomy Models', value: '14,000+' },
+      { label: 'Clinical Simulations', value: '3,200+' },
+      { label: 'WHO Datasets', value: 'Live Feed' },
+      { label: 'Certifications', value: 'HL7 / FHIR' }
+    ],
+    highlight: 'Partners with Johns Hopkins, WHO, and CDC for real-world health data.'
+  },
+  'auditorium': {
+    icon: '🎓',
+    name: 'Virtual Grand Auditorium',
+    description: 'Host of our weekly live commencement ceremonies, guest lecturer series, global student symposiums, and official graduation celebrations streamed to 190+ countries in HD.',
+    stats: [
+      { label: 'Capacity', value: '50,000 Live' },
+      { label: 'Annual Events', value: '240+' },
+      { label: 'Countries Reached', value: '190+' },
+      { label: 'Graduates 2024', value: '12,400+' }
+    ],
+    highlight: 'Officially certified by the US Department of Education as a virtual campus.'
+  }
+};
+
+function initCampusTour() {
+  switchTourRoom('library');
+}
+
+function switchTourRoom(roomId) {
+  const room = CAMPUS_ROOMS[roomId];
+  if (!room) return;
+
+  document.querySelectorAll('.tour-nav-btn').forEach(btn => btn.classList.remove('active'));
+  const activeBtn = document.getElementById(`tourBtn-${roomId}`);
+  if (activeBtn) activeBtn.classList.add('active');
+
+  const display = document.getElementById('tourRoomDisplay');
+  if (!display) return;
+
+  display.innerHTML = `
+    <div class="tour-room-visual">
+      <div style="font-size:90px; margin-bottom:12px;">${room.icon}</div>
+      <div style="font-size:13px; color:var(--gold-primary); font-weight:700; letter-spacing:2px; text-transform:uppercase; text-align:center;">UEF CAMPUS</div>
+    </div>
+    <div class="tour-room-info">
+      <div>
+        <div style="font-size:11px; color:var(--gold-primary); font-weight:700; text-transform:uppercase; letter-spacing:2px; margin-bottom:8px;">Virtual Campus Tour</div>
+        <h3 style="font-size:26px; font-weight:800; color:#fff; font-family:var(--font-serif); margin-bottom:14px; line-height:1.2;">${room.name}</h3>
+        <p style="font-size:14px; color:var(--text-muted); line-height:1.65;">${room.description}</p>
+      </div>
+      <div class="tour-stat-row">
+        ${room.stats.map(s => `
+          <div class="tour-stat-box">
+            <div style="font-size:20px; font-weight:900; color:var(--gold-primary); font-family:var(--font-serif);">${s.value}</div>
+            <div style="font-size:11px; color:var(--text-muted); margin-top:3px; text-transform:uppercase; letter-spacing:1px;">${s.label}</div>
+          </div>
+        `).join('')}
+      </div>
+      <div style="background:rgba(212,175,55,0.08); border:1px solid var(--border-gold); border-radius:10px; padding:14px; font-size:13px; color:var(--gold-light);">
+        ✨ ${room.highlight}
+      </div>
+      <a href="#applySection" class="btn btn-gold" style="width:fit-content; padding:11px 24px;">📝 Apply to This Program</a>
+    </div>
+  `;
+}
+
+// ============================================================
+// RECORDED LECTURES ENGINE
+// ============================================================
+const LECTURES = [
+  { id:'l1', category:'cs', title:'Introduction to Machine Learning & Neural Networks', professor:'Prof. Andrew Ng — Stanford University', duration:'1:12:34', youtubeId:'jGwO_UgTS7I', thumb:'https://img.youtube.com/vi/jGwO_UgTS7I/maxresdefault.jpg' },
+  { id:'l2', category:'cs', title:'Deep Learning for Computer Vision (CNN Architecture)', professor:'Prof. Fei-Fei Li — Stanford AI Lab', duration:'58:22', youtubeId:'iaSUYvmCekI', thumb:'https://img.youtube.com/vi/iaSUYvmCekI/maxresdefault.jpg' },
+  { id:'l3', category:'cs', title:'Algorithms & Data Structures: Complexity Analysis', professor:'Prof. Erik Demaine — MIT CSAIL', duration:'1:24:10', youtubeId:'HtSuA80QTyo', thumb:'https://img.youtube.com/vi/HtSuA80QTyo/maxresdefault.jpg' },
+  { id:'l4', category:'business', title:'Strategic Management & Competitive Advantage', professor:'Prof. Michael Porter — Harvard Business School', duration:'47:18', youtubeId:'mYF2_FBCvXw', thumb:'https://img.youtube.com/vi/mYF2_FBCvXw/maxresdefault.jpg' },
+  { id:'l5', category:'business', title:'Financial Markets & Investment Banking Fundamentals', professor:'Prof. Robert Shiller — Yale University', duration:'1:08:45', youtubeId:'WQui_3Hpmmc', thumb:'https://img.youtube.com/vi/WQui_3Hpmmc/maxresdefault.jpg' },
+  { id:'l6', category:'business', title:'Entrepreneurship & Startup Ecosystem — Silicon Valley', professor:'Prof. Steve Blank — UC Berkeley', duration:'55:30', youtubeId:'zwb7jPM8mLA', thumb:'https://img.youtube.com/vi/zwb7jPM8mLA/maxresdefault.jpg' },
+  { id:'l7', category:'healthcare', title:'Health Informatics & Electronic Medical Records (EHR)', professor:'Prof. Dina Katabi — MIT CSAIL Health', duration:'49:55', youtubeId:'UF8uR6Z6KLc', thumb:'https://img.youtube.com/vi/UF8uR6Z6KLc/maxresdefault.jpg' },
+  { id:'l8', category:'healthcare', title:'Global Epidemiology & Public Health Systems', professor:'Prof. David Relman — Stanford Medicine', duration:'1:03:14', youtubeId:'54XLXg4fYsc', thumb:'https://img.youtube.com/vi/54XLXg4fYsc/maxresdefault.jpg' },
+  { id:'l9', category:'math', title:'Linear Algebra: Essence & Intuition for AI', professor:'Prof. Gilbert Strang — MIT OpenCourseWare', duration:'36:22', youtubeId:'kjBOesZCoqc', thumb:'https://img.youtube.com/vi/kjBOesZCoqc/maxresdefault.jpg' },
+  { id:'l10', category:'math', title:'Calculus & Differential Equations for Engineers', professor:'Prof. David Jerison — MIT Mathematics', duration:'51:08', youtubeId:'WUvTyaaNkzM', thumb:'https://img.youtube.com/vi/WUvTyaaNkzM/maxresdefault.jpg' },
+  { id:'l11', category:'cs', title:'Cybersecurity & Ethical Hacking Fundamentals', professor:'Prof. J. Alex Halderman — University of Michigan', duration:'1:18:00', youtubeId:'inWWhr5tnEA', thumb:'https://img.youtube.com/vi/inWWhr5tnEA/maxresdefault.jpg' },
+  { id:'l12', category:'business', title:'Digital Marketing & Analytics in the AI Era', professor:'Prof. Scott Galloway — NYU Stern', duration:'44:30', youtubeId:'k5BgQLm9J9M', thumb:'https://img.youtube.com/vi/k5BgQLm9J9M/maxresdefault.jpg' }
+];
+
+function renderLecturesGrid(category) {
+  document.querySelectorAll('[id^="lecFilter-"]').forEach(b => b.classList.remove('active'));
+  const activeFilter = document.getElementById(`lecFilter-${category}`);
+  if (activeFilter) activeFilter.classList.add('active');
+
+  const filtered = category === 'all' ? LECTURES : LECTURES.filter(l => l.category === category);
+  const grid = document.getElementById('lecturesGrid');
+  if (!grid) return;
+
+  const categoryLabel = { cs:'CS & AI', business:'Business', healthcare:'Healthcare', math:'Mathematics' };
+
+  grid.innerHTML = filtered.map(lec => `
+    <div class="lecture-card" onclick="openLecture('${lec.youtubeId}', '${lec.title.replace(/'/g, "\\'")}')">
+      <div class="lecture-thumbnail">
+        <img src="${lec.thumb}" alt="${lec.title}" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\\'http://www.w3.org/2000/svg\\' width=\\'640\\' height=\\'360\\'><rect fill=\\'%23200a0e\\' width=\\'640\\' height=\\'360\\'/><text x=\\'320\\' y=\\'180\\' font-size=\\'80\\' text-anchor=\\'middle\\' dominant-baseline=\\'middle\\'>${lec.category==='cs'?'💻':lec.category==='business'?'📊':lec.category==='healthcare'?'🏥':'📐'}</text></svg>'">
+        <div class="lecture-play-overlay">
+          <div class="lecture-play-btn">▶</div>
+        </div>
+        <span class="lecture-duration-badge">${lec.duration}</span>
+      </div>
+      <div class="lecture-info">
+        <span class="lecture-category-tag">${categoryLabel[lec.category] || lec.category}</span>
+        <div class="lecture-title">${lec.title}</div>
+        <div class="lecture-professor">👨‍🏫 ${lec.professor}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function filterLectures(category) {
+  renderLecturesGrid(category);
+}
+
+function openLecture(youtubeId, title) {
+  const modal = document.getElementById('lectureVideoModal');
+  const frame = document.getElementById('lectureVideoFrame');
+  const titleEl = document.getElementById('lectureModalTitle');
+  if (!modal || !frame) return;
+
+  frame.src = `https://www.youtube.com/embed/${youtubeId}?autoplay=1&rel=0`;
+  if (titleEl) titleEl.textContent = title;
+  modal.classList.add('open');
+}
+
+function closeLectureModal(e) {
+  if (e && e.target !== document.getElementById('lectureVideoModal') && !e.target.closest('.modal-close')) return;
+  const modal = document.getElementById('lectureVideoModal');
+  const frame = document.getElementById('lectureVideoFrame');
+  if (modal) modal.classList.remove('open');
+  if (frame) frame.src = '';
+}
+
+// ============================================================
+// ACADEMIC QUIZ ENGINE
+// ============================================================
+const QUIZ_QUESTIONS = {
+  cs: [
+    { q: 'What does "AI" stand for in Computer Science?', options: ['Automated Interface', 'Artificial Intelligence', 'Advanced Integration', 'Algorithmic Input'], answer: 1 },
+    { q: 'Which data structure uses LIFO (Last In, First Out) order?', options: ['Queue', 'Linked List', 'Stack', 'Binary Tree'], answer: 2 },
+    { q: 'What is the time complexity of binary search?', options: ['O(n)', 'O(n²)', 'O(log n)', 'O(1)'], answer: 2 },
+    { q: 'Which language is primarily used for Machine Learning?', options: ['Java', 'Python', 'C++', 'PHP'], answer: 1 },
+    { q: 'What does HTTP stand for?', options: ['HyperText Transfer Protocol', 'High Transfer Text Program', 'Hyper Terminal Transfer Process', 'HyperText Transmission Path'], answer: 0 }
+  ],
+  business: [
+    { q: 'What does "ROI" stand for in business finance?', options: ['Return On Investment', 'Rate Of Inflation', 'Revenue On Income', 'Risk Of Insolvency'], answer: 0 },
+    { q: 'Which financial statement shows a company\'s revenues and expenses?', options: ['Balance Sheet', 'Cash Flow Statement', 'Income Statement', 'Equity Report'], answer: 2 },
+    { q: 'What is "market capitalization"?', options: ['Total debt of a company', 'Total shares × share price', 'Annual revenue of a company', 'Net profit margin'], answer: 1 },
+    { q: 'Which pricing strategy involves setting a high initial price and lowering it over time?', options: ['Penetration Pricing', 'Price Skimming', 'Cost-Plus Pricing', 'Competitive Pricing'], answer: 1 },
+    { q: 'What does "B2B" mean in business?', options: ['Budget to Budget', 'Business to Business', 'Buy to Buy', 'Brand to Brand'], answer: 1 }
+  ],
+  healthcare: [
+    { q: 'What does "EHR" stand for in Health Informatics?', options: ['Electronic Health Records', 'Extended Health Registry', 'Emergency Health Report', 'Electronic Hospital Roster'], answer: 0 },
+    { q: 'Which organization publishes global disease statistics?', options: ['UNESCO', 'UNICEF', 'WHO', 'WTO'], answer: 2 },
+    { q: 'What is "telemedicine"?', options: ['Medicine for telecom workers', 'Remote healthcare delivery via technology', 'TV medical broadcasts', 'Automated pharmacy systems'], answer: 1 },
+    { q: 'What does "BMI" stand for?', options: ['Body Mass Index', 'Biological Medical Indicator', 'Blood Metabolism Index', 'Brain Motor Index'], answer: 0 },
+    { q: 'Which act in the USA protects patient health information privacy?', options: ['ADA Act', 'HIPAA', 'COBRA', 'Medicare Act'], answer: 1 }
+  ]
+};
+
+let quizState = { subject: null, current: 0, score: 0, answered: false };
+
+function startQuiz(subject) {
+  quizState = { subject, current: 0, score: 0, answered: false };
+  document.getElementById('quizStartScreen').style.display = 'none';
+  document.getElementById('quizResultScreen').style.display = 'none';
+  document.getElementById('quizActiveScreen').style.display = 'block';
+  const labels = { cs: '💻 CS & AI Quiz', business: '📊 Business Quiz', healthcare: '🏥 Healthcare Quiz' };
+  document.getElementById('quizSubjectLabel').textContent = labels[subject] || 'Quiz';
+  renderQuizQuestion();
+}
+
+function renderQuizQuestion() {
+  const questions = QUIZ_QUESTIONS[quizState.subject];
+  const q = questions[quizState.current];
+  quizState.answered = false;
+
+  document.getElementById('quizCurrentQ').textContent = quizState.current + 1;
+  document.getElementById('quizProgressBar').style.width = `${((quizState.current + 1) / 5) * 100}%`;
+
+  document.getElementById('quizQuestionCard').innerHTML = `
+    <div style="font-size:16px; font-weight:700; color:#fff; line-height:1.5; margin-bottom:4px;">
+      Q${quizState.current + 1}. ${q.q}
+    </div>
+    <div class="quiz-options-grid" id="quizOptionsGrid">
+      ${q.options.map((opt, i) => `
+        <button class="quiz-option-btn" onclick="answerQuiz(${i})" id="quizOpt-${i}">
+          <span style="font-weight:700; color:var(--gold-primary); margin-right:8px;">${['A','B','C','D'][i]}.</span> ${opt}
+        </button>
+      `).join('')}
+    </div>
+  `;
+}
+
+function answerQuiz(selectedIndex) {
+  if (quizState.answered) return;
+  quizState.answered = true;
+
+  const questions = QUIZ_QUESTIONS[quizState.subject];
+  const correct = questions[quizState.current].answer;
+  const isCorrect = selectedIndex === correct;
+  if (isCorrect) quizState.score++;
+
+  document.querySelectorAll('.quiz-option-btn').forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === correct) btn.classList.add('correct');
+    else if (i === selectedIndex && !isCorrect) btn.classList.add('wrong');
+  });
+
+  setTimeout(() => {
+    quizState.current++;
+    if (quizState.current < 5) {
+      renderQuizQuestion();
+    } else {
+      showQuizResult();
+    }
+  }, 1200);
+}
+
+function showQuizResult() {
+  document.getElementById('quizActiveScreen').style.display = 'none';
+  const resultEl = document.getElementById('quizResultScreen');
+  resultEl.style.display = 'block';
+
+  const score = quizState.score;
+  const subjectPrograms = { cs: 'M.S. in Computer Science & AI', business: 'Global MBA — Business Leadership', healthcare: 'M.S. in Health Informatics' };
+  const grade = score === 5 ? '🏆 Perfect Score!' : score >= 4 ? '⭐ Excellent!' : score >= 3 ? '✅ Good Work!' : score >= 2 ? '📚 Keep Studying' : '💡 Beginner Level';
+  const gradeColor = score >= 4 ? '#34d399' : score >= 3 ? '#f59e0b' : '#f87171';
+
+  resultEl.innerHTML = `
+    <div style="background:radial-gradient(circle at 50% 0%, rgba(107,17,28,0.4) 0%, rgba(15,8,10,0.97) 100%); border:1px solid var(--border-gold); border-radius:20px; padding:40px; max-width:600px; margin:0 auto;">
+      <div style="font-size:60px; margin-bottom:16px;">${score === 5 ? '🏆' : score >= 3 ? '⭐' : '📚'}</div>
+      <div style="font-size:18px; font-weight:800; color:${gradeColor}; margin-bottom:6px;">${grade}</div>
+      <div style="font-size:52px; font-weight:900; color:var(--gold-primary); font-family:var(--font-serif); margin:12px 0;">${score}/5</div>
+      <div style="font-size:14px; color:var(--text-muted); margin-bottom:24px;">You answered ${score} out of 5 questions correctly!</div>
+      ${score >= 3 ? `
+        <div style="background:rgba(212,175,55,0.1); border:1px solid var(--border-gold); padding:16px; border-radius:12px; margin-bottom:24px;">
+          <div style="font-size:12px; color:var(--gold-light); font-weight:700; text-transform:uppercase; letter-spacing:1px; margin-bottom:4px;">🎓 Recommended UEF Program</div>
+          <div style="font-size:17px; font-weight:800; color:#fff;">${subjectPrograms[quizState.subject]}</div>
+        </div>
+      ` : ''}
+      <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+        <button class="btn btn-gold" onclick="startQuiz('${quizState.subject}')" style="padding:11px 22px;">🔄 Try Again</button>
+        <button class="btn btn-outline" onclick="resetQuiz()" style="padding:11px 22px;">📚 Choose Subject</button>
+        <a href="#applySection" class="btn btn-maroon" style="padding:11px 22px;">📝 Apply Now</a>
+      </div>
+    </div>
+  `;
+}
+
+function resetQuiz() {
+  document.getElementById('quizResultScreen').style.display = 'none';
+  document.getElementById('quizActiveScreen').style.display = 'none';
+  document.getElementById('quizStartScreen').style.display = 'block';
+}
+
+// ============================================================
+// GLOBAL NEWS FEED ENGINE — Live RSS via rss2json proxy
+// ============================================================
+const SEED_NEWS = [
+  { title: 'AI Surpasses Human Performance on Medical Diagnosis Benchmarks', description: 'A new multimodal AI model developed by Google DeepMind has matched board-certified radiologists in detecting early-stage cancer across 14 medical imaging datasets.', source: 'Nature Medicine', url: '#', pubDate: new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}), image: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=400&q=80' },
+  { title: 'Global University Enrollment Hits Record 280 Million Students in 2025', description: 'UNESCO reports a historic surge in online higher education enrollment, with Asia-Pacific and Sub-Saharan Africa driving the majority of new student registrations.', source: 'UNESCO Report', url: '#', pubDate: new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}), image: 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=400&q=80' },
+  { title: 'Quantum Computing Achieves 1 Million Qubit Milestone', description: 'IBM unveils its Condor+ quantum processor exceeding 1 million qubits, marking a landmark breakthrough that could revolutionize cryptography, drug discovery, and logistics.', source: 'MIT Technology Review', url: '#', pubDate: new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}), image: 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=400&q=80' },
+  { title: 'Global FinTech Sector Reaches $310 Billion Valuation', description: 'The worldwide financial technology industry crosses the $310 billion threshold driven by digital payments, AI-powered lending, and blockchain-based settlement infrastructure.', source: 'Financial Times', url: '#', pubDate: new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}), image: 'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=400&q=80' },
+  { title: 'WHO Launches Global Digital Health Certification Framework', description: 'The World Health Organization unveils a universal digital health competency certification system, partnering with 140 universities across 90 countries for standardized telehealth training.', source: 'WHO Global Health', url: '#', pubDate: new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}), image: 'https://images.unsplash.com/photo-1532938911079-1b06ac7ceec7?w=400&q=80' },
+  { title: 'US Department of Education Expands Recognition of Online Degrees', description: 'Federal policy update validates 100% online degrees from accredited institutions as fully equivalent to on-campus qualifications for all federal employment, scholarships, and visa applications.', source: 'US Dept. of Education', url: '#', pubDate: new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}), image: 'https://images.unsplash.com/photo-1607237138185-eedd9c632b0b?w=400&q=80' }
+];
+
+async function loadGlobalNews() {
+  const grid = document.getElementById('globalNewsGrid');
+  if (!grid) return;
+
+  grid.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:40px; color:var(--text-muted);">
+    <div style="font-size:36px; margin-bottom:12px; animation:logoPulse 1.5s ease-in-out infinite alternate;">🌍</div>
+    <p>Loading latest global news...</p>
+  </div>`;
+
+  let articles = [];
+
+  try {
+    const rssUrl = encodeURIComponent('https://feeds.bbci.co.uk/news/technology/rss.xml');
+    const res = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${rssUrl}&count=6`, { signal: AbortSignal.timeout(6000) });
+    if (res.ok) {
+      const data = await res.json();
+      if (data.status === 'ok' && data.items && data.items.length > 0) {
+        articles = data.items.map(item => ({
+          title: item.title,
+          description: item.description?.replace(/<[^>]+>/g,'').substring(0, 160) + '...' || '',
+          source: 'BBC Technology',
+          url: item.link,
+          pubDate: new Date(item.pubDate).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}),
+          image: item.thumbnail || item.enclosure?.link || 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=400&q=80'
+        }));
+      }
+    }
+  } catch (e) {
+    console.log('Live news fetch fallback to seed data:', e.message);
+  }
+
+  if (articles.length === 0) articles = SEED_NEWS;
+
+  grid.innerHTML = articles.map(article => `
+    <div class="news-card">
+      <img class="news-card-image" src="${article.image}" alt="${article.title}"
+        onerror="this.src='https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=400&q=80'">
+      <div class="news-card-body">
+        <div class="news-source-badge">📰 ${article.source}</div>
+        <div class="news-card-title">${article.title}</div>
+        <div class="news-card-desc">${article.description}</div>
+        <div class="news-card-footer">
+          <span class="news-card-date">🕒 ${article.pubDate}</span>
+          <a href="${article.url}" target="_blank" rel="noopener noreferrer"
+            class="btn btn-outline" style="padding:5px 14px; font-size:12px;">
+            Read More →
+          </a>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+

@@ -591,10 +591,13 @@
     <!-- Clean navigation links -->
     <ul class="nav-links">
       <li><a href="#programs" class="nav-link">Programs</a></li>
+      <li><a href="#campusTour" class="nav-link">Campus Tour</a></li>
+      <li><a href="#recordedLectures" class="nav-link">Lectures</a></li>
+      <li><a href="#quizSection" class="nav-link">Quiz</a></li>
+      <li><a href="#globalNewsSection" class="nav-link">News</a></li>
       <li><a href="#studentDashboardSection" class="nav-link" id="navDashboardLink" style="display:none;">My Dashboard</a></li>
-      <li><a href="#studentPortal" class="nav-link">Student Portal</a></li>
-      <li><a href="#feedbackSection" class="nav-link">Feedback & Reviews</a></li>
-      <li><a href="#usaHeadquarters" class="nav-link">USA HQ</a></li>
+      <li><a href="#studentPortal" class="nav-link">Portal</a></li>
+      <li><a href="#feedbackSection" class="nav-link">Feedback</a></li>
     </ul>
 
     <div class="nav-actions">
@@ -918,8 +921,154 @@
     </div>
   </section>
 
+  <!-- ===== SECTION 1: VIRTUAL CAMPUS TOUR ===== -->
+  <section class="section-wrapper" id="campusTour" style="background: linear-gradient(180deg, rgba(107,17,28,0.15) 0%, transparent 100%); border-top: 1px solid var(--border-gold); max-width: 100%; padding: 70px 40px;">
+    <div class="section-header" style="max-width:800px; margin:0 auto 50px;">
+      <span class="section-tag">🏛️ Immersive Experience</span>
+      <h2 class="section-title">Virtual Campus Tour</h2>
+      <p class="section-desc">Explore the University of East Florida's world-class online campus. Click any department to take an immersive virtual tour.</p>
+    </div>
+
+    <div style="max-width: 1200px; margin: 0 auto;">
+      <!-- Tour Navigation Pills -->
+      <div style="display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; margin-bottom: 36px;">
+        <button class="tour-nav-btn active" onclick="switchTourRoom('library')" id="tourBtn-library">📚 Digital Library</button>
+        <button class="tour-nav-btn" onclick="switchTourRoom('cs-lab')" id="tourBtn-cs-lab">💻 CS & AI Lab</button>
+        <button class="tour-nav-btn" onclick="switchTourRoom('business')" id="tourBtn-business">📊 Business School</button>
+        <button class="tour-nav-btn" onclick="switchTourRoom('healthcare')" id="tourBtn-healthcare">🏥 Health Institute</button>
+        <button class="tour-nav-btn" onclick="switchTourRoom('auditorium')" id="tourBtn-auditorium">🎓 Auditorium</button>
+      </div>
+
+      <!-- Tour Display -->
+      <div class="tour-room-display" id="tourRoomDisplay">
+        <!-- Injected by JS -->
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== SECTION 2: RECORDED LECTURES ===== -->
+  <section class="section-wrapper" id="recordedLectures" style="max-width:100%; padding: 70px 40px; background: rgba(10,5,7,0.6); border-top: 1px solid var(--border-gold); border-bottom: 1px solid var(--border-gold);">
+    <div class="section-header" style="max-width:800px; margin:0 auto 50px;">
+      <span class="section-tag">🎬 Free Academic Lectures</span>
+      <h2 class="section-title">Recorded Class Library</h2>
+      <p class="section-desc">Watch curated public lectures from world-class professors across our degree programs. Free access — no login required.</p>
+    </div>
+
+    <div style="max-width:1200px; margin:0 auto;">
+      <!-- Category Filter -->
+      <div style="display:flex; justify-content:center; gap:12px; flex-wrap:wrap; margin-bottom:36px;">
+        <button class="filter-pill active" onclick="filterLectures('all')" id="lecFilter-all">All Subjects</button>
+        <button class="filter-pill" onclick="filterLectures('cs')" id="lecFilter-cs">💻 CS & AI</button>
+        <button class="filter-pill" onclick="filterLectures('business')" id="lecFilter-business">📊 Business</button>
+        <button class="filter-pill" onclick="filterLectures('healthcare')" id="lecFilter-healthcare">🏥 Healthcare</button>
+        <button class="filter-pill" onclick="filterLectures('math')" id="lecFilter-math">📐 Mathematics</button>
+      </div>
+
+      <!-- Lecture Cards Grid -->
+      <div class="lectures-grid" id="lecturesGrid">
+        <!-- Injected by JS -->
+      </div>
+    </div>
+
+    <!-- Video Modal -->
+    <div class="modal-backdrop" id="lectureVideoModal" onclick="closeLectureModal(event)">
+      <div class="modal-box" style="max-width:900px;">
+        <div class="modal-header">
+          <span class="modal-title" id="lectureModalTitle">Lecture Title</span>
+          <button class="modal-close" onclick="closeLectureModal()">✕</button>
+        </div>
+        <div class="modal-body" style="padding:0; background:#000;">
+          <div style="position:relative; padding-bottom:56.25%; height:0;">
+            <iframe id="lectureVideoFrame" src="" frameborder="0" allowfullscreen
+              style="position:absolute; top:0; left:0; width:100%; height:100%; border:none;">
+            </iframe>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-outline" onclick="closeLectureModal()">✕ Close Lecture</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== SECTION 3: ACADEMIC QUIZ ===== -->
+  <section class="section-wrapper" id="quizSection" style="max-width:100%; padding: 70px 40px;">
+    <div class="section-header" style="max-width:800px; margin:0 auto 50px;">
+      <span class="section-tag">📝 Test Your Knowledge</span>
+      <h2 class="section-title">Academic Challenge Quiz</h2>
+      <p class="section-desc">Challenge yourself with questions from our degree programs. Complete the quiz to discover which UEF program suits you best!</p>
+    </div>
+
+    <div style="max-width:800px; margin:0 auto;">
+      <!-- Quiz Subject Selector -->
+      <div id="quizStartScreen" style="text-align:center;">
+        <p style="color:var(--text-muted); margin-bottom:28px; font-size:15px;">Select a subject to begin your 5-question challenge:</p>
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px,1fr)); gap:16px; margin-bottom:32px;">
+          <div class="quiz-subject-card" onclick="startQuiz('cs')">
+            <div style="font-size:40px; margin-bottom:10px;">💻</div>
+            <div style="font-weight:700; color:#fff; font-size:16px;">Computer Science & AI</div>
+            <div style="font-size:12px; color:var(--text-muted); margin-top:4px;">5 Questions • Mixed</div>
+          </div>
+          <div class="quiz-subject-card" onclick="startQuiz('business')">
+            <div style="font-size:40px; margin-bottom:10px;">📊</div>
+            <div style="font-weight:700; color:#fff; font-size:16px;">Business & Finance</div>
+            <div style="font-size:12px; color:var(--text-muted); margin-top:4px;">5 Questions • Mixed</div>
+          </div>
+          <div class="quiz-subject-card" onclick="startQuiz('healthcare')">
+            <div style="font-size:40px; margin-bottom:10px;">🏥</div>
+            <div style="font-weight:700; color:#fff; font-size:16px;">Health Informatics</div>
+            <div style="font-size:12px; color:var(--text-muted); margin-top:4px;">5 Questions • Mixed</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quiz Active Screen -->
+      <div id="quizActiveScreen" style="display:none;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+          <div style="font-size:13px; color:var(--gold-primary); font-weight:700;" id="quizSubjectLabel">CS & AI Quiz</div>
+          <div style="font-size:13px; color:var(--text-muted);">Question <span id="quizCurrentQ">1</span> of 5</div>
+        </div>
+        <!-- Progress Bar -->
+        <div style="background:rgba(255,255,255,0.1); height:6px; border-radius:6px; margin-bottom:28px; overflow:hidden;">
+          <div id="quizProgressBar" style="height:100%; background:linear-gradient(90deg,#d4af37,#f7e096); width:20%; transition:width 0.4s ease; border-radius:6px;"></div>
+        </div>
+        <div class="quiz-question-card" id="quizQuestionCard">
+          <!-- Injected by JS -->
+        </div>
+      </div>
+
+      <!-- Quiz Result Screen -->
+      <div id="quizResultScreen" style="display:none; text-align:center;">
+        <!-- Injected by JS -->
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== SECTION 4: GLOBAL NEWS FEED ===== -->
+  <section class="section-wrapper" id="globalNewsSection" style="max-width:100%; padding:70px 40px; background: rgba(10,5,7,0.7); border-top:1px solid var(--border-gold); border-bottom:1px solid var(--border-gold);">
+    <div class="section-header" style="max-width:800px; margin:0 auto 50px;">
+      <span class="section-tag">🌍 University Bulletin</span>
+      <h2 class="section-title">Global Academic & World News</h2>
+      <p class="section-desc">Stay informed with the latest global developments in technology, science, business, and higher education — curated for UEF students.</p>
+    </div>
+
+    <div style="max-width:1200px; margin:0 auto;">
+      <div id="globalNewsGrid" class="news-grid">
+        <!-- Loading state -->
+        <div style="grid-column:1/-1; text-align:center; padding:50px; color:var(--text-muted);">
+          <div style="font-size:36px; margin-bottom:12px; animation:logoPulse 1.5s ease-in-out infinite alternate;">🌍</div>
+          <p>Loading latest global news...</p>
+        </div>
+      </div>
+      <div style="text-align:center; margin-top:28px;">
+        <button class="btn btn-outline" onclick="loadGlobalNews()" style="padding:10px 24px;">🔄 Refresh News Feed</button>
+      </div>
+    </div>
+  </section>
+
   <!-- OFFICIAL STUDENT APPLICATION & MARKSHEET UPLOAD PORTAL WITH REFERRAL DISCOUNT -->
   <section class="section-wrapper" id="applySection">
+
     <div class="section-header">
       <span class="section-tag">Online Admissions & Fee Discounts</span>
       <h2 class="section-title">Official Student Marksheet Upload & Application</h2>

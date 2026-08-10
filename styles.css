@@ -1435,6 +1435,284 @@ h1, h2, h3, h4, .brand-font {
 }
 
 /* ========================================================================
+   VIRTUAL CAMPUS TOUR STYLES
+   ======================================================================== */
+.tour-nav-btn {
+  padding: 10px 20px;
+  border-radius: 24px;
+  border: 1px solid var(--border-gold);
+  background: rgba(255,255,255,0.04);
+  color: var(--text-muted);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--tr-fast);
+}
+.tour-nav-btn:hover, .tour-nav-btn.active {
+  background: var(--maroon-primary);
+  color: #fff;
+  border-color: var(--gold-primary);
+  box-shadow: 0 0 14px rgba(212,175,55,0.2);
+}
+.tour-room-display {
+  background: radial-gradient(circle at 50% 30%, rgba(107,17,28,0.35) 0%, rgba(13,9,10,0.97) 100%);
+  border: 1px solid var(--border-gold);
+  border-radius: 20px;
+  overflow: hidden;
+  min-height: 440px;
+  display: flex;
+  align-items: stretch;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.7);
+}
+.tour-room-visual {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  font-size: 100px;
+  padding: 50px;
+  background: linear-gradient(135deg, rgba(107,17,28,0.5) 0%, rgba(20,10,14,0.9) 100%);
+  border-right: 1px solid var(--border-gold);
+  animation: tourFadeIn 0.4s ease;
+}
+.tour-room-info {
+  flex: 1.2;
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  animation: tourFadeIn 0.4s ease;
+}
+.tour-stat-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 10px;
+}
+.tour-stat-box {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border-gold);
+  border-radius: 10px;
+  padding: 14px;
+  text-align: center;
+}
+@keyframes tourFadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ========================================================================
+   RECORDED LECTURES STYLES
+   ======================================================================== */
+.lectures-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 24px;
+}
+.lecture-card {
+  background: var(--glass-bg);
+  border: var(--glass-border);
+  border-radius: 14px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: var(--tr-smooth);
+}
+.lecture-card:hover {
+  transform: translateY(-6px);
+  border-color: var(--gold-primary);
+  box-shadow: 0 16px 40px rgba(212,175,55,0.2);
+}
+.lecture-thumbnail {
+  position: relative;
+  padding-bottom: 56.25%;
+  background: #0d090a;
+  overflow: hidden;
+}
+.lecture-thumbnail img {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  opacity: 0.85;
+  transition: opacity 0.3s ease;
+}
+.lecture-card:hover .lecture-thumbnail img { opacity: 1; }
+.lecture-play-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.35);
+  transition: background 0.3s ease;
+}
+.lecture-card:hover .lecture-play-overlay { background: rgba(107,17,28,0.5); }
+.lecture-play-btn {
+  width: 56px; height: 56px;
+  border-radius: 50%;
+  background: rgba(212,175,55,0.9);
+  border: 3px solid #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  color: #1a080c;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+  transition: transform 0.2s ease;
+}
+.lecture-card:hover .lecture-play-btn { transform: scale(1.12); }
+.lecture-duration-badge {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  background: rgba(0,0,0,0.8);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 4px;
+}
+.lecture-info {
+  padding: 18px;
+}
+.lecture-category-tag {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--gold-primary);
+  margin-bottom: 6px;
+  display: block;
+}
+.lecture-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.35;
+  margin-bottom: 6px;
+}
+.lecture-professor {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+/* ========================================================================
+   ACADEMIC QUIZ STYLES
+   ======================================================================== */
+.quiz-subject-card {
+  background: var(--glass-bg);
+  border: var(--glass-border);
+  border-radius: 16px;
+  padding: 28px 20px;
+  cursor: pointer;
+  transition: var(--tr-smooth);
+  text-align: center;
+}
+.quiz-subject-card:hover {
+  border-color: var(--gold-primary);
+  background: rgba(107,17,28,0.5);
+  transform: translateY(-5px);
+  box-shadow: 0 12px 30px rgba(212,175,55,0.2);
+}
+.quiz-question-card {
+  background: radial-gradient(circle at 50% 0%, rgba(107,17,28,0.3) 0%, rgba(15,8,10,0.95) 100%);
+  border: 1px solid var(--border-gold);
+  border-radius: 16px;
+  padding: 32px;
+}
+.quiz-options-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-top: 24px;
+}
+.quiz-option-btn {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border-gold);
+  border-radius: 10px;
+  padding: 14px 18px;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--tr-fast);
+  text-align: left;
+  line-height: 1.4;
+}
+.quiz-option-btn:hover { background: rgba(212,175,55,0.15); border-color: var(--gold-primary); }
+.quiz-option-btn.correct { background: rgba(16,185,129,0.3); border-color: #10b981; color: #34d399; }
+.quiz-option-btn.wrong { background: rgba(239,68,68,0.3); border-color: #ef4444; color: #f87171; }
+.quiz-option-btn:disabled { cursor: not-allowed; }
+
+/* ========================================================================
+   GLOBAL NEWS FEED STYLES
+   ======================================================================== */
+.news-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 24px;
+}
+.news-card {
+  background: var(--glass-bg);
+  border: var(--glass-border);
+  border-radius: 14px;
+  overflow: hidden;
+  transition: var(--tr-smooth);
+  display: flex;
+  flex-direction: column;
+}
+.news-card:hover {
+  transform: translateY(-5px);
+  border-color: var(--gold-primary);
+  box-shadow: 0 12px 35px rgba(212,175,55,0.15);
+}
+.news-card-image {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  background: rgba(107,17,28,0.4);
+}
+.news-card-body {
+  padding: 20px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.news-source-badge {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--gold-primary);
+}
+.news-card-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.4;
+}
+.news-card-desc {
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.55;
+  flex: 1;
+}
+.news-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-gold);
+}
+.news-card-date {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+/* ========================================================================
    ULTRA MOBILE RESPONSIVE SYSTEM
    ======================================================================== */
 
