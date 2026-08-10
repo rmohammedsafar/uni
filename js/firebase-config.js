@@ -75,6 +75,23 @@ class FirebaseStorageManager {
     return firestoreConfig || localConfig;
   }
 
+  // Real-time listener for Firestore CMS Config updates
+  listenSiteConfig(callback) {
+    if (window.db) {
+      try {
+        return window.db.collection(this.configCollection).doc('cms_config').onSnapshot(doc => {
+          if (doc.exists) {
+            console.log("⚡ Real-time Firestore Backend Update Received!");
+            callback(doc.data());
+          }
+        }, err => console.warn("Firestore snapshot listener warning:", err));
+      } catch (e) {
+        console.warn("Snapshot listener fallback:", e);
+      }
+    }
+    return null;
+  }
+
   // Save Student Feedback into Firestore
   async saveFeedback(feedbackData) {
     console.log("⭐ Saving Student Feedback into Firestore:", feedbackData);

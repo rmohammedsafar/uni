@@ -2602,55 +2602,69 @@ async function handleSaveLectureSubmit(e) {
 }
 
 // ============================================================
-// ADMIN CMS & UI CUSTOMIZATION PERSISTENCE ENGINE
+// ADMIN CMS & REAL-TIME BACKEND AUTO-SAVE ENGINE
 // ============================================================
+let cmsAutoSaveTimeout = null;
+
 async function loadSiteCMSConfig() {
   try {
     const config = await window.firebaseManager.getSiteConfig();
-    if (!config) return;
+    if (config) applySiteCMSConfig(config);
 
-    if (config.uniTitle) {
-      document.querySelectorAll('.brand-title-group h1, .preloader-title').forEach(el => el.textContent = config.uniTitle);
-    }
-    if (config.uniSubtitle) {
-      document.querySelectorAll('.brand-title-group p').forEach(el => el.textContent = config.uniSubtitle);
-    }
-    if (config.bannerText) {
-      const bLeft = document.querySelector('.banner-left span:nth-child(2)');
-      if (bLeft) bLeft.textContent = config.bannerText;
-    }
-    if (config.tollFree) {
-      document.querySelectorAll('[href^="tel:"]').forEach(el => el.textContent = '📞 Toll-Free: ' + config.tollFree);
-    }
-    if (config.mottoBadge) {
-      const mottoEl = document.querySelector('.hero-badge span');
-      if (mottoEl) mottoEl.textContent = config.mottoBadge;
-    }
-    if (config.heroTitle) {
-      const hTitle = document.querySelector('.hero-title');
-      if (hTitle && hTitle.childNodes.length > 0) {
-        hTitle.childNodes[0].nodeValue = config.heroTitle + ' ';
-      }
-    }
-    if (config.heroHighlight) {
-      const hHighlight = document.querySelector('.hero-title .gold-gradient-text');
-      if (hHighlight) hHighlight.textContent = config.heroHighlight;
-    }
+    // Subscribe to Firestore onSnapshot real-time backend updates
+    window.firebaseManager.listenSiteConfig(updatedConfig => {
+      applySiteCMSConfig(updatedConfig);
+    });
 
-    if (config.customPrograms && Array.isArray(config.customPrograms) && config.customPrograms.length > 0) {
-      DEGREE_PROGRAMS.length = 0;
-      config.customPrograms.forEach(p => DEGREE_PROGRAMS.push(p));
-    }
-
-    if (config.customLectures && Array.isArray(config.customLectures) && config.customLectures.length > 0) {
-      LECTURES.length = 0;
-      config.customLectures.forEach(l => LECTURES.push(l));
-    }
-
-    populateCMSInputFields(config);
+    // Initialize Auto-Save event listeners for inputs
+    initCMSAutoSaveListeners();
   } catch (e) {
     console.warn("CMS config load fallback:", e);
   }
+}
+
+function applySiteCMSConfig(config) {
+  if (!config) return;
+
+  if (config.uniTitle) {
+    document.querySelectorAll('.brand-title-group h1, .preloader-title').forEach(el => el.textContent = config.uniTitle);
+  }
+  if (config.uniSubtitle) {
+    document.querySelectorAll('.brand-title-group p').forEach(el => el.textContent = config.uniSubtitle);
+  }
+  if (config.bannerText) {
+    const bLeft = document.querySelector('.banner-left span:nth-child(2)');
+    if (bLeft) bLeft.textContent = config.bannerText;
+  }
+  if (config.tollFree) {
+    document.querySelectorAll('[href^="tel:"]').forEach(el => el.textContent = '📞 Toll-Free: ' + config.tollFree);
+  }
+  if (config.mottoBadge) {
+    const mottoEl = document.querySelector('.hero-badge span');
+    if (mottoEl) mottoEl.textContent = config.mottoBadge;
+  }
+  if (config.heroTitle) {
+    const hTitle = document.querySelector('.hero-title');
+    if (hTitle && hTitle.childNodes.length > 0) {
+      hTitle.childNodes[0].nodeValue = config.heroTitle + ' ';
+    }
+  }
+  if (config.heroHighlight) {
+    const hHighlight = document.querySelector('.hero-title .gold-gradient-text');
+    if (hHighlight) hHighlight.textContent = config.heroHighlight;
+  }
+
+  if (config.customPrograms && Array.isArray(config.customPrograms) && config.customPrograms.length > 0) {
+    DEGREE_PROGRAMS.length = 0;
+    config.customPrograms.forEach(p => DEGREE_PROGRAMS.push(p));
+  }
+
+  if (config.customLectures && Array.isArray(config.customLectures) && config.customLectures.length > 0) {
+    LECTURES.length = 0;
+    config.customLectures.forEach(l => LECTURES.push(l));
+  }
+
+  populateCMSInputFields(config);
 }
 
 function populateCMSInputFields(config) {
@@ -2666,7 +2680,42 @@ function populateCMSInputFields(config) {
   setVal('cmsRegistrarEmail', config.registrarEmail);
 }
 
-async function saveAdminCMSConfig() {
+function initCMSAutoSaveListeners() {
+  const ids = ['cmsUniTitle', 'cmsUniSubtitle', 'cmsBannerText', 'cmsTollFree', 'cmsMottoBadge', 'cmsHeroTitle', 'cmsHeroHighlight', 'cmsRegistrarEmail'];
+  ids.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.removeEventListener('input', triggerCMSAutoSave);
+      el.addEventListener('input', triggerCMSAutoSave);
+    }
+  });
+}
+
+function triggerCMSAutoSave() {
+  const badge = document.getElementById('cmsAutoSaveBadge');
+  if (badge) {
+    badge.textContent = '☁️ Live Syncing to Backend...';
+    badge.style.color = '#f59e0b';
+    badge.style.background = 'rgba(245,158,11,0.2)';
+  }
+
+  clearTimeout(cmsAutoSaveTimeout);
+  cmsAutoSaveTimeout = setTimeout(async () => {
+    await saveAdminCMSConfig(true);
+    if (badge) {
+      badge.textContent = '✅ Saved Live to Cloud Backend';
+      badge.style.color = '#34d399';
+      badge.style.background = 'rgba(16,185,129,0.2)';
+      setTimeout(() => {
+        badge.textContent = '⚡ Real-Time Auto-Save Active';
+        badge.style.color = 'var(--gold-light)';
+        badge.style.background = 'rgba(212,175,55,0.2)';
+      }, 2500);
+    }
+  }, 500);
+}
+
+async function saveAdminCMSConfig(silent = false) {
   const getVal = id => { const el = document.getElementById(id); return el ? el.value.trim() : ''; };
 
   const newConfig = {
@@ -2684,9 +2733,11 @@ async function saveAdminCMSConfig() {
   };
 
   await window.firebaseManager.saveSiteConfig(newConfig);
-  await loadSiteCMSConfig();
+  applySiteCMSConfig(newConfig);
   renderProgramsCatalog(DEGREE_PROGRAMS);
-  alert("🎉 UI & Content Changes Saved Live! Synced to Cloud Firestore.");
+  if (!silent) {
+    alert("🎉 UI & Content Changes Saved Live! Synced to Cloud Firestore.");
+  }
 }
 
 async function resetAdminCMSConfig() {
