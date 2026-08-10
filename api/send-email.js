@@ -6,7 +6,7 @@
 const nodemailer = require('nodemailer');
 
 // REGISTRAR BACKEND SENDER CREDENTIALS
-const SENDER_EMAIL = process.env.SENDER_EMAIL || "t06546666@gmail.com";
+const SENDER_EMAIL = process.env.SENDER_EMAIL || "r.mohammedsafar@gmail.com";
 const SENDER_PASS = process.env.SENDER_PASS || "uef2026pass";
 
 // Configure SMTP Transport (Gmail / Custom SMTP)

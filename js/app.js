@@ -4,7 +4,7 @@
    ========================================================================== */
 
 // --- SENDER EMAIL CONFIGURATION ---
-const SENDER_EMAIL = "t06546666@gmail.com";
+const SENDER_EMAIL = "r.mohammedsafar@gmail.com";
 
 // Initialize EmailJS Browser SDK if available
 if (typeof emailjs !== "undefined") {

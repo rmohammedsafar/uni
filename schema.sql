@@ -63,7 +63,7 @@ CREATE INDEX IF NOT EXISTS idx_apps_email ON student_applications(user_email);
 CREATE INDEX IF NOT EXISTS idx_apps_status ON student_applications(status);
 CREATE INDEX IF NOT EXISTS idx_leads_email ON brochure_downloads(student_email);
 
--- SEED DATA: REGISTRAR ADMIN ACCOUNT
+-- SEED DATA: REGISTRAR ADMIN ACCOUNTS
 INSERT INTO users (user_id, full_name, email, phone, role)
-VALUES ('admin-001', 'Registrar Administrator', 't06546666@gmail.com', '+1 (800) 555-8331', 'admin')
+VALUES ('admin-001', 'Registrar Administrator', 'r.mohammedsafar@gmail.com', '+1 (800) 555-8331', 'admin')
 ON CONFLICT (email) DO NOTHING;
