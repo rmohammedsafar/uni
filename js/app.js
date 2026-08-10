@@ -937,6 +937,89 @@ async function exportApplicantsCSV() {
   document.body.removeChild(link);
 }
 
+// --- SQL DATABASE DUMP EXPORTER ENGINE ---
+async function exportApplicantsSQL() {
+  if (!window.firebaseManager) return;
+  const apps = await window.firebaseManager.getApplications();
+  const leads = await window.firebaseManager.getBrochureLeads();
+
+  let sqlContent = `-- ==========================================================================\n`;
+  sqlContent += `-- UNIVERSITY OF EAST FLORIDA - SQL DATABASE DUMP\n`;
+  sqlContent += `-- Generated on: ${new Date().toISOString()}\n`;
+  sqlContent += `-- Compatible with PostgreSQL, MySQL, MariaDB, and Supabase\n`;
+  sqlContent += `-- ==========================================================================\n\n`;
+
+  sqlContent += `-- CREATE TABLES\n`;
+  sqlContent += `CREATE TABLE IF NOT EXISTS student_applications (\n`;
+  sqlContent += `    tracking_id VARCHAR(50) PRIMARY KEY,\n`;
+  sqlContent += `    full_name VARCHAR(255) NOT NULL,\n`;
+  sqlContent += `    email VARCHAR(255) NOT NULL,\n`;
+  sqlContent += `    phone VARCHAR(50),\n`;
+  sqlContent += `    country VARCHAR(100),\n`;
+  sqlContent += `    program_title VARCHAR(255) NOT NULL,\n`;
+  sqlContent += `    degree VARCHAR(100) NOT NULL,\n`;
+  sqlContent += `    final_fee VARCHAR(50),\n`;
+  sqlContent += `    referral_code VARCHAR(50),\n`;
+  sqlContent += `    previous_school VARCHAR(255),\n`;
+  sqlContent += `    submitted_at VARCHAR(100),\n`;
+  sqlContent += `    status VARCHAR(50)\n`;
+  sqlContent += `);\n\n`;
+
+  sqlContent += `CREATE TABLE IF NOT EXISTS brochure_downloads (\n`;
+  sqlContent += `    lead_id VARCHAR(50) PRIMARY KEY,\n`;
+  sqlContent += `    student_name VARCHAR(255) NOT NULL,\n`;
+  sqlContent += `    student_email VARCHAR(255) NOT NULL,\n`;
+  sqlContent += `    program_title VARCHAR(255) NOT NULL,\n`;
+  sqlContent += `    degree VARCHAR(100) NOT NULL,\n`;
+  sqlContent += `    downloaded_at VARCHAR(100)\n`;
+  sqlContent += `);\n\n`;
+
+  sqlContent += `-- INSERT STUDENT APPLICATIONS DATA\n`;
+  if (apps.length > 0) {
+    apps.forEach(a => {
+      const cleanName = (a.fullName || '').replace(/'/g, "''");
+      const cleanEmail = (a.email || '').replace(/'/g, "''");
+      const cleanPhone = (a.phone || '').replace(/'/g, "''");
+      const cleanCountry = (a.country || '').replace(/'/g, "''");
+      const cleanProgram = (a.programTitle || '').replace(/'/g, "''");
+      const cleanDegree = (a.degree || '').replace(/'/g, "''");
+      const cleanFee = (a.finalFeeDisplay || a.tuition || '').replace(/'/g, "''");
+      const cleanRef = (a.referralCode || '').replace(/'/g, "''");
+      const cleanSchool = (a.previousSchool || '').replace(/'/g, "''");
+      const cleanDate = (a.submittedAt || '').replace(/'/g, "''");
+      const cleanStatus = (a.status || '').replace(/'/g, "''");
+
+      sqlContent += `INSERT INTO student_applications (tracking_id, full_name, email, phone, country, program_title, degree, final_fee, referral_code, previous_school, submitted_at, status) VALUES ('${a.trackingId}', '${cleanName}', '${cleanEmail}', '${cleanPhone}', '${cleanCountry}', '${cleanProgram}', '${cleanDegree}', '${cleanFee}', '${cleanRef}', '${cleanSchool}', '${cleanDate}', '${cleanStatus}') ON CONFLICT (tracking_id) DO UPDATE SET status = '${cleanStatus}';\n`;
+    });
+  } else {
+    sqlContent += `-- No student application records found.\n`;
+  }
+
+  sqlContent += `\n-- INSERT BROCHURE DOWNLOAD LEADS DATA\n`;
+  if (leads.length > 0) {
+    leads.forEach(l => {
+      const cleanLeadId = (l.leadId || 'LEAD-' + Math.floor(Math.random() * 10000)).replace(/'/g, "''");
+      const cleanName = (l.studentName || '').replace(/'/g, "''");
+      const cleanEmail = (l.studentEmail || '').replace(/'/g, "''");
+      const cleanProgram = (l.programTitle || '').replace(/'/g, "''");
+      const cleanDegree = (l.degree || '').replace(/'/g, "''");
+      const cleanDate = (l.downloadedAt || l.timestamp || '').replace(/'/g, "''");
+
+      sqlContent += `INSERT INTO brochure_downloads (lead_id, student_name, student_email, program_title, degree, downloaded_at) VALUES ('${cleanLeadId}', '${cleanName}', '${cleanEmail}', '${cleanProgram}', '${cleanDegree}', '${cleanDate}') ON CONFLICT (lead_id) DO NOTHING;\n`;
+    });
+  } else {
+    sqlContent += `-- No brochure leads recorded yet.\n`;
+  }
+
+  const blob = new Blob([sqlContent], { type: "text/plain;charset=utf-8" });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = `UEF_University_Database_Dump_${Date.now()}.sql`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+
 // --- PROGRAM CATALOG RENDERER ---
 function renderProgramsCatalog(programs) {
   const container = document.getElementById("programsContainer");
