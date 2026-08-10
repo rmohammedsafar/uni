@@ -185,6 +185,7 @@ let currentUser = null;
 
 // --- INITIALIZATION ---
 document.addEventListener("DOMContentLoaded", () => {
+  initPreloader();
   renderProgramsCatalog(DEGREE_PROGRAMS);
   initSearchAndFilter();
   initStudentPortal();
@@ -192,6 +193,18 @@ document.addEventListener("DOMContentLoaded", () => {
   initLiveClocks();
   initModalListeners();
 });
+
+// --- AUTOMATIC PRELOADER SPLASH SCREEN FADE OUT ENGINE ---
+function initPreloader() {
+  const preloader = document.getElementById("universityPreloader");
+  if (!preloader) return;
+
+  setTimeout(() => {
+    preloader.classList.add("fade-out");
+  }, 1300);
+}
+
+window.addEventListener("load", initPreloader);
 
 // --- AUTOMATIC FIREBASE LEAD LOGGING & PDF BROCHURE DOWNLOAD ENGINE ---
 async function handleBrochureDownloadClick(programId) {
