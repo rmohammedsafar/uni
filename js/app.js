@@ -184,8 +184,9 @@ let isAdminLoggedIn = false;
 let currentUser = null;
 
 // --- INITIALIZATION ---
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
   initPreloader();
+  await loadSiteCMSConfig();
   renderProgramsCatalog(DEGREE_PROGRAMS);
   initSearchAndFilter();
   initStudentPortal();
@@ -770,6 +771,7 @@ function copyUserReferralCode() {
 // --- ADMIN DASHBOARD RENDERER & BROCHURE LEADS TABLE ---
 async function renderAdminDashboard() {
   if (!isAdminLoggedIn || !window.firebaseManager) return;
+  renderCMSProgramTable();
 
   const applications = await window.firebaseManager.getApplications();
   const brochureLeads = await window.firebaseManager.getBrochureLeads();
@@ -2439,8 +2441,191 @@ function generateAIAdvisorResponse(query) {
     UEF adheres to DEAC Distance Education Standards and SACSCOC Regional Quality Models, fully accredited for 100% online distance learning under US Higher Education frameworks.`;
   }
 
-  return `🤖 Thank you for your question! University of East Florida offers 100% online accredited degrees with global recognition.<br><br>
-  You can explore our <strong>Programs</strong>, test your GPA in the <strong>Student Portal</strong>, or submit your <strong>Marksheet Application</strong> directly below. Is there a specific program or fee detail you would like to know?`;
 }
+
+// ============================================================
+// ADMIN CMS & UI CUSTOMIZATION ENGINE
+// ============================================================
+async function loadSiteCMSConfig() {
+  try {
+    const config = await window.firebaseManager.getSiteConfig();
+    if (!config) return;
+
+    // Apply custom branding
+    if (config.uniTitle) {
+      document.querySelectorAll('.brand-title-group h1, .preloader-title').forEach(el => el.textContent = config.uniTitle);
+    }
+    if (config.uniSubtitle) {
+      document.querySelectorAll('.brand-title-group p').forEach(el => el.textContent = config.uniSubtitle);
+    }
+    if (config.bannerText) {
+      const bLeft = document.querySelector('.banner-left span:nth-child(2)');
+      if (bLeft) bLeft.textContent = config.bannerText;
+    }
+    if (config.tollFree) {
+      document.querySelectorAll('[href^="tel:"]').forEach(el => el.textContent = '📞 Toll-Free: ' + config.tollFree);
+    }
+    if (config.mottoBadge) {
+      const mottoEl = document.querySelector('.hero-badge span');
+      if (mottoEl) mottoEl.textContent = config.mottoBadge;
+    }
+    if (config.heroTitle) {
+      const hTitle = document.querySelector('.hero-title');
+      if (hTitle && hTitle.childNodes.length > 0) {
+        hTitle.childNodes[0].nodeValue = config.heroTitle + ' ';
+      }
+    }
+    if (config.heroHighlight) {
+      const hHighlight = document.querySelector('.hero-title .gold-gradient-text');
+      if (hHighlight) hHighlight.textContent = config.heroHighlight;
+    }
+
+    // Apply custom degree programs if edited
+    if (config.customPrograms && Array.isArray(config.customPrograms) && config.customPrograms.length > 0) {
+      DEGREE_PROGRAMS.length = 0;
+      config.customPrograms.forEach(p => DEGREE_PROGRAMS.push(p));
+    }
+
+    // Populate CMS input fields if admin logged in
+    populateCMSInputFields(config);
+  } catch (e) {
+    console.warn("CMS config load fallback:", e);
+  }
+}
+
+function populateCMSInputFields(config) {
+  if (!config) return;
+  const setVal = (id, val) => { const el = document.getElementById(id); if (el && val) el.value = val; };
+  setVal('cmsUniTitle', config.uniTitle);
+  setVal('cmsUniSubtitle', config.uniSubtitle);
+  setVal('cmsBannerText', config.bannerText);
+  setVal('cmsTollFree', config.tollFree);
+  setVal('cmsMottoBadge', config.mottoBadge);
+  setVal('cmsHeroTitle', config.heroTitle);
+  setVal('cmsHeroHighlight', config.heroHighlight);
+  setVal('cmsRegistrarEmail', config.registrarEmail);
+}
+
+async function saveAdminCMSConfig() {
+  const getVal = id => { const el = document.getElementById(id); return el ? el.value.trim() : ''; };
+
+  const newConfig = {
+    uniTitle: getVal('cmsUniTitle') || "UNIVERSITY OF EAST FLORIDA",
+    uniSubtitle: getVal('cmsUniSubtitle') || "100% Online Global Campus • Orlando, USA",
+    bannerText: getVal('cmsBannerText') || "DEAC & SACSCOC Candidate Member • 100% Online Remote Study",
+    tollFree: getVal('cmsTollFree') || "+1 (800) 555-UEF1",
+    mottoBadge: getVal('cmsMottoBadge') || "🏛️ VERITAS • SAPIENTIA • VIRTUS",
+    heroTitle: getVal('cmsHeroTitle') || "World-Class Accredited Degrees",
+    heroHighlight: getVal('cmsHeroHighlight') || "100% Online & Self-Paced",
+    registrarEmail: getVal('cmsRegistrarEmail') || "r.mohammedsafar@gmail.com",
+    customPrograms: DEGREE_PROGRAMS,
+    updatedAt: new Date().toISOString()
+  };
+
+  await window.firebaseManager.saveSiteConfig(newConfig);
+  await loadSiteCMSConfig();
+  renderProgramsCatalog(DEGREE_PROGRAMS);
+  alert("🎉 UI Changes Saved Live! Site content updated and synced to Cloud Firestore.");
+}
+
+async function resetAdminCMSConfig() {
+  if (!confirm("Are you sure you want to reset all UI text and degree program catalog back to default?")) return;
+
+  localStorage.removeItem('uef_site_config_backup');
+  if (window.db) {
+    try { await window.db.collection('site_settings').doc('cms_config').delete(); } catch(e){}
+  }
+  location.reload();
+}
+
+function renderCMSProgramTable() {
+  const tbody = document.getElementById('cmsProgramTableBody');
+  if (!tbody) return;
+
+  tbody.innerHTML = DEGREE_PROGRAMS.map(prog => `
+    <tr>
+      <td style="font-family:monospace; font-size:12px; color:var(--gold-light);">${prog.id}</td>
+      <td style="font-weight:700;">${prog.name}</td>
+      <td><span class="online-tag" style="position:static;">${prog.category}</span></td>
+      <td style="color:#34d399; font-weight:700;">$${prog.tuition.toLocaleString()}</td>
+      <td style="font-size:12px;">${prog.duration}</td>
+      <td>
+        <button class="btn btn-outline" onclick="editProgram('${prog.id}')" style="padding:4px 10px; font-size:11px;">✏️ Edit</button>
+        <button class="btn btn-outline" onclick="deleteProgram('${prog.id}')" style="padding:4px 10px; font-size:11px; border-color:#ef4444; color:#f87171;">🗑️ Delete</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function openAddNewProgramModal() {
+  const form = document.getElementById('adminProgramForm');
+  if (form) form.reset();
+  document.getElementById('progEditId').value = '';
+  document.getElementById('adminProgramModalTitle').textContent = '➕ Add New Degree Program';
+  document.getElementById('adminProgramModal').classList.add('open');
+}
+
+function closeAdminProgramModal() {
+  document.getElementById('adminProgramModal').classList.remove('open');
+}
+
+function editProgram(progId) {
+  const prog = DEGREE_PROGRAMS.find(p => p.id === progId);
+  if (!prog) return;
+
+  document.getElementById('progEditId').value = prog.id;
+  document.getElementById('progName').value = prog.name;
+  document.getElementById('progDegree').value = prog.degree;
+  document.getElementById('progCategory').value = prog.category;
+  document.getElementById('progTuition').value = prog.tuition;
+  document.getElementById('progDuration').value = prog.duration;
+  document.getElementById('progDescription').value = prog.description;
+
+  document.getElementById('adminProgramModalTitle').textContent = '✏️ Edit Degree Program: ' + prog.id;
+  document.getElementById('adminProgramModal').classList.add('open');
+}
+
+async function deleteProgram(progId) {
+  if (!confirm(`Are you sure you want to delete program ID '${progId}' from the catalog?`)) return;
+
+  const idx = DEGREE_PROGRAMS.findIndex(p => p.id === progId);
+  if (idx >= 0) {
+    DEGREE_PROGRAMS.splice(idx, 1);
+    renderProgramsCatalog(DEGREE_PROGRAMS);
+    renderCMSProgramTable();
+    await saveAdminCMSConfig();
+  }
+}
+
+async function handleSaveProgramSubmit(e) {
+  e.preventDefault();
+  const editId = document.getElementById('progEditId').value.trim();
+
+  const progData = {
+    id: editId || ('UEF-PROG-' + Math.floor(100 + Math.random() * 900)),
+    name: document.getElementById('progName').value.trim(),
+    degree: document.getElementById('progDegree').value.trim(),
+    category: document.getElementById('progCategory').value.trim(),
+    tuition: parseInt(document.getElementById('progTuition').value) || 12000,
+    duration: document.getElementById('progDuration').value.trim(),
+    description: document.getElementById('progDescription').value.trim(),
+    format: "100% Remote / Asynchronous",
+    credits: "36 US Credit Hours (12 Core Modules)"
+  };
+
+  if (editId) {
+    const idx = DEGREE_PROGRAMS.findIndex(p => p.id === editId);
+    if (idx >= 0) DEGREE_PROGRAMS[idx] = progData;
+  } else {
+    DEGREE_PROGRAMS.push(progData);
+  }
+
+  closeAdminProgramModal();
+  renderProgramsCatalog(DEGREE_PROGRAMS);
+  renderCMSProgramTable();
+  await saveAdminCMSConfig();
+  alert(`✅ Degree Program '${progData.name}' successfully saved!`);
+}
+
 
 

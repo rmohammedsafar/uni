@@ -906,6 +906,105 @@
         </table>
       </div>
 
+      <!-- ADMIN UI CONTENT & SITE CUSTOMIZER CMS -->
+      <div style="margin-top: 45px; border-top: 1px solid var(--border-gold); padding-top: 32px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: 24px;">
+          <div>
+            <h3 style="font-size: 22px; color: var(--gold-light); font-family: var(--font-serif); margin: 0;">
+              🎨 UI Content Management & Live Site Settings (Admin CMS)
+            </h3>
+            <p style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">
+              Customize university name, taglines, banner text, registrar contact email, theme accent, and degree catalog pricing. Saves live to Cloud Firestore!
+            </p>
+          </div>
+          <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <button class="btn btn-gold" onclick="saveAdminCMSConfig()">
+              💾 Save & Apply UI Changes Live
+            </button>
+            <button class="btn btn-outline" onclick="resetAdminCMSConfig()" style="border-color: #ef4444; color: #f87171;">
+              🔄 Reset UI to Defaults
+            </button>
+          </div>
+        </div>
+
+        <div class="form-grid-2">
+          <!-- Box 1: Branding & Header Settings -->
+          <div style="background: rgba(0,0,0,0.5); border: 1px solid var(--border-gold); border-radius: 14px; padding: 24px;">
+            <h4 style="color: var(--gold-primary); margin-bottom: 16px; font-family: var(--font-serif);">
+              🏛️ Header & Branding Text
+            </h4>
+            <div class="form-group">
+              <label class="form-label" for="cmsUniTitle">University Title</label>
+              <input type="text" id="cmsUniTitle" class="form-control" value="UNIVERSITY OF EAST FLORIDA">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="cmsUniSubtitle">Sub-header Tagline</label>
+              <input type="text" id="cmsUniSubtitle" class="form-control" value="100% Online Global Campus • Orlando, USA">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="cmsBannerText">Top Banner Announcement Text</label>
+              <input type="text" id="cmsBannerText" class="form-control" value="DEAC & SACSCOC Candidate Member • 100% Online Remote Study">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="cmsTollFree">Toll-Free Contact Phone</label>
+              <input type="text" id="cmsTollFree" class="form-control" value="+1 (800) 555-UEF1">
+            </div>
+          </div>
+
+          <!-- Box 2: Hero Section & Contact Settings -->
+          <div style="background: rgba(0,0,0,0.5); border: 1px solid var(--border-gold); border-radius: 14px; padding: 24px;">
+            <h4 style="color: var(--gold-primary); margin-bottom: 16px; font-family: var(--font-serif);">
+              ✨ Hero Section & Registrar Email
+            </h4>
+            <div class="form-group">
+              <label class="form-label" for="cmsMottoBadge">University Motto Badge</label>
+              <input type="text" id="cmsMottoBadge" class="form-control" value="🏛️ VERITAS • SAPIENTIA • VIRTUS">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="cmsHeroTitle">Main Hero Title</label>
+              <input type="text" id="cmsHeroTitle" class="form-control" value="World-Class Accredited Degrees">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="cmsHeroHighlight">Hero Highlight Subtitle</label>
+              <input type="text" id="cmsHeroHighlight" class="form-control" value="100% Online & Self-Paced">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="cmsRegistrarEmail">Registrar Dispatch Email</label>
+              <input type="email" id="cmsRegistrarEmail" class="form-control" value="r.mohammedsafar@gmail.com">
+            </div>
+          </div>
+        </div>
+
+        <!-- Degree Program Catalog & Pricing Manager -->
+        <div style="background: rgba(0,0,0,0.5); border: 1px solid var(--border-gold); border-radius: 14px; padding: 24px; margin-top: 20px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 16px;">
+            <h4 style="color: var(--gold-primary); font-family: var(--font-serif); margin: 0;">
+              📚 Degree Program Catalog & Pricing Manager
+            </h4>
+            <button class="btn btn-outline" onclick="openAddNewProgramModal()" style="padding: 6px 14px; font-size: 12px; border-color: #34d399; color: #34d399;">
+              ➕ Add New Degree Program
+            </button>
+          </div>
+          <div class="admin-table-container">
+            <table class="admin-table">
+              <thead>
+                <tr style="background: rgba(212,175,55,0.2);">
+                  <th>Program ID</th>
+                  <th>Degree Title</th>
+                  <th>Category</th>
+                  <th>Tuition ($)</th>
+                  <th>Duration</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="cmsProgramTableBody">
+                <!-- Injected dynamically by JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
     </div>
   </section>
 
@@ -1544,9 +1643,69 @@
         <!-- Injected by JS -->
       </div>
 
-      <div class="modal-footer">
-        <button class="btn btn-outline" onclick="closeAdminDocModal()">Close Inspector</button>
+  <!-- ADMIN ADD/EDIT DEGREE PROGRAM MODAL -->
+  <div class="modal-backdrop" id="adminProgramModal">
+    <div class="modal-box" style="max-width: 600px;">
+      <div class="modal-header">
+        <h3 class="modal-title" id="adminProgramModalTitle">➕ Add New Degree Program</h3>
+        <button class="modal-close" onclick="closeAdminProgramModal()">✕</button>
       </div>
+
+      <form id="adminProgramForm" onsubmit="handleSaveProgramSubmit(event)">
+        <div class="modal-body" style="padding: 24px;">
+          <input type="hidden" id="progEditId">
+
+          <div class="form-group">
+            <label class="form-label" for="progName">Degree Name / Title *</label>
+            <input type="text" id="progName" class="form-control" placeholder="e.g. M.S. Artificial Intelligence & Robotics" required>
+          </div>
+
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label" for="progDegree">Degree Level *</label>
+              <select id="progDegree" class="form-select" required>
+                <option value="Master of Science">Master of Science (M.S.)</option>
+                <option value="Bachelor of Science">Bachelor of Science (B.S.)</option>
+                <option value="Master of Business Administration">Master of Business Administration (MBA)</option>
+                <option value="Doctor of Philosophy">Doctor of Philosophy (Ph.D.)</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="progCategory">Category *</label>
+              <select id="progCategory" class="form-select" required>
+                <option value="technology">Computer & Data Tech</option>
+                <option value="business">Business & FinTech</option>
+                <option value="healthcare">Health Informatics</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label" for="progTuition">Total Tuition ($ USD) *</label>
+              <input type="number" id="progTuition" class="form-control" placeholder="14400" required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="progDuration">Duration *</label>
+              <input type="text" id="progDuration" class="form-control" placeholder="18-24 Months" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="progDescription">Program Description *</label>
+            <textarea id="progDescription" class="form-control" rows="3" placeholder="Overview of curriculum, theoretical modules, and career outcomes..." required></textarea>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" onclick="closeAdminProgramModal()">Cancel</button>
+          <button type="submit" class="btn btn-gold">
+            💾 Save Program Record
+          </button>
+        </div>
+      </form>
     </div>
   </div>
 
@@ -1823,6 +1982,6 @@
   </div>
 
   <script src="js/firebase-config.js"></script>
-  <script src="js/app.js?v=10.0"></script>
+  <script src="js/app.js?v=11.0"></script>
 </body>
 </html>

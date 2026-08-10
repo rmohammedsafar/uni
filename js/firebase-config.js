@@ -37,10 +37,42 @@ class FirebaseStorageManager {
     this.usersCollection = 'users';
     this.leadsCollection = 'brochure_downloads';
     this.feedbacksCollection = 'student_feedbacks';
+    this.configCollection = 'site_settings';
     this.fallbackStorageKey = 'uef_student_applications_backup';
     this.fallbackUsersKey = 'uef_users_backup';
     this.fallbackLeadsKey = 'uef_brochure_leads_backup';
     this.fallbackFeedbacksKey = 'uef_student_feedbacks_backup';
+    this.fallbackConfigKey = 'uef_site_config_backup';
+  }
+
+  // Save UI Content & Site Customization Settings into Firestore
+  async saveSiteConfig(configData) {
+    console.log("🎨 Saving UI & Site Settings to Firestore:", configData);
+    if (window.db) {
+      try {
+        await window.db.collection(this.configCollection).doc('cms_config').set(configData, { merge: true });
+        console.log("✅ Successfully saved UI Config to Firestore collection `site_settings`");
+      } catch (err) {
+        console.warn("⚠️ Firestore config save warning:", err);
+      }
+    }
+    localStorage.setItem(this.fallbackConfigKey, JSON.stringify(configData));
+    return configData;
+  }
+
+  async getSiteConfig() {
+    let firestoreConfig = null;
+    if (window.db) {
+      try {
+        const doc = await window.db.collection(this.configCollection).doc('cms_config').get();
+        if (doc.exists) firestoreConfig = doc.data();
+      } catch (err) {
+        console.warn("⚠️ Firestore config fetch warning:", err);
+      }
+    }
+    const rawLocal = localStorage.getItem(this.fallbackConfigKey);
+    const localConfig = rawLocal ? JSON.parse(rawLocal) : null;
+    return firestoreConfig || localConfig;
   }
 
   // Save Student Feedback into Firestore
