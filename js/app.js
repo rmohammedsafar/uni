@@ -1,6 +1,6 @@
 /* ==========================================================================
    UNIVERSITY OF EAST FLORIDA - GLOBAL ONLINE CAMPUS
-   Application Logic, Student Registration, Google Auth & Admin Authorization Engine
+   Application Logic, Automatic PDF Brochure Lead Logging & Admin Dashboard Engine
    ========================================================================== */
 
 // --- SENDER EMAIL CONFIGURATION ---
@@ -193,6 +193,46 @@ document.addEventListener("DOMContentLoaded", () => {
   initModalListeners();
 });
 
+// --- AUTOMATIC FIREBASE LEAD LOGGING & PDF BROCHURE DOWNLOAD ENGINE ---
+async function handleBrochureDownloadClick(programId) {
+  const program = DEGREE_PROGRAMS.find(p => p.id === programId);
+  if (!program) return;
+
+  // Determine student details
+  let studentName = currentUser ? currentUser.name : "Student Lead";
+  let studentEmail = currentUser ? currentUser.email : "";
+
+  if (!studentEmail) {
+    const inputEmail = prompt(`📄 Download Official PDF Brochure: ${program.degree} in ${program.title}\n\nPlease enter your email address to record your lead and download the official PDF brochure:`, "");
+    if (inputEmail && inputEmail.trim()) {
+      studentEmail = inputEmail.trim();
+      studentName = studentEmail.split('@')[0];
+    } else {
+      studentEmail = "guest_lead@uef.edu.online";
+    }
+  }
+
+  // Save Lead Data in Firebase Cloud Firestore (`brochure_downloads`)
+  const leadData = {
+    studentName,
+    studentEmail,
+    programId: program.id,
+    programTitle: program.title,
+    degree: program.degree,
+    downloadedAt: new Date().toLocaleDateString("en-US", { month: 'short', day: 'numeric', year: 'numeric' }) + " at " + new Date().toLocaleTimeString("en-US", { hour: '2-digit', minute: '2-digit' })
+  };
+
+  if (window.firebaseManager) {
+    await window.firebaseManager.saveBrochureLead(leadData);
+  }
+
+  // Render & Trigger PDF Download Window
+  openBrochureModal(programId);
+  setTimeout(() => {
+    triggerPDFDownload();
+  }, 300);
+}
+
 // --- AUTH TAB SWITCHING ENGINE (SIGN IN vs STUDENT REGISTER) ---
 function switchAuthTab(tabMode) {
   const signInBtn = document.getElementById("tabSignInBtn");
@@ -239,7 +279,6 @@ function handleGoogleCredentialResponse(response) {
 }
 
 async function handleGoogleSignIn() {
-  // 1. Try Firebase Auth Google Provider
   if (window.auth && window.googleProvider) {
     try {
       const result = await window.auth.signInWithPopup(window.googleProvider);
@@ -251,7 +290,6 @@ async function handleGoogleSignIn() {
     }
   }
 
-  // 2. Direct Google Account Selector
   const userEmail = prompt("🔵 Google Account Sign In\n\nEnter your Google email address to authenticate:", SENDER_EMAIL);
   if (userEmail && userEmail.trim()) {
     processAuthenticatedUser(userEmail.trim(), userEmail.split('@')[0]);
@@ -285,12 +323,10 @@ function processAuthenticatedUser(email, name) {
   currentUser = { email, name: name || email.split('@')[0] };
   closeAdminLoginModal();
 
-  // Save profile doc
   if (window.firebaseManager) {
     window.firebaseManager.saveUserProfile({ email, fullName: currentUser.name, lastLogin: new Date().toISOString() });
   }
 
-  // Backend Admin Credentials Check
   const isAdminEmail = email.toLowerCase() === "admin@uef.edu.online" ||
                        email.toLowerCase() === SENDER_EMAIL.toLowerCase() ||
                        email.toLowerCase().includes("admin") ||
@@ -317,7 +353,6 @@ function processAuthenticatedUser(email, name) {
     renderAdminDashboard();
     alert(`Welcome back, Registrar Administrator (${email})! Admin Dashboard loaded.`);
   } else {
-    // Student Dashboard Access
     isAdminLoggedIn = false;
     if (adminDashboardSec) adminDashboardSec.style.display = "none";
     if (studentDashboardSec) {
@@ -521,13 +556,11 @@ function initLiveClocks() {
   function updateClocks() {
     const now = new Date();
     
-    // Timezone Formatters
     const estStr = now.toLocaleTimeString("en-US", { timeZone: "America/New_York", hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit' });
     const gmtStr = now.toLocaleTimeString("en-US", { timeZone: "Europe/London", hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit' });
     const jstStr = now.toLocaleTimeString("en-US", { timeZone: "Asia/Tokyo", hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit' });
     const istStr = now.toLocaleTimeString("en-US", { timeZone: "Asia/Kolkata", hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit' });
 
-    // Update Top Banner Widgets
     const clockEst = document.getElementById("clockEST");
     const clockGmt = document.getElementById("clockGMT");
     const clockJst = document.getElementById("clockJST");
@@ -536,7 +569,6 @@ function initLiveClocks() {
     if (clockGmt) clockGmt.innerText = `UK (GMT): ${gmtStr}`;
     if (clockJst) clockJst.innerText = `Japan (Tokyo/JST): ${jstStr}`;
 
-    // Update ANIMATED LIVE TIME MARQUEE TICKER (Loops 1 and 2)
     for (let i of [1, 2]) {
       const mEst = document.getElementById(`marqueeClockEST${i}`);
       const mGmt = document.getElementById(`marqueeClockGMT${i}`);
@@ -560,11 +592,11 @@ function getReferralDiscountPercent(referralCode) {
   const cleanCode = referralCode.trim().toUpperCase();
 
   if (cleanCode.includes("GOLD") || cleanCode.includes("AMBASSADOR") || cleanCode === "UEF-REF-GOLD") {
-    return 35; // Tier 3 Gold Ambassador (35% OFF)
+    return 35;
   } else if (cleanCode.includes("SILVER") || cleanCode.includes("TIER2") || cleanCode === "UEF-REF-SILVER") {
-    return 20; // Tier 2 Silver (20% OFF)
+    return 20;
   }
-  return 15; // Tier 1 Standard Referral (15% OFF)
+  return 15;
 }
 
 function calculateLiveTuitionDiscount() {
@@ -617,12 +649,15 @@ function copyUserReferralCode() {
   }
 }
 
-// --- ADMIN DASHBOARD RENDERER ---
+// --- ADMIN DASHBOARD RENDERER & BROCHURE LEADS TABLE ---
 async function renderAdminDashboard() {
   if (!isAdminLoggedIn || !window.firebaseManager) return;
 
   const applications = await window.firebaseManager.getApplications();
+  const brochureLeads = await window.firebaseManager.getBrochureLeads();
+
   const tbody = document.getElementById("adminTableBody");
+  const leadsTbody = document.getElementById("adminBrochureTableBody");
   const searchVal = (document.getElementById("adminSearchInput")?.value || "").toLowerCase().trim();
   const filterStatus = document.getElementById("adminStatusFilter")?.value || "ALL";
 
@@ -641,13 +676,15 @@ async function renderAdminDashboard() {
   const kpiDocsElem = document.getElementById("kpiVerifiedDocs");
   const kpiAdmittedElem = document.getElementById("kpiAdmitted");
   const kpiReferralElem = document.getElementById("kpiReferralDiscounts");
+  const kpiBrochureElem = document.getElementById("kpiBrochureLeads");
 
   if (kpiAppsElem) kpiAppsElem.innerText = totalApps;
   if (kpiDocsElem) kpiDocsElem.innerText = totalDocs;
   if (kpiAdmittedElem) kpiAdmittedElem.innerText = admittedCount;
   if (kpiReferralElem) kpiReferralElem.innerText = referralDiscountsCount;
+  if (kpiBrochureElem) kpiBrochureElem.innerText = brochureLeads.length;
 
-  let filtered = applications.filter(a => {
+  let filteredApps = applications.filter(a => {
     const matchSearch = a.fullName.toLowerCase().includes(searchVal) ||
                         a.email.toLowerCase().includes(searchVal) ||
                         a.country.toLowerCase().includes(searchVal) ||
@@ -659,45 +696,79 @@ async function renderAdminDashboard() {
     return matchSearch && matchStatus;
   });
 
-  if (!tbody) return;
-
-  if (filtered.length === 0) {
-    tbody.innerHTML = `
-      <tr>
-        <td colspan="9" style="text-align: center; padding: 30px; color: var(--text-muted);">
-          No student applications found.
-        </td>
-      </tr>
-    `;
-    return;
+  if (tbody) {
+    if (filteredApps.length === 0) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="9" style="text-align: center; padding: 30px; color: var(--text-muted);">
+            No student applications found.
+          </td>
+        </tr>
+      `;
+    } else {
+      tbody.innerHTML = filteredApps.map(app => `
+        <tr>
+          <td><strong style="color: var(--gold-primary); font-family: monospace;">${app.trackingId}</strong></td>
+          <td><strong>${app.fullName}</strong></td>
+          <td>${app.email}<br><span style="font-size: 11px; color: var(--text-muted);">${app.phone}</span></td>
+          <td>${app.country}</td>
+          <td>${app.degree} in ${app.programTitle}<br><span style="font-size: 11px; color: var(--gold-light);">Fee: ${app.finalFeeDisplay || app.tuition}</span></td>
+          <td>
+            ${app.referralCode ? `<span class="usa-flag-badge" style="background: rgba(16,185,129,0.2); color: #34d399;">🎟️ ${app.referralCode} (${app.discountPercent}% OFF)</span>` : '<span style="color: var(--text-muted); font-size: 11px;">None</span>'}
+          </td>
+          <td style="font-size: 12px; color: var(--text-muted);">${app.submittedAt}</td>
+          <td>
+            <select class="admin-status-select" onchange="changeApplicantStatus('${app.trackingId}', this.value)">
+              <option value="APPLICATION UNDER REVIEW" ${app.status === 'APPLICATION UNDER REVIEW' ? 'selected' : ''}>Under Review</option>
+              <option value="ADMITTED - OFFER ISSUED" ${app.status === 'ADMITTED - OFFER ISSUED' ? 'selected' : ''}>Admitted (Offer Issued)</option>
+              <option value="CONDITIONAL ADMISSION" ${app.status === 'CONDITIONAL ADMISSION' ? 'selected' : ''}>Conditional Admission</option>
+              <option value="REJECTED" ${app.status === 'REJECTED' ? 'selected' : ''}>Rejected</option>
+            </select>
+          </td>
+          <td>
+            <button class="btn btn-outline" onclick="inspectApplicantDocs('${app.trackingId}')" style="padding: 4px 10px; font-size: 11px;">
+              👁️ View Profile
+            </button>
+          </td>
+        </tr>
+      `).join('');
+    }
   }
 
-  tbody.innerHTML = filtered.map(app => `
-    <tr>
-      <td><strong style="color: var(--gold-primary); font-family: monospace;">${app.trackingId}</strong></td>
-      <td><strong>${app.fullName}</strong></td>
-      <td>${app.email}<br><span style="font-size: 11px; color: var(--text-muted);">${app.phone}</span></td>
-      <td>${app.country}</td>
-      <td>${app.degree} in ${app.programTitle}<br><span style="font-size: 11px; color: var(--gold-light);">Fee: ${app.finalFeeDisplay || app.tuition}</span></td>
-      <td>
-        ${app.referralCode ? `<span class="usa-flag-badge" style="background: rgba(16,185,129,0.2); color: #34d399;">🎟️ ${app.referralCode} (${app.discountPercent}% OFF)</span>` : '<span style="color: var(--text-muted); font-size: 11px;">None</span>'}
-      </td>
-      <td style="font-size: 12px; color: var(--text-muted);">${app.submittedAt}</td>
-      <td>
-        <select class="admin-status-select" onchange="changeApplicantStatus('${app.trackingId}', this.value)">
-          <option value="APPLICATION UNDER REVIEW" ${app.status === 'APPLICATION UNDER REVIEW' ? 'selected' : ''}>Under Review</option>
-          <option value="ADMITTED - OFFER ISSUED" ${app.status === 'ADMITTED - OFFER ISSUED' ? 'selected' : ''}>Admitted (Offer Issued)</option>
-          <option value="CONDITIONAL ADMISSION" ${app.status === 'CONDITIONAL ADMISSION' ? 'selected' : ''}>Conditional Admission</option>
-          <option value="REJECTED" ${app.status === 'REJECTED' ? 'selected' : ''}>Rejected</option>
-        </select>
-      </td>
-      <td>
-        <button class="btn btn-outline" onclick="inspectApplicantDocs('${app.trackingId}')" style="padding: 4px 10px; font-size: 11px;">
-          👁️ View Profile
-        </button>
-      </td>
-    </tr>
-  `).join('');
+  // Render Brochure Leads Table
+  if (leadsTbody) {
+    let filteredLeads = brochureLeads.filter(l => {
+      return (l.studentName || "").toLowerCase().includes(searchVal) ||
+             (l.studentEmail || "").toLowerCase().includes(searchVal) ||
+             (l.programTitle || "").toLowerCase().includes(searchVal);
+    });
+
+    if (filteredLeads.length === 0) {
+      leadsTbody.innerHTML = `
+        <tr>
+          <td colspan="7" style="text-align: center; padding: 20px; color: var(--text-muted);">
+            No brochure download leads recorded yet.
+          </td>
+        </tr>
+      `;
+    } else {
+      leadsTbody.innerHTML = filteredLeads.map(l => `
+        <tr>
+          <td><strong style="color: #34d399; font-family: monospace;">${l.leadId || 'LEAD-LOG'}</strong></td>
+          <td><strong>${l.studentName}</strong></td>
+          <td>${l.studentEmail}</td>
+          <td>${l.programTitle}</td>
+          <td>${l.degree}</td>
+          <td style="font-size: 12px; color: var(--text-muted);">${l.downloadedAt || l.timestamp}</td>
+          <td>
+            <button class="btn btn-gold" onclick="openBrochureModal('${l.programId}')" style="padding: 4px 10px; font-size: 11px;">
+              📄 View Brochure
+            </button>
+          </td>
+        </tr>
+      `).join('');
+    }
+  }
 }
 
 async function changeApplicantStatus(trackingId, newStatus) {
@@ -847,7 +918,7 @@ function renderProgramsCatalog(programs) {
           </div>
         </div>
         <div class="card-actions">
-          <button class="btn btn-maroon" onclick="openBrochureModal('${p.id}')">
+          <button class="btn btn-maroon" onclick="handleBrochureDownloadClick('${p.id}')">
             📄 PDF Brochure
           </button>
           <button class="btn btn-gold" onclick="scrollToApplySection('${p.id}')">
@@ -1023,22 +1094,18 @@ async function handleApplicationSubmit(event) {
     status: "APPLICATION UNDER REVIEW"
   };
 
-  // Save to Firebase Firestore / Local Engine
   if (window.firebaseManager) {
     await window.firebaseManager.saveApplication(applicationRecord);
   }
 
-  // Real Email Dispatcher to student & Registrar (t06546666@gmail.com)
   sendRealEmailNotification(applicationRecord);
 
-  // Refresh Student & Admin Dashboards if active
   if (isAdminLoggedIn) {
     renderAdminDashboard();
   } else if (currentUser) {
     renderStudentDashboard(email);
   }
 
-  // Generate & Render Confirmation Email Preview
   renderConfirmationEmail(applicationRecord);
   openConfirmationEmailModal();
 }

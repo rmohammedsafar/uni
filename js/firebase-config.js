@@ -30,13 +30,70 @@ if (typeof firebase !== 'undefined' && firebase.apps.length > 0) {
   }
 }
 
-// Global Firebase Storage, Users & Application Manager
+// Global Firebase Storage, Users, Applications & Brochure Leads Manager
 class FirebaseStorageManager {
   constructor() {
     this.collectionName = 'student_applications';
     this.usersCollection = 'users';
+    this.leadsCollection = 'brochure_downloads';
     this.fallbackStorageKey = 'uef_student_applications_backup';
     this.fallbackUsersKey = 'uef_users_backup';
+    this.fallbackLeadsKey = 'uef_brochure_leads_backup';
+  }
+
+  // Save Brochure Download Lead Record into Firestore
+  async saveBrochureLead(leadData) {
+    console.log("📄 Saving Brochure Download Lead into Firestore:", leadData);
+    if (window.db) {
+      try {
+        const leadId = "LEAD-" + Math.floor(10000 + Math.random() * 90000);
+        await window.db.collection(this.leadsCollection).doc(leadId).set({
+          ...leadData,
+          leadId,
+          timestamp: new Date().toISOString()
+        });
+        console.log("✅ Successfully saved Brochure Lead to Firestore collection `brochure_downloads`:", leadId);
+      } catch (err) {
+        console.warn("⚠️ Firestore brochure lead save warning:", err);
+      }
+    }
+
+    // Save to local storage backup
+    let localLeads = this.getLocalLeads();
+    localLeads.unshift({
+      ...leadData,
+      leadId: "LEAD-" + Math.floor(10000 + Math.random() * 90000),
+      timestamp: new Date().toISOString()
+    });
+    localStorage.setItem(this.fallbackLeadsKey, JSON.stringify(localLeads));
+  }
+
+  async getBrochureLeads() {
+    let firestoreLeads = [];
+    if (window.db) {
+      try {
+        const snapshot = await window.db.collection(this.leadsCollection).get();
+        snapshot.forEach(doc => {
+          firestoreLeads.push(doc.data());
+        });
+      } catch (err) {
+        console.warn("⚠️ Firestore brochure leads fetch warning:", err);
+      }
+    }
+
+    const localLeads = this.getLocalLeads();
+    const mergedMap = new Map();
+    localLeads.forEach(rec => mergedMap.set(rec.leadId || rec.timestamp, rec));
+    firestoreLeads.forEach(rec => mergedMap.set(rec.leadId || rec.timestamp, rec));
+
+    const result = Array.from(mergedMap.values());
+    result.sort((a, b) => new Date(b.timestamp || b.downloadedAt) - new Date(a.timestamp || a.downloadedAt));
+    return result;
+  }
+
+  getLocalLeads() {
+    const raw = localStorage.getItem(this.fallbackLeadsKey);
+    return raw ? JSON.parse(raw) : [];
   }
 
   // Register or Update User Profile
