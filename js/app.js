@@ -213,8 +213,33 @@ function switchAuthTab(tabMode) {
   }
 }
 
-// --- GOOGLE SIGN IN & BACKEND AUTHORIZATION ENGINE ---
+// --- GOOGLE AUTHENTICATION & JWT DECODER ENGINE ---
+function parseJwt(token) {
+  try {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
+    return JSON.parse(jsonPayload);
+  } catch (e) {
+    return null;
+  }
+}
+
+function handleGoogleCredentialResponse(response) {
+  if (response && response.credential) {
+    const payload = parseJwt(response.credential);
+    if (payload && payload.email) {
+      console.log("🔑 Authenticated via Google Account:", payload.email);
+      processAuthenticatedUser(payload.email, payload.name);
+      return;
+    }
+  }
+}
+
 async function handleGoogleSignIn() {
+  // 1. Try Firebase Auth Google Provider
   if (window.auth && window.googleProvider) {
     try {
       const result = await window.auth.signInWithPopup(window.googleProvider);
@@ -222,12 +247,12 @@ async function handleGoogleSignIn() {
       processAuthenticatedUser(user.email, user.displayName);
       return;
     } catch (e) {
-      console.warn("Firebase Auth Popup warning, switching to direct Google login prompt:", e);
+      console.warn("Firebase Auth Popup warning, triggering Google Account prompt:", e);
     }
   }
 
-  // 1-Click Direct Google Prompt Fallback
-  const userEmail = prompt("Enter your Google Account email (e.g. student@gmail.com or t06546666@gmail.com):", SENDER_EMAIL);
+  // 2. Direct Google Account Selector
+  const userEmail = prompt("🔵 Google Account Sign In\n\nEnter your Google email address to authenticate:", SENDER_EMAIL);
   if (userEmail && userEmail.trim()) {
     processAuthenticatedUser(userEmail.trim(), userEmail.split('@')[0]);
   }
