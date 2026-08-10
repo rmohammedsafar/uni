@@ -2,29 +2,29 @@
    UNIVERSITY OF EAST FLORIDA - FIREBASE & STORAGE CONFIGURATION
    ========================================================================== */
 
-// Firebase SDK Configuration Template
-// Replace the keys below with your actual Firebase Console Project Keys:
+// Live Firebase Console Credentials for Project: university-8f798
 const firebaseConfig = {
-  apiKey: "YOUR_FIREBASE_API_KEY",
-  authDomain: "university-east-florida.firebaseapp.com",
-  projectId: "university-east-florida",
-  storageBucket: "university-east-florida.appspot.com",
-  messagingSenderId: "123456789012",
-  appId: "1:123456789012:web:abc123def456789"
+  apiKey: "AIzaSyBdr96TA2n_N0Rohk9Yd8CbamOYn_ZJQt0",
+  authDomain: "university-8f798.firebaseapp.com",
+  projectId: "university-8f798",
+  storageBucket: "university-8f798.firebasestorage.app",
+  messagingSenderId: "809688294574",
+  appId: "1:809688294574:web:5efc430fd6bde7e04af93f",
+  measurementId: "G-0VXXK61R3R"
 };
 
-// Initialize Live Firebase SDK if available
+// Initialize Live Firebase SDK
 if (typeof firebase !== "undefined" && firebase.apps && !firebase.apps.length) {
   try {
     firebase.initializeApp(firebaseConfig);
     window.db = firebase.firestore();
-    console.log("🔥 [Firebase] Live Firebase Firestore Connected Successfully!");
+    console.log("🔥 [Firebase] Live Firebase Firestore Connected Successfully to project: university-8f798!");
   } catch (err) {
     console.warn("⚠️ Live Firebase initialization notice:", err);
   }
 }
 
-// Fallback Local Storage Persistence Engine (Used when live Firebase API Key is pending)
+// Storage Manager (Live Firebase Firestore with Fallback)
 class FirebaseStorageManager {
   constructor() {
     this.collectionName = "uef_student_applications";
@@ -83,7 +83,7 @@ class FirebaseStorageManager {
         return { success: true, id: docRef.id, isLiveFirebase: true };
       }
     } catch (err) {
-      console.warn("⚠️ Live Firebase Firestore not connected yet, saving to Local Firebase Store:", err);
+      console.warn("⚠️ Live Firebase Firestore save notice:", err);
     }
 
     let existingApps = JSON.parse(localStorage.getItem(this.collectionName) || "[]");
@@ -102,7 +102,7 @@ class FirebaseStorageManager {
         if (firestoreApps.length > 0) return firestoreApps;
       }
     } catch (err) {
-      console.warn("⚠️ Reading from local storage fallback:", err);
+      console.warn("⚠️ Reading fallback store:", err);
     }
 
     return JSON.parse(localStorage.getItem(this.collectionName) || "[]");
@@ -120,7 +120,7 @@ class FirebaseStorageManager {
         updated = true;
       }
     } catch (err) {
-      console.warn("⚠️ Status update local fallback:", err);
+      console.warn("⚠️ Status update fallback:", err);
     }
 
     let existingApps = JSON.parse(localStorage.getItem(this.collectionName) || "[]");
