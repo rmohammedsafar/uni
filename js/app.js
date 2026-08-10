@@ -2462,10 +2462,6 @@ function switchAdminTab(tabName) {
   if (activeBtn) activeBtn.classList.add('active');
   if (activeContent) activeContent.style.display = 'block';
 }
-
-// ============================================================
-// VIRTUAL CAMPUS DEPARTMENTS MANAGER
-// ============================================================
 function renderAdminCampusTable() {
   const tbody = document.getElementById('adminCampusTableBody');
   if (!tbody) return;
@@ -2474,6 +2470,26 @@ function renderAdminCampusTable() {
   tbody.innerHTML = roomKeys.map(key => {
     const r = CAMPUS_ROOMS[key];
     const statsStr = r.stats.map(s => `${s.label}: ${s.value}`).join(' | ');
+    const isEditing = editingCampusId === key;
+
+    if (isEditing) {
+      return `
+        <tr style="background: rgba(212,175,55,0.15);">
+          <td style="font-family:monospace; font-size:12px; color:var(--gold-light);">${key}</td>
+          <td><input type="text" id="inlineCampusName_${key}" class="form-control" value="${escapeHtml(r.name)}" style="padding:4px 8px; font-size:13px;"></td>
+          <td style="font-size:24px;">${r.icon}</td>
+          <td style="font-size:11px; color:var(--text-muted);">${statsStr}</td>
+          <td><input type="text" id="inlineCampusHighlight_${key}" class="form-control" value="${escapeHtml(r.highlight)}" style="padding:4px 8px; font-size:13px;"></td>
+          <td>
+            <div style="display:flex; gap:6px;">
+              <button class="btn btn-gold" onclick="saveInlineCampus('${key}')" style="padding:4px 10px; font-size:11px;">💾 Save</button>
+              <button class="btn btn-outline" onclick="cancelInlineCampus()" style="padding:4px 10px; font-size:11px;">✕</button>
+            </div>
+          </td>
+        </tr>
+      `;
+    }
+
     return `
       <tr>
         <td style="font-family:monospace; font-size:12px; color:var(--gold-light);">${key}</td>
@@ -2482,55 +2498,125 @@ function renderAdminCampusTable() {
         <td style="font-size:12px; color:var(--text-muted);">${statsStr}</td>
         <td style="font-size:12px;">${r.highlight}</td>
         <td>
-          <button class="btn btn-outline" onclick="editCampusRoom('${key}')" style="padding:4px 10px; font-size:11px;">✏️ Edit Room</button>
+          <button class="btn btn-outline" onclick="editCampusRoom('${key}')" style="padding:4px 10px; font-size:11px;">✏️ Edit Line</button>
         </td>
       </tr>
     `;
   }).join('');
 }
 
-function editCampusRoom(roomId) {
-  const r = CAMPUS_ROOMS[roomId];
+function editCampusRoom(key) {
+  editingCampusId = key;
+  renderAdminCampusTable();
+}
+
+function cancelInlineCampus() {
+  editingCampusId = null;
+  renderAdminCampusTable();
+}
+
+async function saveInlineCampus(key) {
+  const r = CAMPUS_ROOMS[key];
   if (!r) return;
 
-  const newName = prompt(`Edit Department Name for '${roomId}':`, r.name);
-  if (!newName) return;
-  const newDesc = prompt(`Edit Department Description:`, r.description);
-  if (!newDesc) return;
-  const newHighlight = prompt(`Edit Department Highlight:`, r.highlight);
-  if (!newHighlight) return;
+  const newName = document.getElementById(`inlineCampusName_${key}`)?.value.trim();
+  const newHighlight = document.getElementById(`inlineCampusHighlight_${key}`)?.value.trim();
 
-  r.name = newName;
-  r.description = newDesc;
-  r.highlight = newHighlight;
+  if (newName) r.name = newName;
+  if (newHighlight) r.highlight = newHighlight;
 
-  switchTourRoom(roomId);
+  editingCampusId = null;
+  switchTourRoom(key);
   renderAdminCampusTable();
-  saveAdminCMSConfig();
-  alert(`✅ Department '${r.name}' updated!`);
+  await saveAdminCMSConfig(true);
 }
 
 // ============================================================
-// LECTURE LIBRARY MANAGER
+// LECTURE LIBRARY MANAGER (INLINE ROW EDITING)
 // ============================================================
 function renderAdminLectureTable() {
   const tbody = document.getElementById('adminLectureTableBody');
   if (!tbody) return;
 
-  tbody.innerHTML = LECTURES.map(lec => `
-    <tr>
-      <td style="font-family:monospace; font-size:12px; color:var(--gold-light);">${lec.id}</td>
-      <td style="font-weight:700;">${lec.title}</td>
-      <td style="font-size:12px; color:var(--text-muted);">${lec.professor}</td>
-      <td><span class="online-tag" style="position:static;">${lec.category}</span></td>
-      <td style="font-size:12px;">${lec.duration}</td>
-      <td style="font-family:monospace; font-size:12px; color:#34d399;">${lec.youtubeId}</td>
-      <td>
-        <button class="btn btn-outline" onclick="editLecture('${lec.id}')" style="padding:4px 10px; font-size:11px;">✏️ Edit</button>
-        <button class="btn btn-outline" onclick="deleteLecture('${lec.id}')" style="padding:4px 10px; font-size:11px; border-color:#ef4444; color:#f87171;">🗑️ Delete</button>
-      </td>
-    </tr>
-  `).join('');
+  tbody.innerHTML = LECTURES.map(lec => {
+    const isEditing = editingLectureId === lec.id;
+
+    if (isEditing) {
+      return `
+        <tr style="background: rgba(212,175,55,0.15);">
+          <td style="font-family:monospace; font-size:12px; color:var(--gold-light);">${lec.id}</td>
+          <td><input type="text" id="inlineLecTitle_${lec.id}" class="form-control" value="${escapeHtml(lec.title)}" style="padding:4px 8px; font-size:13px;"></td>
+          <td><input type="text" id="inlineLecProf_${lec.id}" class="form-control" value="${escapeHtml(lec.professor)}" style="padding:4px 8px; font-size:12px;"></td>
+          <td>
+            <select id="inlineLecCat_${lec.id}" class="form-select" style="padding:4px 8px; font-size:12px;">
+              <option value="cs" ${lec.category==='cs'?'selected':''}>💻 CS & AI</option>
+              <option value="business" ${lec.category==='business'?'selected':''}>📊 Business</option>
+              <option value="healthcare" ${lec.category==='healthcare'?'selected':''}>🏥 Healthcare</option>
+              <option value="math" ${lec.category==='math'?'selected':''}>📐 Math</option>
+            </select>
+          </td>
+          <td><input type="text" id="inlineLecDuration_${lec.id}" class="form-control" value="${escapeHtml(lec.duration)}" style="padding:4px 8px; font-size:12px;"></td>
+          <td><input type="text" id="inlineLecYt_${lec.id}" class="form-control" value="${escapeHtml(lec.youtubeId)}" style="padding:4px 8px; font-size:12px; font-family:monospace;"></td>
+          <td>
+            <div style="display:flex; gap:6px;">
+              <button class="btn btn-gold" onclick="saveInlineLecture('${lec.id}')" style="padding:4px 10px; font-size:11px;">💾 Save</button>
+              <button class="btn btn-outline" onclick="cancelInlineLecture()" style="padding:4px 10px; font-size:11px;">✕</button>
+            </div>
+          </td>
+        </tr>
+      `;
+    }
+
+    return `
+      <tr>
+        <td style="font-family:monospace; font-size:12px; color:var(--gold-light);">${lec.id}</td>
+        <td style="font-weight:700;">${lec.title}</td>
+        <td style="font-size:12px; color:var(--text-muted);">${lec.professor}</td>
+        <td><span class="online-tag" style="position:static;">${lec.category}</span></td>
+        <td style="font-size:12px;">${lec.duration}</td>
+        <td style="font-family:monospace; font-size:12px; color:#34d399;">${lec.youtubeId}</td>
+        <td>
+          <button class="btn btn-outline" onclick="editLecture('${lec.id}')" style="padding:4px 10px; font-size:11px;">✏️ Edit Line</button>
+          <button class="btn btn-outline" onclick="deleteLecture('${lec.id}')" style="padding:4px 10px; font-size:11px; border-color:#ef4444; color:#f87171;">🗑️ Delete</button>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function editLecture(lecId) {
+  editingLectureId = lecId;
+  renderAdminLectureTable();
+}
+
+function cancelInlineLecture() {
+  editingLectureId = null;
+  renderAdminLectureTable();
+}
+
+async function saveInlineLecture(lecId) {
+  const lec = LECTURES.find(l => l.id === lecId);
+  if (!lec) return;
+
+  const newTitle = document.getElementById(`inlineLecTitle_${lecId}`)?.value.trim();
+  const newProf = document.getElementById(`inlineLecProf_${lecId}`)?.value.trim();
+  const newCat = document.getElementById(`inlineLecCat_${lecId}`)?.value.trim();
+  const newDur = document.getElementById(`inlineLecDuration_${lecId}`)?.value.trim();
+  const newYt = document.getElementById(`inlineLecYt_${lecId}`)?.value.trim();
+
+  if (newTitle) lec.title = newTitle;
+  if (newProf) lec.professor = newProf;
+  if (newCat) lec.category = newCat;
+  if (newDur) lec.duration = newDur;
+  if (newYt) {
+    lec.youtubeId = newYt;
+    lec.thumb = `https://img.youtube.com/vi/${newYt}/maxresdefault.jpg`;
+  }
+
+  editingLectureId = null;
+  renderLecturesGrid('all');
+  renderAdminLectureTable();
+  await saveAdminCMSConfig(true);
 }
 
 function openAddNewLectureModal() {
@@ -2545,21 +2631,6 @@ function closeAdminLectureModal() {
   document.getElementById('adminLectureModal').classList.remove('open');
 }
 
-function editLecture(lecId) {
-  const lec = LECTURES.find(l => l.id === lecId);
-  if (!lec) return;
-
-  document.getElementById('lecEditId').value = lec.id;
-  document.getElementById('lecTitle').value = lec.title;
-  document.getElementById('lecProfessor').value = lec.professor;
-  document.getElementById('lecCategory').value = lec.category;
-  document.getElementById('lecDuration').value = lec.duration;
-  document.getElementById('lecYoutubeId').value = lec.youtubeId;
-
-  document.getElementById('adminLectureModalTitle').textContent = '✏️ Edit Recorded Lecture: ' + lec.id;
-  document.getElementById('adminLectureModal').classList.add('open');
-}
-
 async function deleteLecture(lecId) {
   if (!confirm(`Are you sure you want to delete lecture ID '${lecId}'?`)) return;
 
@@ -2568,7 +2639,7 @@ async function deleteLecture(lecId) {
     LECTURES.splice(idx, 1);
     renderLecturesGrid('all');
     renderAdminLectureTable();
-    await saveAdminCMSConfig();
+    await saveAdminCMSConfig(true);
   }
 }
 
@@ -2597,176 +2668,87 @@ async function handleSaveLectureSubmit(e) {
   closeAdminLectureModal();
   renderLecturesGrid('all');
   renderAdminLectureTable();
-  await saveAdminCMSConfig();
-  alert(`✅ Recorded Lecture '${lecData.title}' saved!`);
+  await saveAdminCMSConfig(true);
 }
 
 // ============================================================
-// ADMIN CMS & REAL-TIME BACKEND AUTO-SAVE ENGINE
+// DEGREE PROGRAM CATALOG MANAGER (INLINE ROW EDITING)
 // ============================================================
-let cmsAutoSaveTimeout = null;
-
-async function loadSiteCMSConfig() {
-  try {
-    const config = await window.firebaseManager.getSiteConfig();
-    if (config) applySiteCMSConfig(config);
-
-    // Subscribe to Firestore onSnapshot real-time backend updates
-    window.firebaseManager.listenSiteConfig(updatedConfig => {
-      applySiteCMSConfig(updatedConfig);
-    });
-
-    // Initialize Auto-Save event listeners for inputs
-    initCMSAutoSaveListeners();
-  } catch (e) {
-    console.warn("CMS config load fallback:", e);
-  }
-}
-
-function applySiteCMSConfig(config) {
-  if (!config) return;
-
-  if (config.uniTitle) {
-    document.querySelectorAll('.brand-title-group h1, .preloader-title').forEach(el => el.textContent = config.uniTitle);
-  }
-  if (config.uniSubtitle) {
-    document.querySelectorAll('.brand-title-group p').forEach(el => el.textContent = config.uniSubtitle);
-  }
-  if (config.bannerText) {
-    const bLeft = document.querySelector('.banner-left span:nth-child(2)');
-    if (bLeft) bLeft.textContent = config.bannerText;
-  }
-  if (config.tollFree) {
-    document.querySelectorAll('[href^="tel:"]').forEach(el => el.textContent = '📞 Toll-Free: ' + config.tollFree);
-  }
-  if (config.mottoBadge) {
-    const mottoEl = document.querySelector('.hero-badge span');
-    if (mottoEl) mottoEl.textContent = config.mottoBadge;
-  }
-  if (config.heroTitle) {
-    const hTitle = document.querySelector('.hero-title');
-    if (hTitle && hTitle.childNodes.length > 0) {
-      hTitle.childNodes[0].nodeValue = config.heroTitle + ' ';
-    }
-  }
-  if (config.heroHighlight) {
-    const hHighlight = document.querySelector('.hero-title .gold-gradient-text');
-    if (hHighlight) hHighlight.textContent = config.heroHighlight;
-  }
-
-  if (config.customPrograms && Array.isArray(config.customPrograms) && config.customPrograms.length > 0) {
-    DEGREE_PROGRAMS.length = 0;
-    config.customPrograms.forEach(p => DEGREE_PROGRAMS.push(p));
-  }
-
-  if (config.customLectures && Array.isArray(config.customLectures) && config.customLectures.length > 0) {
-    LECTURES.length = 0;
-    config.customLectures.forEach(l => LECTURES.push(l));
-  }
-
-  populateCMSInputFields(config);
-}
-
-function populateCMSInputFields(config) {
-  if (!config) return;
-  const setVal = (id, val) => { const el = document.getElementById(id); if (el && val) el.value = val; };
-  setVal('cmsUniTitle', config.uniTitle);
-  setVal('cmsUniSubtitle', config.uniSubtitle);
-  setVal('cmsBannerText', config.bannerText);
-  setVal('cmsTollFree', config.tollFree);
-  setVal('cmsMottoBadge', config.mottoBadge);
-  setVal('cmsHeroTitle', config.heroTitle);
-  setVal('cmsHeroHighlight', config.heroHighlight);
-  setVal('cmsRegistrarEmail', config.registrarEmail);
-}
-
-function initCMSAutoSaveListeners() {
-  const ids = ['cmsUniTitle', 'cmsUniSubtitle', 'cmsBannerText', 'cmsTollFree', 'cmsMottoBadge', 'cmsHeroTitle', 'cmsHeroHighlight', 'cmsRegistrarEmail'];
-  ids.forEach(id => {
-    const el = document.getElementById(id);
-    if (el) {
-      el.removeEventListener('input', triggerCMSAutoSave);
-      el.addEventListener('input', triggerCMSAutoSave);
-    }
-  });
-}
-
-function triggerCMSAutoSave() {
-  const badge = document.getElementById('cmsAutoSaveBadge');
-  if (badge) {
-    badge.textContent = '☁️ Live Syncing to Backend...';
-    badge.style.color = '#f59e0b';
-    badge.style.background = 'rgba(245,158,11,0.2)';
-  }
-
-  clearTimeout(cmsAutoSaveTimeout);
-  cmsAutoSaveTimeout = setTimeout(async () => {
-    await saveAdminCMSConfig(true);
-    if (badge) {
-      badge.textContent = '✅ Saved Live to Cloud Backend';
-      badge.style.color = '#34d399';
-      badge.style.background = 'rgba(16,185,129,0.2)';
-      setTimeout(() => {
-        badge.textContent = '⚡ Real-Time Auto-Save Active';
-        badge.style.color = 'var(--gold-light)';
-        badge.style.background = 'rgba(212,175,55,0.2)';
-      }, 2500);
-    }
-  }, 500);
-}
-
-async function saveAdminCMSConfig(silent = false) {
-  const getVal = id => { const el = document.getElementById(id); return el ? el.value.trim() : ''; };
-
-  const newConfig = {
-    uniTitle: getVal('cmsUniTitle') || "UNIVERSITY OF EAST FLORIDA",
-    uniSubtitle: getVal('cmsUniSubtitle') || "100% Online Global Campus • Orlando, USA",
-    bannerText: getVal('cmsBannerText') || "DEAC & SACSCOC Candidate Member • 100% Online Remote Study",
-    tollFree: getVal('cmsTollFree') || "+1 (800) 555-UEF1",
-    mottoBadge: getVal('cmsMottoBadge') || "🏛️ VERITAS • SAPIENTIA • VIRTUS",
-    heroTitle: getVal('cmsHeroTitle') || "World-Class Accredited Degrees",
-    heroHighlight: getVal('cmsHeroHighlight') || "100% Online & Self-Paced",
-    registrarEmail: getVal('cmsRegistrarEmail') || "r.mohammedsafar@gmail.com",
-    customPrograms: DEGREE_PROGRAMS,
-    customLectures: LECTURES,
-    updatedAt: new Date().toISOString()
-  };
-
-  await window.firebaseManager.saveSiteConfig(newConfig);
-  applySiteCMSConfig(newConfig);
-  renderProgramsCatalog(DEGREE_PROGRAMS);
-  if (!silent) {
-    alert("🎉 UI & Content Changes Saved Live! Synced to Cloud Firestore.");
-  }
-}
-
-async function resetAdminCMSConfig() {
-  if (!confirm("Are you sure you want to reset all site content back to default?")) return;
-
-  localStorage.removeItem('uef_site_config_backup');
-  if (window.db) {
-    try { await window.db.collection('site_settings').doc('cms_config').delete(); } catch(e){}
-  }
-  location.reload();
-}
-
 function renderCMSProgramTable() {
   const tbody = document.getElementById('cmsProgramTableBody');
   if (!tbody) return;
 
-  tbody.innerHTML = DEGREE_PROGRAMS.map(prog => `
-    <tr>
-      <td style="font-family:monospace; font-size:12px; color:var(--gold-light);">${prog.id}</td>
-      <td style="font-weight:700;">${prog.name}</td>
-      <td><span class="online-tag" style="position:static;">${prog.category}</span></td>
-      <td style="color:#34d399; font-weight:700;">$${prog.tuition.toLocaleString()}</td>
-      <td style="font-size:12px;">${prog.duration}</td>
-      <td>
-        <button class="btn btn-outline" onclick="editProgram('${prog.id}')" style="padding:4px 10px; font-size:11px;">✏️ Edit</button>
-        <button class="btn btn-outline" onclick="deleteProgram('${prog.id}')" style="padding:4px 10px; font-size:11px; border-color:#ef4444; color:#f87171;">🗑️ Delete</button>
-      </td>
-    </tr>
-  `).join('');
+  tbody.innerHTML = DEGREE_PROGRAMS.map(prog => {
+    const isEditing = editingProgramId === prog.id;
+
+    if (isEditing) {
+      return `
+        <tr style="background: rgba(212,175,55,0.15);">
+          <td style="font-family:monospace; font-size:12px; color:var(--gold-light);">${prog.id}</td>
+          <td><input type="text" id="inlineProgName_${prog.id}" class="form-control" value="${escapeHtml(prog.name)}" style="padding:4px 8px; font-size:13px;"></td>
+          <td>
+            <select id="inlineProgCat_${prog.id}" class="form-select" style="padding:4px 8px; font-size:12px;">
+              <option value="technology" ${prog.category==='technology'?'selected':''}>Computer & Data Tech</option>
+              <option value="business" ${prog.category==='business'?'selected':''}>Business & FinTech</option>
+              <option value="healthcare" ${prog.category==='healthcare'?'selected':''}>Health Informatics</option>
+            </select>
+          </td>
+          <td><input type="number" id="inlineProgTuition_${prog.id}" class="form-control" value="${prog.tuition}" style="padding:4px 8px; font-size:13px; color:#34d399; font-weight:bold;"></td>
+          <td><input type="text" id="inlineProgDuration_${prog.id}" class="form-control" value="${escapeHtml(prog.duration)}" style="padding:4px 8px; font-size:12px;"></td>
+          <td>
+            <div style="display:flex; gap:6px;">
+              <button class="btn btn-gold" onclick="saveInlineProgram('${prog.id}')" style="padding:4px 10px; font-size:11px;">💾 Save</button>
+              <button class="btn btn-outline" onclick="cancelInlineProgram()" style="padding:4px 10px; font-size:11px;">✕</button>
+            </div>
+          </td>
+        </tr>
+      `;
+    }
+
+    return `
+      <tr>
+        <td style="font-family:monospace; font-size:12px; color:var(--gold-light);">${prog.id}</td>
+        <td style="font-weight:700;">${prog.name}</td>
+        <td><span class="online-tag" style="position:static;">${prog.category}</span></td>
+        <td style="color:#34d399; font-weight:700;">$${prog.tuition.toLocaleString()}</td>
+        <td style="font-size:12px;">${prog.duration}</td>
+        <td>
+          <button class="btn btn-outline" onclick="editProgram('${prog.id}')" style="padding:4px 10px; font-size:11px;">✏️ Edit Line</button>
+          <button class="btn btn-outline" onclick="deleteProgram('${prog.id}')" style="padding:4px 10px; font-size:11px; border-color:#ef4444; color:#f87171;">🗑️ Delete</button>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function editProgram(progId) {
+  editingProgramId = progId;
+  renderCMSProgramTable();
+}
+
+function cancelInlineProgram() {
+  editingProgramId = null;
+  renderCMSProgramTable();
+}
+
+async function saveInlineProgram(progId) {
+  const prog = DEGREE_PROGRAMS.find(p => p.id === progId);
+  if (!prog) return;
+
+  const newName = document.getElementById(`inlineProgName_${progId}`)?.value.trim();
+  const newCat = document.getElementById(`inlineProgCat_${progId}`)?.value.trim();
+  const newTuition = parseInt(document.getElementById(`inlineProgTuition_${progId}`)?.value);
+  const newDuration = document.getElementById(`inlineProgDuration_${progId}`)?.value.trim();
+
+  if (newName) prog.name = newName;
+  if (newCat) prog.category = newCat;
+  if (!isNaN(newTuition)) prog.tuition = newTuition;
+  if (newDuration) prog.duration = newDuration;
+
+  editingProgramId = null;
+  renderProgramsCatalog(DEGREE_PROGRAMS);
+  renderCMSProgramTable();
+  await saveAdminCMSConfig(true);
 }
 
 function openAddNewProgramModal() {
@@ -2781,22 +2763,6 @@ function closeAdminProgramModal() {
   document.getElementById('adminProgramModal').classList.remove('open');
 }
 
-function editProgram(progId) {
-  const prog = DEGREE_PROGRAMS.find(p => p.id === progId);
-  if (!prog) return;
-
-  document.getElementById('progEditId').value = prog.id;
-  document.getElementById('progName').value = prog.name;
-  document.getElementById('progDegree').value = prog.degree;
-  document.getElementById('progCategory').value = prog.category;
-  document.getElementById('progTuition').value = prog.tuition;
-  document.getElementById('progDuration').value = prog.duration;
-  document.getElementById('progDescription').value = prog.description;
-
-  document.getElementById('adminProgramModalTitle').textContent = '✏️ Edit Degree Program: ' + prog.id;
-  document.getElementById('adminProgramModal').classList.add('open');
-}
-
 async function deleteProgram(progId) {
   if (!confirm(`Are you sure you want to delete program ID '${progId}' from the catalog?`)) return;
 
@@ -2805,7 +2771,7 @@ async function deleteProgram(progId) {
     DEGREE_PROGRAMS.splice(idx, 1);
     renderProgramsCatalog(DEGREE_PROGRAMS);
     renderCMSProgramTable();
-    await saveAdminCMSConfig();
+    await saveAdminCMSConfig(true);
   }
 }
 
@@ -2817,28 +2783,11 @@ async function handleSaveProgramSubmit(e) {
     id: editId || ('UEF-PROG-' + Math.floor(100 + Math.random() * 900)),
     name: document.getElementById('progName').value.trim(),
     degree: document.getElementById('progDegree').value.trim(),
-    category: document.getElementById('progCategory').value.trim(),
-    tuition: parseInt(document.getElementById('progTuition').value) || 12000,
-    duration: document.getElementById('progDuration').value.trim(),
-    description: document.getElementById('progDescription').value.trim(),
-    format: "100% Remote / Asynchronous",
-    credits: "36 US Credit Hours (12 Core Modules)"
-  };
-
-  if (editId) {
-    const idx = DEGREE_PROGRAMS.findIndex(p => p.id === editId);
-    if (idx >= 0) DEGREE_PROGRAMS[idx] = progData;
-  } else {
-    DEGREE_PROGRAMS.push(progData);
-  }
-
-  closeAdminProgramModal();
-  renderProgramsCatalog(DEGREE_PROGRAMS);
-  renderCMSProgramTable();
-  await saveAdminCMSConfig();
-  alert(`✅ Degree Program '${progData.name}' successfully saved!`);
 }
 
-
-
-
+// Helper to escape HTML strings in input values
+function escapeHtml(str) {
+  if (!str) return '';
+  return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+}
+}
