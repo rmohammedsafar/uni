@@ -1434,20 +1434,100 @@ h1, h2, h3, h4, .brand-font {
   gap: 12px;
 }
 
-@media (max-width: 768px) {
-  .app-header {
-    padding: 12px 20px;
-  }
-  .nav-links {
-    display: none;
-  }
-  .hero-title {
-    font-size: 34px;
-  }
-  .section-wrapper {
-    padding: 50px 20px;
-  }
-  .application-portal-box {
-    padding: 24px;
-  }
+/* ========================================================================
+   ULTRA MOBILE RESPONSIVE SYSTEM
+   ======================================================================== */
+
+@media (max-width: 992px) {
+  .app-header { padding: 14px 24px; }
+  .brand-title-group h1 { font-size: 17px; }
+  .brand-title-group p { font-size: 10px; letter-spacing: 1.5px; }
+  .nav-links { gap: 20px; }
+  .footer-grid { grid-template-columns: 1fr 1fr; }
 }
+
+@media (max-width: 768px) {
+  .usa-top-banner { padding: 8px 12px; font-size: 11px; flex-direction: column; justify-content: center; text-align: center; }
+  .banner-left, .banner-right { flex-wrap: wrap; justify-content: center; gap: 6px; }
+  .app-header { padding: 10px 14px; gap: 8px; }
+  .nav-links { display: none; }
+
+  .hero-section { padding: 40px 14px 60px; }
+  .hero-title { font-size: clamp(26px, 5.5vw, 42px); }
+  .hero-subtitle { font-size: 14px; }
+  .hero-cta-group { flex-direction: column; gap: 12px; }
+  .hero-cta-group .btn { width: 100%; }
+
+  .hero-stats-row { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .stat-card { padding: 14px 10px; }
+  .stat-num { font-size: 24px; }
+
+  .section-wrapper { padding: 36px 14px; }
+  .section-title { font-size: 26px; }
+
+  .catalog-controls { padding: 12px; gap: 12px; flex-direction: column; }
+  .search-box { min-width: 100%; }
+  .filter-pills { width: 100%; justify-content: center; flex-wrap: wrap; }
+  .filter-pill { font-size: 12px; padding: 6px 12px; }
+
+  .programs-grid { grid-template-columns: 1fr; }
+  .program-card { margin-bottom: 10px; }
+
+  .application-portal-box { padding: 18px 14px; border-radius: 14px; }
+  .form-control, .form-select { font-size: 16px; min-height: 46px; }
+  .form-grid-2 { grid-template-columns: 1fr; gap: 12px; }
+  .drop-zone { padding: 18px 10px; }
+
+  .portal-container { padding: 18px 12px; border-radius: 14px; }
+  .portal-grid { grid-template-columns: 1fr; gap: 24px; }
+  .grade-table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .grade-table { min-width: 480px; }
+
+  .admin-dashboard-container { padding: 18px 12px; }
+  .admin-kpi-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .admin-kpi-card { padding: 12px; }
+  .kpi-val { font-size: 20px; }
+  .admin-table-container { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .admin-table { min-width: 700px; }
+
+  .contact-grid { grid-template-columns: 1fr; gap: 24px; }
+  .address-box { padding: 24px 16px; }
+
+  .modal-box { max-width: 95%; max-height: 94vh; }
+  .modal-header { padding: 14px 18px; }
+  .modal-body { padding: 14px; }
+  .pdf-document-paper { padding: 16px 12px; }
+
+  .email-window { max-width: 95%; }
+  .email-top-bar { padding: 10px 14px; flex-wrap: wrap; gap: 8px; }
+  .email-body-scroll { padding: 16px; }
+
+  .footer-grid { grid-template-columns: 1fr; }
+  .site-footer { padding: 40px 16px 20px; }
+}
+
+@media (max-width: 576px) {
+  .brand-title-group p { display: none; }
+  .brand-title-group h1 { font-size: 14px; letter-spacing: 0.5px; white-space: nowrap; }
+  .brand-logo-img { width: 36px; height: 36px; }
+  .hero-stats-row { grid-template-columns: 1fr; }
+  .admin-kpi-grid { grid-template-columns: 1fr; }
+  .gpa-display-box { grid-template-columns: 1fr; }
+  .nav-actions { gap: 6px; }
+  .card-actions { flex-direction: column; }
+  .card-actions .btn { width: 100%; }
+  .program-name { font-size: 18px; }
+  .section-header { margin-bottom: 30px; }
+  .section-tag { font-size: 11px; letter-spacing: 2px; }
+  .result-card { padding: 20px 14px; }
+  .eligibility-status-badge { font-size: 13px; padding: 6px 16px; letter-spacing: 1px; }
+}
+
+@media (max-width: 380px) {
+  .brand-title-group h1 { font-size: 12px; }
+  .brand-logo-img { width: 32px; height: 32px; }
+  .hero-title { font-size: 24px; }
+  .section-title { font-size: 22px; }
+  .stat-num { font-size: 20px; }
+}
+
