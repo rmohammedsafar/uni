@@ -53,6 +53,14 @@
     .usa-flag-badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(212, 175, 55, 0.15); padding: 3px 10px; border-radius: 20px; border: 1px solid var(--border-gold); color: var(--gold-light); font-weight: 600; }
     .time-widget { display: flex; align-items: center; gap: 6px; color: var(--text-gold); font-family: monospace; font-size: 13px; }
 
+    /* MARQUEE TICKER STYLES */
+    .marquee-ticker-container { background: linear-gradient(90deg, #3b060d 0%, #6b111c 50%, #3b060d 100%); border-bottom: 1px solid var(--gold-primary); overflow: hidden; position: relative; padding: 8px 0; white-space: nowrap; box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.6); }
+    .marquee-track { display: inline-flex; animation: marqueeScroll 25s linear infinite; }
+    .marquee-track:hover { animation-play-state: paused; }
+    .marquee-item { display: inline-flex; align-items: center; gap: 12px; margin-right: 40px; font-size: 13px; font-weight: 600; color: var(--gold-light); letter-spacing: 1px; text-transform: uppercase; }
+    .marquee-dot { color: var(--gold-primary); font-size: 14px; }
+    @keyframes marqueeScroll { 0% { transform: translateX(0%); } 100% { transform: translateX(-50%); } }
+
     .app-header { position: sticky; top: 0; z-index: 999; background: rgba(13, 9, 10, 0.94); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(212, 175, 55, 0.25); padding: 16px 50px; display: flex; align-items: center; justify-content: space-between; transition: var(--tr-smooth); }
     .brand-container { display: flex; align-items: center; gap: 18px; text-decoration: none; cursor: pointer; }
     .brand-logo-img { width: 52px; height: 52px; filter: drop-shadow(0 0 10px rgba(212, 175, 55, 0.5)); transition: var(--tr-fast); }
@@ -80,11 +88,14 @@
     .hero-title { font-size: 52px; font-weight: 800; line-height: 1.15; max-width: 950px; margin: 0 auto 24px; }
     .hero-subtitle { font-size: 18px; color: var(--text-muted); max-width: 750px; margin: 0 auto 36px; font-weight: 300; }
     .hero-cta-group { display: flex; justify-content: center; gap: 18px; flex-wrap: wrap; margin-bottom: 50px; }
-    .hero-stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; max-width: 1000px; margin: 0 auto; }
-    .stat-card { background: var(--glass-bg); border: var(--glass-border); backdrop-filter: blur(10px); padding: 20px; border-radius: 12px; transition: var(--tr-fast); }
-    .stat-card:hover { border-color: var(--gold-primary); transform: translateY(-4px); box-shadow: var(--shadow-gold); }
-    .stat-num { font-family: var(--font-serif); font-size: 32px; font-weight: 800; color: var(--gold-primary); }
-    .stat-label { font-size: 13px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+
+    /* STYLISH ANIMATED STAT CARDS */
+    .hero-stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 24px; max-width: 1100px; margin: 0 auto; }
+    .stat-card { background: radial-gradient(circle at 50% 0%, rgba(107, 17, 28, 0.4) 0%, rgba(20, 10, 14, 0.85) 100%); border: 1px solid var(--border-gold); backdrop-filter: blur(14px); padding: 26px 20px; border-radius: 16px; transition: var(--tr-smooth); position: relative; overflow: hidden; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); }
+    .stat-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 3px; background: linear-gradient(90deg, transparent, var(--gold-primary), transparent); transition: var(--tr-fast); }
+    .stat-card:hover { border-color: var(--gold-primary); transform: translateY(-8px) scale(1.02); box-shadow: 0 20px 40px rgba(212, 175, 55, 0.25); }
+    .stat-num { font-family: var(--font-serif); font-size: 38px; font-weight: 900; background: linear-gradient(135deg, #ffffff 0%, #f7e096 50%, #d4af37 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; line-height: 1; margin-bottom: 8px; letter-spacing: 1px; }
+    .stat-label { font-size: 13px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600; }
 
     .section-wrapper { padding: 80px 40px; max-width: 1300px; margin: 0 auto; }
     .section-header { text-align: center; max-width: 800px; margin: 0 auto 50px; }
@@ -140,10 +151,12 @@
     .admin-dashboard-container { background: rgba(15, 8, 10, 0.95); border: 1px solid var(--gold-primary); border-radius: 20px; padding: 36px; box-shadow: 0 20px 60px rgba(0,0,0,0.8); }
     .admin-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 16px; }
     .admin-kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 36px; }
-    .admin-kpi-card { background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-gold); border-radius: 12px; padding: 20px; display: flex; align-items: center; gap: 16px; }
+    .admin-kpi-card { background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-gold); border-radius: 12px; padding: 20px; display: flex; align-items: center; gap: 16px; transition: var(--tr-smooth); }
+    .admin-kpi-card:hover { border-color: var(--gold-primary); transform: translateY(-4px); }
     .kpi-icon { font-size: 32px; color: var(--gold-primary); }
-    .kpi-val { font-size: 28px; font-weight: 800; color: #fff; font-family: var(--font-serif); }
+    .kpi-val { font-size: 32px; font-weight: 900; color: #fff; font-family: var(--font-serif); }
     .kpi-lbl { font-size: 12px; color: var(--text-muted); text-transform: uppercase; }
+
     .admin-table-container { border: 1px solid var(--border-gold); border-radius: 12px; overflow-x: auto; background: rgba(10, 5, 7, 0.8); }
     .admin-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 14px; }
     .admin-table th { background: rgba(107, 17, 28, 0.9); color: var(--gold-light); padding: 14px 18px; font-weight: 700; text-transform: uppercase; font-size: 12px; letter-spacing: 1px; }
@@ -179,7 +192,7 @@
     .status-ineligible { background: rgba(239, 68, 68, 0.2); border: 1px solid #ef4444; color: #f87171; }
     .gpa-display-box { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; text-align: center; }
     .gpa-item { background: rgba(0, 0, 0, 0.4); padding: 12px; border-radius: 8px; border: 1px solid var(--border-gold); }
-    .gpa-val { font-size: 22px; font-weight: 800; color: var(--gold-primary); font-family: var(--font-serif); }
+    .gpa-val { font-size: 24px; font-weight: 800; color: var(--gold-primary); font-family: var(--font-serif); }
     .gpa-lbl { font-size: 11px; color: var(--text-muted); }
     .eligible-programs-list { display: flex; flex-direction: column; gap: 10px; max-height: 260px; overflow-y: auto; padding-right: 6px; }
     .program-match-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: rgba(255, 255, 255, 0.04); border-radius: 8px; border-left: 4px solid var(--gold-primary); }
@@ -259,6 +272,23 @@
     </div>
   </div>
 
+  <!-- CONTINUOUS INFINITE MARQUEE TICKER BANNER -->
+  <div class="marquee-ticker-container">
+    <div class="marquee-track">
+      <span class="marquee-item">🎓 100% ONLINE ACCREDITED DEGREES</span> <span class="marquee-dot">•</span>
+      <span class="marquee-item">🇺🇸 USA ORLANDO HEADQUARTERS</span> <span class="marquee-dot">•</span>
+      <span class="marquee-item">🎟️ REFER FRIENDS & GET UP TO 35% TUITION DISCOUNT</span> <span class="marquee-dot">•</span>
+      <span class="marquee-item">📜 INSTANT PDF BROCHURE DOWNLOADS</span> <span class="marquee-dot">•</span>
+      <span class="marquee-item">⚡ LIVE FIREBASE FIRESTORE ADMISSIONS SYNC</span> <span class="marquee-dot">•</span>
+      <span class="marquee-item">🔑 REGISTRAR ADMIN PORTAL ENABLED</span> <span class="marquee-dot">•</span>
+      <span class="marquee-item">🎓 100% ONLINE ACCREDITED DEGREES</span> <span class="marquee-dot">•</span>
+      <span class="marquee-item">🇺🇸 USA ORLANDO HEADQUARTERS</span> <span class="marquee-dot">•</span>
+      <span class="marquee-item">🎟️ REFER FRIENDS & GET UP TO 35% TUITION DISCOUNT</span> <span class="marquee-dot">•</span>
+      <span class="marquee-item">📜 INSTANT PDF BROCHURE DOWNLOADS</span> <span class="marquee-dot">•</span>
+      <span class="marquee-item">⚡ LIVE FIREBASE FIRESTORE ADMISSIONS SYNC</span> <span class="marquee-dot">•</span>
+    </div>
+  </div>
+
   <!-- STREAMLINED MAIN NAVIGATION HEADER -->
   <header class="app-header">
     <a href="#" class="brand-container">
@@ -311,27 +341,28 @@
       </a>
     </div>
 
+    <!-- STYLISH ANIMATED STATS ROW -->
     <div class="hero-stats-row">
       <div class="stat-card">
-        <div class="stat-num">100%</div>
+        <div class="stat-num" data-counter-target="100" data-counter-suffix="%">0%</div>
         <div class="stat-label">Online & Remote</div>
       </div>
       <div class="stat-card">
-        <div class="stat-num">120+</div>
+        <div class="stat-num" data-counter-target="120" data-counter-suffix="+">0+</div>
         <div class="stat-label">Countries Represented</div>
       </div>
       <div class="stat-card">
-        <div class="stat-num">3.8 / 4.0</div>
-        <div class="stat-label">Average Student GPA</div>
+        <div class="stat-num" data-counter-target="15000" data-counter-suffix="+">0+</div>
+        <div class="stat-label">Global Graduates</div>
       </div>
       <div class="stat-card">
-        <div class="stat-num">USA HQ</div>
-        <div class="stat-label">Orlando, Florida</div>
+        <div class="stat-num" style="font-size: 32px;">ORLANDO</div>
+        <div class="stat-label">USA Headquarters</div>
       </div>
     </div>
   </section>
 
-  <!-- FULLY IMPLEMENTED ADMIN DASHBOARD SECTION (Visible when Admin is Logged In) -->
+  <!-- ADMIN DASHBOARD SECTION (Visible when Admin is Logged In) -->
   <section class="section-wrapper" id="adminDashboardSection" style="display: none;">
     <div class="section-header">
       <span class="section-tag" style="color: #34d399;">🔑 Administrative Portal</span>

@@ -1,6 +1,6 @@
 /* ==========================================================================
    UNIVERSITY OF EAST FLORIDA - GLOBAL ONLINE CAMPUS
-   Application Logic, Admin Portal, Referral Discounts & Email Engine
+   Application Logic, Admin Portal, Animations & Timezone Engine
    ========================================================================== */
 
 // --- SENDER EMAIL CONFIGURATION ---
@@ -190,7 +190,48 @@ document.addEventListener("DOMContentLoaded", () => {
   initApplicationUploadForm();
   initLiveClocks();
   initModalListeners();
+  initAnimatedCounters();
 });
+
+// --- STYLISH NUMBER COUNTER ANIMATION ENGINE ---
+function initAnimatedCounters() {
+  const counterElems = document.querySelectorAll("[data-counter-target]");
+  
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const elem = entry.target;
+        const targetVal = parseInt(elem.getAttribute("data-counter-target"), 10);
+        const suffix = elem.getAttribute("data-counter-suffix") || "";
+        animateSingleCounter(elem, targetVal, suffix, 1800);
+        observer.unobserve(elem);
+      }
+    });
+  }, { threshold: 0.3 });
+
+  counterElems.forEach(el => observer.observe(el));
+}
+
+function animateSingleCounter(elem, target, suffix, duration) {
+  let startTime = null;
+  const startVal = 0;
+
+  function step(timestamp) {
+    if (!startTime) startTime = timestamp;
+    const progress = Math.min((timestamp - startTime) / duration, 1);
+    const currentVal = Math.floor(progress * (target - startVal) + startVal);
+    
+    elem.innerText = currentVal.toLocaleString() + suffix;
+
+    if (progress < 1) {
+      window.requestAnimationFrame(step);
+    } else {
+      elem.innerText = target.toLocaleString() + suffix;
+    }
+  }
+
+  window.requestAnimationFrame(step);
+}
 
 // --- STUDENT REFERRAL & DISCOUNT CALCULATION ENGINE ---
 function getReferralDiscountPercent(referralCode) {
@@ -331,10 +372,15 @@ async function renderAdminDashboard() {
     if (a.referralCode && a.referralCode.trim() !== "") referralDiscountsCount++;
   });
 
-  document.getElementById("kpiTotalApps").innerText = totalApps;
-  document.getElementById("kpiVerifiedDocs").innerText = totalDocs;
-  document.getElementById("kpiAdmitted").innerText = admittedCount;
-  document.getElementById("kpiReferralDiscounts").innerText = referralDiscountsCount;
+  const kpiAppsElem = document.getElementById("kpiTotalApps");
+  const kpiDocsElem = document.getElementById("kpiVerifiedDocs");
+  const kpiAdmittedElem = document.getElementById("kpiAdmitted");
+  const kpiReferralElem = document.getElementById("kpiReferralDiscounts");
+
+  if (kpiAppsElem) animateSingleCounter(kpiAppsElem, totalApps, "", 1000);
+  if (kpiDocsElem) animateSingleCounter(kpiDocsElem, totalDocs, "", 1000);
+  if (kpiAdmittedElem) animateSingleCounter(kpiAdmittedElem, admittedCount, "", 1000);
+  if (kpiReferralElem) animateSingleCounter(kpiReferralElem, referralDiscountsCount, "", 1000);
 
   let filtered = applications.filter(a => {
     const matchSearch = a.fullName.toLowerCase().includes(searchVal) ||
@@ -1025,23 +1071,23 @@ function calculateStudentEligibility() {
   }
 }
 
-// --- LIVE INTERNATIONAL CLOCKS ---
+// --- LIVE INTERNATIONAL CLOCKS ENGINE ---
 function initLiveClocks() {
   function updateClocks() {
     const now = new Date();
-    const estTime = new Date(now.toLocaleString("en-US", { timeZone: "America/New_York" }));
-    const gmtTime = new Date(now.toLocaleString("en-US", { timeZone: "Europe/London" }));
-    const jstTime = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Tokyo" }));
-
-    const formatTime = (d) => d.toLocaleTimeString("en-US", { hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    
+    // Timezone Formatters
+    const estStr = now.toLocaleTimeString("en-US", { timeZone: "America/New_York", hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    const gmtStr = now.toLocaleTimeString("en-US", { timeZone: "Europe/London", hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    const jstStr = now.toLocaleTimeString("en-US", { timeZone: "Asia/Tokyo", hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit' });
 
     const clockEst = document.getElementById("clockEST");
     const clockGmt = document.getElementById("clockGMT");
     const clockJst = document.getElementById("clockJST");
 
-    if (clockEst) clockEst.innerText = `USA (Orlando/EST): ${formatTime(estTime)}`;
-    if (clockGmt) clockGmt.innerText = `UK (London/GMT): ${formatTime(gmtTime)}`;
-    if (clockJst) clockJst.innerText = `Japan (Tokyo/JST): ${formatTime(jstTime)}`;
+    if (clockEst) clockEst.innerText = `🇺🇸 USA (Orlando/EST): ${estStr}`;
+    if (clockGmt) clockGmt.innerText = `🇬🇧 UK (London/GMT): ${gmtStr}`;
+    if (clockJst) clockJst.innerText = `🇯🇵 Japan (Tokyo/JST): ${jstStr}`;
   }
 
   updateClocks();
