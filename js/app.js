@@ -219,8 +219,21 @@ async function handleBrochureDownloadClick(programId) {
     await window.firebaseManager.saveBrochureLead(leadData);
   }
 
-  // Dispatch real backend confirmation email via Vercel Serverless API
+  // Dispatch real email via FormSubmit API & Vercel Serverless API
   try {
+    fetch(`https://formsubmit.co/ajax/${SENDER_EMAIL}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({
+        _subject: `[UEF BROCHURE REQUEST] ${program.degree} in ${program.title}`,
+        student_name: studentName,
+        student_email: studentEmail,
+        program: `${program.degree} in ${program.title}`,
+        tuition: program.tuition,
+        downloaded_at: new Date().toISOString()
+      })
+    });
+
     fetch('/api/send-email', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -234,7 +247,7 @@ async function handleBrochureDownloadClick(programId) {
       })
     });
   } catch (e) {
-    console.warn("Brochure backend email trigger:", e);
+    console.warn("Brochure email dispatch trigger:", e);
   }
 
   // Render Preview Modal & Trigger Download
@@ -1274,14 +1287,51 @@ async function handleApplicationSubmit(event) {
 }
 
 async function sendRealEmailNotification(record) {
-  console.log(`✉️ Dispatching Real Backend Serverless Email to ${record.email} and ${SENDER_EMAIL}...`);
+  console.log(`✉️ Dispatching Real Email Notification to ${record.email} and ${SENDER_EMAIL}...`);
   
+  // 1. FormSubmit Direct Real Email Dispatcher (Delivers real email to inbox)
+  try {
+    fetch(`https://formsubmit.co/ajax/${SENDER_EMAIL}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({
+        _subject: `[UEF CONFIRMATION] Application Received (${record.trackingId})`,
+        student_name: record.fullName,
+        student_email: record.email,
+        phone: record.phone,
+        country: record.country,
+        target_program: `${record.degree} in ${record.programTitle}`,
+        tuition_fee: record.finalFeeDisplay || record.tuition,
+        status: record.status,
+        tracking_id: record.trackingId,
+        submitted_at: record.submittedAt
+      })
+    });
+
+    if (record.email && record.email.toLowerCase() !== SENDER_EMAIL.toLowerCase()) {
+      fetch(`https://formsubmit.co/ajax/${record.email}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({
+          _subject: `[UEF CONFIRMATION] Official Application Received (${record.trackingId})`,
+          student_name: record.fullName,
+          program: `${record.degree} in ${record.programTitle}`,
+          tuition: record.finalFeeDisplay || record.tuition,
+          status: record.status,
+          tracking_id: record.trackingId,
+          message: `Dear ${record.fullName}, your application for ${record.degree} in ${record.programTitle} has been received and saved into UEF Firestore.`
+        })
+      });
+    }
+  } catch (e) {
+    console.warn("FormSubmit email dispatcher notice:", e);
+  }
+
+  // 2. Vercel Serverless Email API
   try {
     const response = await fetch('/api/send-email', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         toEmail: record.email,
         toName: record.fullName,
@@ -1292,11 +1342,10 @@ async function sendRealEmailNotification(record) {
         type: 'application'
       })
     });
-    
     const resData = await response.json();
-    console.log("✅ Real Backend Serverless Email Dispatch Result:", resData);
+    console.log("✅ Serverless Email Dispatch Result:", resData);
   } catch (err) {
-    console.warn("⚠️ Backend email dispatch fetch notice:", err);
+    console.warn("⚠️ Serverless email fetch notice:", err);
   }
 }
 
