@@ -5,19 +5,6 @@
 
 const nodemailer = require('nodemailer');
 
-// REGISTRAR BACKEND SENDER CREDENTIALS
-const SENDER_EMAIL = process.env.SENDER_EMAIL || "r.mohammedsafar@gmail.com";
-const SENDER_PASS = process.env.SENDER_PASS || "uef2026pass";
-
-// Configure SMTP Transport (Gmail / Custom SMTP)
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: SENDER_EMAIL,
-    pass: SENDER_PASS
-  }
-});
-
 module.exports = async (req, res) => {
   // CORS Headers
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -31,6 +18,9 @@ module.exports = async (req, res) => {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed. Use POST.' });
   }
+
+  const senderEmail = process.env.SENDER_EMAIL || "r.mohammedsafar@gmail.com";
+  const senderPass = process.env.SENDER_PASS;
 
   try {
     const { toEmail, toName, trackingId, program, tuition, status, type } = req.body || {};
@@ -93,7 +83,7 @@ module.exports = async (req, res) => {
             <div class="footer">
               <strong>Office of the University Registrar</strong><br>
               University of East Florida • 1200 University Blvd, Suite 500, Orlando, FL 32816, USA<br>
-              Registrar Email: ${SENDER_EMAIL} | Toll-Free USA: +1 (800) 555-UEF1
+              Registrar Email: ${senderEmail} | Toll-Free USA: +1 (800) 555-UEF1
             </div>
           </div>
         </body>
@@ -101,31 +91,51 @@ module.exports = async (req, res) => {
     `;
 
     const mailOptions = {
-      from: `"UEF Office of Admissions" <${SENDER_EMAIL}>`,
-      to: `${toEmail}, ${SENDER_EMAIL}`, // Sends real email to student AND CCs Registrar
+      from: `"UEF Office of Admissions" <${senderEmail}>`,
+      to: `${toEmail}, ${senderEmail}`,
       subject: subject,
       html: htmlBody
     };
 
-    // Attempt SMTP dispatch
     let info = null;
-    try {
-      info = await transporter.sendMail(mailOptions);
-      console.log('✅ Real Backend Email Dispatched via Nodemailer SMTP:', info.messageId);
-    } catch (smtpErr) {
-      console.warn('⚠️ SMTP credentials not set on server, fallback response active:', smtpErr.message);
+    let smtpError = null;
+
+    if (senderPass) {
+      try {
+        const transporter = nodemailer.createTransport({
+          host: 'smtp.gmail.com',
+          port: 465,
+          secure: true,
+          auth: {
+            user: senderEmail,
+            pass: senderPass.replace(/\s+/g, '') // remove spaces from App Password
+          }
+        });
+
+        info = await transporter.sendMail(mailOptions);
+        console.log('✅ Real Backend Email Dispatched via Nodemailer SMTP:', info.messageId);
+      } catch (err) {
+        smtpError = err.message;
+        console.error('❌ Gmail SMTP Error:', err);
+      }
+    } else {
+      smtpError = "SENDER_PASS environment variable is missing on Vercel.";
     }
 
     return res.status(200).json({
-      success: true,
-      message: `Real backend confirmation email queued and sent to ${toEmail} and ${SENDER_EMAIL}`,
+      success: info ? true : false,
+      message: info 
+        ? `Real backend confirmation email sent to ${toEmail} and ${senderEmail}`
+        : `Email delivery pending: ${smtpError}`,
       trackingId: trackingId || 'UEF-LOG',
       recipient: toEmail,
-      smtpStatus: info ? 'DISPATCHED_SMTP' : 'LOGGED_SERVERLESS'
+      senderEmail: senderEmail,
+      smtpStatus: info ? 'DISPATCHED_SMTP' : 'SMTP_ERROR',
+      smtpError: smtpError
     });
 
   } catch (error) {
-    console.error('Backend Email API Error:', error);
+    console.error('Backend Email API Exception:', error);
     return res.status(500).json({ error: error.message || 'Failed to dispatch email' });
   }
 };
