@@ -198,18 +198,11 @@ async function handleBrochureDownloadClick(programId) {
   const program = DEGREE_PROGRAMS.find(p => p.id === programId);
   if (!program) return;
 
-  // Determine student details
   let studentName = currentUser ? currentUser.name : "Student Lead";
   let studentEmail = currentUser ? currentUser.email : "";
 
   if (!studentEmail) {
-    const inputEmail = prompt(`📄 Download Official PDF Brochure: ${program.degree} in ${program.title}\n\nPlease enter your email address to record your lead and download the official PDF brochure:`, "");
-    if (inputEmail && inputEmail.trim()) {
-      studentEmail = inputEmail.trim();
-      studentName = studentEmail.split('@')[0];
-    } else {
-      studentEmail = "guest_lead@uef.edu.online";
-    }
+    studentEmail = "guest_lead@uef.edu.online";
   }
 
   // Save Lead Data in Firebase Cloud Firestore (`brochure_downloads`)
@@ -226,11 +219,65 @@ async function handleBrochureDownloadClick(programId) {
     await window.firebaseManager.saveBrochureLead(leadData);
   }
 
-  // Render & Trigger PDF Download Window
+  // Render Preview Modal & Trigger Download
   openBrochureModal(programId);
+}
+
+// --- GUARANTEED NON-BLOCKED PDF DOWNLOAD VIA HIDDEN IFRAME ---
+function triggerPDFDownload() {
+  if (!activeBrochureProgram) return;
+  const element = document.getElementById("pdfPaperPreview");
+  if (!element) return;
+
+  // Remove old print iframe if exists
+  let oldFrame = document.getElementById("brochurePrintFrame");
+  if (oldFrame) oldFrame.remove();
+
+  // Create hidden iframe (Completely bypasses browser popup blockers)
+  const iframe = document.createElement("iframe");
+  iframe.id = "brochurePrintFrame";
+  iframe.style.position = "fixed";
+  iframe.style.right = "0";
+  iframe.style.bottom = "0";
+  iframe.style.width = "0";
+  iframe.style.height = "0";
+  iframe.style.border = "0";
+
+  document.body.appendChild(iframe);
+
+  const doc = iframe.contentWindow.document;
+  doc.open();
+  doc.write(`
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <title>UEF_Brochure_${activeBrochureProgram.id}.pdf</title>
+        <style>
+          @page { size: letter portrait; margin: 20mm; }
+          body { font-family: 'Times New Roman', serif; padding: 20px; color: #111; line-height: 1.5; }
+          .pdf-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px double #6b111c; padding-bottom: 15px; margin-bottom: 20px; }
+          .pdf-logo { width: 60px; height: 60px; }
+          .pdf-header-title { text-align: right; }
+          .pdf-header-title h2 { color: #6b111c; margin: 0; font-size: 22px; }
+          .pdf-header-title p { font-size: 11px; color: #d4af37; letter-spacing: 2px; font-weight: bold; }
+          .pdf-program-title { font-size: 24px; color: #3b060d; margin: 20px 0 10px; font-weight: bold; }
+          .pdf-info-grid { display: flex; justify-content: space-between; background: #f7f3e9; padding: 15px; border-radius: 5px; margin-bottom: 20px; border: 1px solid #e2d7c0; }
+          .pdf-module-list ul { padding-left: 20px; }
+          .pdf-module-list li { margin-bottom: 8px; font-size: 14px; }
+          .pdf-footer-stamp { margin-top: 40px; border-top: 1px solid #ccc; padding-top: 15px; font-size: 12px; display: flex; justify-content: space-between; color: #666; }
+        </style>
+      </head>
+      <body>
+        ${element.innerHTML}
+      </body>
+    </html>
+  `);
+  doc.close();
+
   setTimeout(() => {
-    triggerPDFDownload();
-  }, 300);
+    iframe.contentWindow.focus();
+    iframe.contentWindow.print();
+  }, 250);
 }
 
 // --- AUTH TAB SWITCHING ENGINE (SIGN IN vs STUDENT REGISTER) ---
@@ -443,13 +490,30 @@ async function downloadOfferLetterPDF(trackingId) {
   const app = apps.find(a => a.trackingId === trackingId);
   if (!app) return;
 
-  const printWin = window.open('', '', 'height=800,width=800');
-  printWin.document.write(`
+  let oldFrame = document.getElementById("offerLetterPrintFrame");
+  if (oldFrame) oldFrame.remove();
+
+  const iframe = document.createElement("iframe");
+  iframe.id = "offerLetterPrintFrame";
+  iframe.style.position = "fixed";
+  iframe.style.right = "0";
+  iframe.style.bottom = "0";
+  iframe.style.width = "0";
+  iframe.style.height = "0";
+  iframe.style.border = "0";
+
+  document.body.appendChild(iframe);
+
+  const doc = iframe.contentWindow.document;
+  doc.open();
+  doc.write(`
+    <!DOCTYPE html>
     <html>
       <head>
         <title>UEF_Official_Admission_Offer_Letter_${app.trackingId}.pdf</title>
         <style>
-          body { font-family: 'Times New Roman', serif; padding: 50px; color: #111; line-height: 1.6; }
+          @page { size: letter portrait; margin: 20mm; }
+          body { font-family: 'Times New Roman', serif; padding: 30px; color: #111; line-height: 1.6; }
           .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px double #6b111c; padding-bottom: 15px; margin-bottom: 25px; }
           .title { font-size: 22px; color: #6b111c; font-weight: bold; margin-bottom: 4px; }
           .badge { background: #ecfdf5; border: 1px solid #10b981; color: #047857; padding: 6px 14px; border-radius: 20px; font-weight: bold; display: inline-block; }
@@ -502,17 +566,15 @@ async function downloadOfferLetterPDF(trackingId) {
             Official Digital Crest Seal Verified
           </div>
         </div>
-
-        <script>
-          setTimeout(() => {
-            window.print();
-            window.close();
-          }, 400);
-        </script>
       </body>
     </html>
   `);
-  printWin.document.close();
+  doc.close();
+
+  setTimeout(() => {
+    iframe.contentWindow.focus();
+    iframe.contentWindow.print();
+  }, 250);
 }
 
 function openAdminLoginModal() {
@@ -1220,29 +1282,45 @@ function printApplicationReceipt() {
   const paper = document.getElementById("emailReceiptPaper");
   if (!paper) return;
 
-  const printWin = window.open('', '', 'height=800,width=800');
-  printWin.document.write(`
+  let oldFrame = document.getElementById("receiptPrintFrame");
+  if (oldFrame) oldFrame.remove();
+
+  const iframe = document.createElement("iframe");
+  iframe.id = "receiptPrintFrame";
+  iframe.style.position = "fixed";
+  iframe.style.right = "0";
+  iframe.style.bottom = "0";
+  iframe.style.width = "0";
+  iframe.style.height = "0";
+  iframe.style.border = "0";
+
+  document.body.appendChild(iframe);
+
+  const doc = iframe.contentWindow.document;
+  doc.open();
+  doc.write(`
+    <!DOCTYPE html>
     <html>
       <head>
         <title>UEF_Application_Receipt.pdf</title>
         <style>
-          body { font-family: Arial, sans-serif; padding: 40px; color: #111; }
+          @page { size: letter portrait; margin: 15mm; }
+          body { font-family: Arial, sans-serif; padding: 20px; color: #111; }
           .email-paper-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #6b111c; padding-bottom: 15px; margin-bottom: 20px; }
           .tracking-stamp-badge { background: #ecfdf5; border: 1px solid #10b981; color: #047857; padding: 4px 10px; border-radius: 12px; font-weight: bold; }
         </style>
       </head>
       <body>
         ${paper.innerHTML}
-        <script>
-          setTimeout(() => {
-            window.print();
-            window.close();
-          }, 400);
-        </script>
       </body>
     </html>
   `);
-  printWin.document.close();
+  doc.close();
+
+  setTimeout(() => {
+    iframe.contentWindow.focus();
+    iframe.contentWindow.print();
+  }, 250);
 }
 
 function scrollToApplySection(programId) {
@@ -1405,7 +1483,7 @@ function calculateStudentEligibility() {
   }
 }
 
-// --- PDF BROCHURE PREVIEW & DOWNLOAD SYSTEM ---
+// --- PDF BROCHURE PREVIEW MODAL ---
 let activeBrochureProgram = null;
 
 function initModalListeners() {
@@ -1511,42 +1589,6 @@ function openBrochureModal(programId) {
 function closeBrochureModal() {
   const modal = document.getElementById("brochureModal");
   if (modal) modal.classList.remove("open");
-}
-
-function triggerPDFDownload() {
-  if (!activeBrochureProgram) return;
-  const element = document.getElementById("pdfPaperPreview");
-  if (!element) return;
-
-  const printWin = window.open('', '', 'height=800,width=800');
-  printWin.document.write(`
-    <html>
-      <head>
-        <title>UEF_Brochure_${activeBrochureProgram.id}.pdf</title>
-        <style>
-          body { font-family: 'Times New Roman', serif; padding: 40px; color: #111; }
-          .pdf-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #6b111c; padding-bottom: 15px; margin-bottom: 20px; }
-          .pdf-logo { width: 60px; height: 60px; }
-          .pdf-header-title h2 { color: #6b111c; margin: 0; }
-          .pdf-program-title { font-size: 24px; color: #3b060d; margin: 20px 0 10px; font-weight: bold; }
-          .pdf-info-grid { display: flex; justify-content: space-between; background: #f7f3e9; padding: 15px; border-radius: 5px; margin-bottom: 20px; }
-          .pdf-module-list ul { padding-left: 20px; }
-          .pdf-module-list li { margin-bottom: 8px; }
-          .pdf-footer-stamp { margin-top: 40px; border-top: 1px solid #ccc; padding-top: 15px; font-size: 12px; display: flex; justify-content: space-between; }
-        </style>
-      </head>
-      <body>
-        ${element.innerHTML}
-        <script>
-          setTimeout(() => {
-            window.print();
-            window.close();
-          }, 400);
-        </script>
-      </body>
-    </html>
-  `);
-  printWin.document.close();
 }
 
 function submitContactInquiry(event) {
