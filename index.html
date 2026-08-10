@@ -1760,7 +1760,58 @@
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
   <!-- Application Scripts -->
+  <!-- ===== UEF AI STUDENT ADVISOR CHATBOT WIDGET ===== -->
+  <div class="ai-chat-widget-container">
+    <!-- Chat Popup Window -->
+    <div class="ai-chat-window" id="aiChatWindow">
+      <div class="ai-chat-header">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <div class="ai-avatar-badge">🤖</div>
+          <div>
+            <div style="font-weight:700; color:#fff; font-size:14px; font-family:var(--font-serif);">UEF AI Academic Advisor</div>
+            <div style="font-size:11px; color:#34d399; display:flex; align-items:center; gap:5px;">
+              <span style="width:7px; height:7px; background:#34d399; border-radius:50%; display:inline-block; animation:logoPulse 1.5s infinite alternate;"></span>
+              Online • Instant Answers 24/7
+            </div>
+          </div>
+        </div>
+        <button class="ai-chat-close-btn" onclick="toggleAIChatWindow()">✕</button>
+      </div>
+
+      <div class="ai-chat-messages" id="aiChatMessages">
+        <!-- Default Welcome Message -->
+        <div class="ai-msg ai-msg-bot">
+          <div class="ai-msg-bubble">
+            👋 Welcome to the <strong>University of East Florida</strong>! I am your 24/7 AI Academic Advisor. How can I assist you today?
+          </div>
+        </div>
+        
+        <!-- Quick Action Buttons -->
+        <div class="ai-quick-chips" id="aiQuickChips">
+          <button class="ai-chip-btn" onclick="sendQuickAIQuestion('What degree programs are offered?')">📚 Degree Programs</button>
+          <button class="ai-chip-btn" onclick="sendQuickAIQuestion('How do I apply and upload marksheets?')">📝 How to Apply</button>
+          <button class="ai-chip-btn" onclick="sendQuickAIQuestion('How do tuition fee discounts and referral codes work?')">💰 Tuition & Discounts</button>
+          <button class="ai-chip-btn" onclick="sendQuickAIQuestion('What are the GPA eligibility requirements?')">🎓 GPA Requirements</button>
+        </div>
+      </div>
+
+      <div class="ai-chat-input-area">
+        <input type="text" id="aiChatInput" class="ai-chat-input" placeholder="Type your academic question..." onkeydown="handleAIChatKey(event)">
+        <button class="ai-chat-send-btn" onclick="sendAIChatMessage()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Floating Chat Trigger Button -->
+    <button class="ai-chat-trigger-btn" onclick="toggleAIChatWindow()" id="aiChatTriggerBtn" title="Ask UEF AI Academic Advisor">
+      <div class="ai-chat-unread-badge" id="aiChatUnreadBadge">1</div>
+      <span style="font-size:24px;">🤖</span>
+      <span class="ai-trigger-text">AI Advisor</span>
+    </button>
+  </div>
+
   <script src="js/firebase-config.js"></script>
-  <script src="js/app.js?v=7.0"></script>
+  <script src="js/app.js"></script>
 </body>
 </html>

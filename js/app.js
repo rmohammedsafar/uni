@@ -2306,3 +2306,141 @@ async function loadGlobalNews() {
   `).join('');
 }
 
+// ============================================================
+// UEF AI STUDENT ADVISOR CHATBOT ENGINE
+// ============================================================
+let isAIChatOpen = false;
+
+function toggleAIChatWindow() {
+  const win = document.getElementById('aiChatWindow');
+  const badge = document.getElementById('aiChatUnreadBadge');
+  if (!win) return;
+
+  isAIChatOpen = !isAIChatOpen;
+  if (isAIChatOpen) {
+    win.classList.add('open');
+    if (badge) badge.style.display = 'none';
+    const input = document.getElementById('aiChatInput');
+    if (input) input.focus();
+  } else {
+    win.classList.remove('open');
+  }
+}
+
+function handleAIChatKey(e) {
+  if (e.key === 'Enter') {
+    sendAIChatMessage();
+  }
+}
+
+function sendQuickAIQuestion(questionText) {
+  const input = document.getElementById('aiChatInput');
+  if (input) {
+    input.value = questionText;
+    sendAIChatMessage();
+  }
+}
+
+function sendAIChatMessage() {
+  const input = document.getElementById('aiChatInput');
+  const container = document.getElementById('aiChatMessages');
+  if (!input || !container) return;
+
+  const text = input.value.trim();
+  if (!text) return;
+
+  // Append user message
+  const userMsgDiv = document.createElement('div');
+  userMsgDiv.className = 'ai-msg ai-msg-user';
+  userMsgDiv.innerHTML = `<div class="ai-msg-bubble">${escapeHtml(text)}</div>`;
+  container.appendChild(userMsgDiv);
+
+  // Clear input
+  input.value = '';
+
+  // Hide quick chips once user chats
+  const chips = document.getElementById('aiQuickChips');
+  if (chips) chips.style.display = 'none';
+
+  // Scroll to bottom
+  container.scrollTop = container.scrollHeight;
+
+  // Thinking indicator
+  const typingDiv = document.createElement('div');
+  typingDiv.className = 'ai-msg ai-msg-bot';
+  typingDiv.id = 'aiTypingIndicator';
+  typingDiv.innerHTML = `<div class="ai-msg-bubble" style="color:var(--gold-light);">🤖 Advisor is thinking...</div>`;
+  container.appendChild(typingDiv);
+  container.scrollTop = container.scrollHeight;
+
+  // Respond after 600ms delay
+  setTimeout(() => {
+    const indicator = document.getElementById('aiTypingIndicator');
+    if (indicator) indicator.remove();
+
+    const botResponse = generateAIAdvisorResponse(text);
+    const botMsgDiv = document.createElement('div');
+    botMsgDiv.className = 'ai-msg ai-msg-bot';
+    botMsgDiv.innerHTML = `<div class="ai-msg-bubble">${botResponse}</div>`;
+    container.appendChild(botMsgDiv);
+    container.scrollTop = container.scrollHeight;
+  }, 650);
+}
+
+function generateAIAdvisorResponse(query) {
+  const q = query.toLowerCase();
+
+  if (q.includes('program') || q.includes('degree') || q.includes('course') || q.includes('major')) {
+    return `🎓 <strong>University of East Florida Degree Programs:</strong><br><br>
+    • <strong>M.S. Computer Science & AI</strong> ($14,400 total)<br>
+    • <strong>M.S. Data Science & Big Data</strong> ($13,800 total)<br>
+    • <strong>Global MBA — Business Leadership</strong> ($16,200 total)<br>
+    • <strong>M.S. Cybersecurity Policy & Risk</strong> ($14,000 total)<br>
+    • <strong>B.S. Software Engineering</strong> ($18,500 total)<br><br>
+    All programs are 100% online, self-paced, and internationally accredited!`;
+  }
+
+  if (q.includes('apply') || q.includes('marksheet') || q.includes('document') || q.includes('admission') || q.includes('upload')) {
+    return `📝 <strong>How to Apply to UEF:</strong><br><br>
+    1. Scroll to the <strong>Official Application</strong> section below.<br>
+    2. Fill in your Full Name, Email, Phone, and Select your Degree.<br>
+    3. Drag & drop or upload your Academic Marksheets / Transcripts (PDF/JPG).<br>
+    4. Enter an optional <strong>Referral Code</strong> for up to 35% tuition discount.<br>
+    5. Click <strong>Submit Official Application</strong>!<br><br>
+    Admissions team responds within 24-48 hours via email.`;
+  }
+
+  if (q.includes('fee') || q.includes('cost') || q.includes('discount') || q.includes('referral') || q.includes('price') || q.includes('scholarship')) {
+    return `💰 <strong>Tuition Fee Discounts & Referral Hub:</strong><br><br>
+    • <strong>Tier 1 (1 Referral):</strong> 10% OFF (~$1,440 savings)<br>
+    • <strong>Tier 2 (2-3 Referrals):</strong> 20% OFF (~$2,880 savings)<br>
+    • <strong>Tier 3 (4+ Referrals):</strong> 35% OFF (~$5,000 savings)<br><br>
+    You can generate your unique referral code in the <strong>Student Portal & Rewards</strong> section!`;
+  }
+
+  if (q.includes('gpa') || q.includes('requirement') || q.includes('eligible') || q.includes('marks') || q.includes('score')) {
+    return `🎓 <strong>GPA & Academic Eligibility Rules:</strong><br><br>
+    • <strong>GPA ≥ 3.50 (85%+):</strong> Direct Unconditional Admission + 15% Dean's Merit Scholarship!<br>
+    • <strong>GPA 2.75 - 3.49 (70%-84%):</strong> Standard Admission.<br>
+    • <strong>GPA 2.00 - 2.74 (55%-69%):</strong> Conditional Admission with Foundation Prep.<br><br>
+    Use our interactive <strong>Marks Evaluator</strong> in the Student Portal section to calculate your exact GPA!`;
+  }
+
+  if (q.includes('contact') || q.includes('email') || q.includes('phone') || q.includes('headquarters') || q.includes('address') || q.includes('usa')) {
+    return `🏛️ <strong>USA Headquarters & Official Contact:</strong><br><br>
+    • <strong>Address:</strong> 1200 University Blvd, Suite 500, Orlando, FL 32816, USA<br>
+    • <strong>Toll-Free:</strong> +1 (800) 555-UEF1<br>
+    • <strong>Registrar Email:</strong> <a href="mailto:r.mohammedsafar@gmail.com" style="color:var(--gold-primary);">r.mohammedsafar@gmail.com</a><br>
+    • <strong>Hours:</strong> Mon - Fri: 8:00 AM - 6:00 PM EST`;
+  }
+
+  if (q.includes('accreditation') || q.includes('deac) || q.includes('sacscoc') || q.includes('valid') || q.includes('legal')) {
+    return `🌐 <strong>Accreditation & Recognition:</strong><br><br>
+    UEF adheres to DEAC Distance Education Standards and SACSCOC Regional Quality Models, fully accredited for 100% online distance learning under US Higher Education frameworks.`;
+  }
+
+  return `🤖 Thank you for your question! University of East Florida offers 100% online accredited degrees with global recognition.<br><br>
+  You can explore our <strong>Programs</strong>, test your GPA in the <strong>Student Portal</strong>, or submit your <strong>Marksheet Application</strong> directly below. Is there a specific program or fee detail you would like to know?`;
+}
+
+
