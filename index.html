@@ -231,8 +231,8 @@
     .portal-container { background: radial-gradient(circle at 50% 0%, rgba(107, 17, 28, 0.25) 0%, rgba(20, 10, 14, 0.95) 100%); border: 1px solid var(--border-gold); border-radius: 20px; padding: 40px; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6); }
     .portal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
     @media (max-width: 992px) { .portal-grid { grid-template-columns: 1fr; } }
-    .grade-table-wrapper { margin: 20px 0; border: 1px solid var(--border-gold); border-radius: 10px; overflow: hidden; }
-    .grade-table { width: 100%; border-collapse: collapse; text-align: left; }
+    .grade-table-wrapper { margin: 20px 0; border: 1px solid var(--border-gold); border-radius: 10px; overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; }
+    .grade-table { width: 100%; min-width: 480px; border-collapse: collapse; text-align: left; }
     .grade-table th { background: rgba(107, 17, 28, 0.8); padding: 12px 16px; font-size: 13px; color: var(--gold-light); font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
     .grade-table td { padding: 10px 14px; border-top: 1px solid rgba(212, 175, 55, 0.15); background: rgba(15, 8, 10, 0.6); }
     .remove-row-btn { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); width: 28px; height: 28px; border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; font-weight: bold; }
@@ -468,53 +468,66 @@
     }
 
     @media (max-width: 768px) {
-      .usa-top-banner { padding: 8px 16px; font-size: 11px; flex-direction: column; justify-content: center; text-align: center; }
-      .banner-left, .banner-right { flex-wrap: wrap; justify-content: center; gap: 8px; }
-      .app-header { padding: 12px 16px; }
+      .usa-top-banner { padding: 8px 12px; font-size: 11px; flex-direction: column; justify-content: center; text-align: center; }
+      .banner-left, .banner-right { flex-wrap: wrap; justify-content: center; gap: 6px; }
+      .app-header { padding: 10px 14px; gap: 8px; }
       .nav-links { display: none; }
       .mobile-menu-btn { display: inline-block; }
       
-      .hero-section { padding: 50px 16px 70px; }
-      .hero-title { font-size: clamp(28px, 6vw, 42px); }
-      .hero-subtitle { font-size: 15px; }
+      .hero-section { padding: 40px 14px 60px; }
+      .hero-title { font-size: clamp(26px, 5.5vw, 42px); }
+      .hero-subtitle { font-size: 14px; }
       .hero-cta-group { flex-direction: column; gap: 12px; }
       .hero-cta-group .btn { width: 100%; }
 
-      .hero-stats-row { grid-template-columns: 1fr 1fr; gap: 12px; }
-      .stat-card { padding: 16px 12px; }
-      .stat-num { font-size: 28px; }
+      .hero-stats-row { grid-template-columns: 1fr 1fr; gap: 10px; }
+      .stat-card { padding: 14px 10px; }
+      .stat-num { font-size: 24px; }
 
-      .section-wrapper { padding: 40px 16px; }
-      .section-title { font-size: 28px; }
+      .section-wrapper { padding: 36px 14px; }
+      .section-title { font-size: 26px; }
 
       .catalog-controls { padding: 12px; gap: 12px; }
       .search-box { min-width: 100%; }
-      .filter-pills { width: 100%; justify-content: center; }
+      .filter-pills { width: 100%; justify-content: center; flex-wrap: wrap; }
+      .filter-pill { font-size: 12px; padding: 6px 12px; }
 
       .programs-grid { grid-template-columns: 1fr; }
       .program-card { margin-bottom: 10px; }
 
-      .application-portal-box { padding: 20px 16px; border-radius: 14px; }
+      .application-portal-box { padding: 18px 14px; border-radius: 14px; }
       .form-control, .form-select { font-size: 16px; min-height: 46px; }
-      .drop-zone { padding: 20px 12px; }
+      .form-grid-2 { grid-template-columns: 1fr !important; gap: 12px; }
+      .drop-zone { padding: 18px 10px; }
 
-      .portal-container { padding: 20px 14px; }
-      .admin-dashboard-container { padding: 20px 14px; }
+      .portal-container { padding: 18px 12px; }
+      .admin-dashboard-container { padding: 18px 12px; }
       .admin-kpi-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
       .admin-kpi-card { padding: 12px; }
-      .kpi-val { font-size: 22px; }
+      .kpi-val { font-size: 20px; }
 
       .modal-box { max-width: 95%; max-height: 94vh; }
-      .modal-body { padding: 16px; }
-      .pdf-document-paper, .email-paper-card { padding: 18px 14px; }
+      .modal-body { padding: 14px; }
+      .pdf-document-paper, .email-paper-card { padding: 16px 12px; }
     }
 
-    @media (max-width: 480px) {
+    @media (max-width: 576px) {
+      #navAdminBtn { display: none !important; }
+      .brand-title-group p { display: none !important; }
+      .brand-title-group h1 { font-size: 14px; letter-spacing: 0.5px; white-space: nowrap; }
+      .brand-logo-img { width: 36px; height: 36px; }
       .hero-stats-row { grid-template-columns: 1fr; }
       .admin-kpi-grid { grid-template-columns: 1fr; }
-      .brand-title-group h1 { font-size: 15px; }
-      .brand-logo-img { width: 40px; height: 40px; }
       .gpa-display-box { grid-template-columns: 1fr; }
+      .nav-actions { gap: 6px; }
+      .nav-actions .btn-gold { padding: 7px 12px !important; font-size: 12px !important; }
+      .mobile-menu-btn { padding: 5px 10px !important; font-size: 18px !important; }
+      .admin-table-container, .grade-table-wrapper { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    }
+
+    @media (max-width: 380px) {
+      .brand-title-group h1 { font-size: 12px; }
+      .brand-logo-img { width: 32px; height: 32px; }
     }
   </style>
 </head>
