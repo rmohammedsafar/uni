@@ -544,6 +544,17 @@
     <div class="preloader-progress-bar">
       <div class="preloader-progress-fill"></div>
     </div>
+    <script>
+      // Failsafe preloader hide trigger
+      setTimeout(function() {
+        var p = document.getElementById('universityPreloader');
+        if (p) {
+          p.style.opacity = '0';
+          p.style.pointerEvents = 'none';
+          setTimeout(function() { p.style.display = 'none'; }, 500);
+        }
+      }, 1400);
+    </script>
   </div>
 
   <!-- Top USA & International Contact Bar -->
@@ -1812,6 +1823,6 @@
   </div>
 
   <script src="js/firebase-config.js"></script>
-  <script src="js/app.js"></script>
+  <script src="js/app.js?v=10.0"></script>
 </body>
 </html>

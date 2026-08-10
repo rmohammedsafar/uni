@@ -2434,7 +2434,7 @@ function generateAIAdvisorResponse(query) {
     • <strong>Hours:</strong> Mon - Fri: 8:00 AM - 6:00 PM EST`;
   }
 
-  if (q.includes('accreditation') || q.includes('deac) || q.includes('sacscoc') || q.includes('valid') || q.includes('legal')) {
+  if (q.includes('accreditation') || q.includes('deac') || q.includes('sacscoc') || q.includes('valid') || q.includes('legal')) {
     return `🌐 <strong>Accreditation & Recognition:</strong><br><br>
     UEF adheres to DEAC Distance Education Standards and SACSCOC Regional Quality Models, fully accredited for 100% online distance learning under US Higher Education frameworks.`;
   }
