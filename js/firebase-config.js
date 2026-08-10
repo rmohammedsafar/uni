@@ -30,11 +30,38 @@ if (typeof firebase !== 'undefined' && firebase.apps.length > 0) {
   }
 }
 
-// Global Firebase Storage & Application Manager
+// Global Firebase Storage, Users & Application Manager
 class FirebaseStorageManager {
   constructor() {
     this.collectionName = 'student_applications';
+    this.usersCollection = 'users';
     this.fallbackStorageKey = 'uef_student_applications_backup';
+    this.fallbackUsersKey = 'uef_users_backup';
+  }
+
+  // Register or Update User Profile
+  async saveUserProfile(userData) {
+    console.log("👤 Saving registered user profile:", userData);
+    if (window.db) {
+      try {
+        await window.db.collection(this.usersCollection).doc(userData.email.toLowerCase()).set(userData, { merge: true });
+        console.log("✅ User profile saved to Firestore users collection:", userData.email);
+      } catch (err) {
+        console.warn("⚠️ Firestore user save warning:", err);
+      }
+    }
+    
+    // Save to local storage backup
+    let localUsers = this.getLocalUsers();
+    const idx = localUsers.findIndex(u => u.email.toLowerCase() === userData.email.toLowerCase());
+    if (idx >= 0) localUsers[idx] = userData;
+    else localUsers.push(userData);
+    localStorage.setItem(this.fallbackUsersKey, JSON.stringify(localUsers));
+  }
+
+  getLocalUsers() {
+    const raw = localStorage.getItem(this.fallbackUsersKey);
+    return raw ? JSON.parse(raw) : [];
   }
 
   // Save new student application

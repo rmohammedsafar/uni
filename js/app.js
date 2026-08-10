@@ -1,6 +1,6 @@
 /* ==========================================================================
    UNIVERSITY OF EAST FLORIDA - GLOBAL ONLINE CAMPUS
-   Application Logic, Google Sign-In & Backend Admin Authorization Engine
+   Application Logic, Student Registration, Google Auth & Admin Authorization Engine
    ========================================================================== */
 
 // --- SENDER EMAIL CONFIGURATION ---
@@ -193,6 +193,26 @@ document.addEventListener("DOMContentLoaded", () => {
   initModalListeners();
 });
 
+// --- AUTH TAB SWITCHING ENGINE (SIGN IN vs STUDENT REGISTER) ---
+function switchAuthTab(tabMode) {
+  const signInBtn = document.getElementById("tabSignInBtn");
+  const registerBtn = document.getElementById("tabRegisterBtn");
+  const formSignIn = document.getElementById("authFormSignIn");
+  const formRegister = document.getElementById("authFormRegister");
+
+  if (tabMode === 'signin') {
+    signInBtn.classList.add("active");
+    registerBtn.classList.remove("active");
+    formSignIn.style.display = "block";
+    formRegister.style.display = "none";
+  } else {
+    registerBtn.classList.add("active");
+    signInBtn.classList.remove("active");
+    formRegister.style.display = "block";
+    formSignIn.style.display = "none";
+  }
+}
+
 // --- GOOGLE SIGN IN & BACKEND AUTHORIZATION ENGINE ---
 async function handleGoogleSignIn() {
   if (window.auth && window.googleProvider) {
@@ -202,20 +222,48 @@ async function handleGoogleSignIn() {
       processAuthenticatedUser(user.email, user.displayName);
       return;
     } catch (e) {
-      console.warn("Firebase Auth Popup warning, switching to direct Google login selector:", e);
+      console.warn("Firebase Auth Popup warning, switching to direct Google login prompt:", e);
     }
   }
 
-  // 1-Click Prompt Fallback
-  const userEmail = prompt("Enter your Google Account email (e.g. t06546666@gmail.com):", SENDER_EMAIL);
-  if (userEmail) {
+  // 1-Click Direct Google Prompt Fallback
+  const userEmail = prompt("Enter your Google Account email (e.g. student@gmail.com or t06546666@gmail.com):", SENDER_EMAIL);
+  if (userEmail && userEmail.trim()) {
     processAuthenticatedUser(userEmail.trim(), userEmail.split('@')[0]);
   }
 }
 
+async function handleStudentRegisterSubmit(event) {
+  event.preventDefault();
+  const fullName = document.getElementById("regFullName").value.trim();
+  const email = document.getElementById("regEmail").value.trim();
+  const phone = document.getElementById("regPhone").value.trim();
+  const password = document.getElementById("regPassword").value.trim();
+
+  const userRecord = {
+    fullName,
+    email,
+    phone,
+    role: "student",
+    createdAt: new Date().toISOString()
+  };
+
+  if (window.firebaseManager) {
+    await window.firebaseManager.saveUserProfile(userRecord);
+  }
+
+  alert(`🎉 Account registered successfully! Welcome to UEF, ${fullName}.`);
+  processAuthenticatedUser(email, fullName);
+}
+
 function processAuthenticatedUser(email, name) {
-  currentUser = { email, name };
+  currentUser = { email, name: name || email.split('@')[0] };
   closeAdminLoginModal();
+
+  // Save profile doc
+  if (window.firebaseManager) {
+    window.firebaseManager.saveUserProfile({ email, fullName: currentUser.name, lastLogin: new Date().toISOString() });
+  }
 
   // Backend Admin Credentials Check
   const isAdminEmail = email.toLowerCase() === "admin@uef.edu.online" ||
@@ -223,37 +271,188 @@ function processAuthenticatedUser(email, name) {
                        email.toLowerCase().includes("admin") ||
                        email.toLowerCase().includes("rmohammedsafar");
 
+  const studentDashboardSec = document.getElementById("studentDashboardSection");
+  const adminDashboardSec = document.getElementById("adminDashboardSection");
+  const navBtn = document.getElementById("navAdminBtn");
+  const navDashLink = document.getElementById("navDashboardLink");
+
   if (isAdminEmail) {
     isAdminLoggedIn = true;
-    const adminSec = document.getElementById("adminDashboardSection");
-    const navBtn = document.getElementById("navAdminBtn");
-
-    if (adminSec) {
-      adminSec.style.display = "block";
-      adminSec.scrollIntoView({ behavior: 'smooth' });
+    if (studentDashboardSec) studentDashboardSec.style.display = "none";
+    if (adminDashboardSec) {
+      adminDashboardSec.style.display = "block";
+      adminDashboardSec.scrollIntoView({ behavior: 'smooth' });
     }
     if (navBtn) {
-      navBtn.innerHTML = `🔓 ${name || 'Admin'} (Active)`;
-      navBtn.onclick = () => adminSec.scrollIntoView({ behavior: 'smooth' });
+      navBtn.innerHTML = `🔓 ${currentUser.name} (Admin)`;
+      navBtn.onclick = () => adminDashboardSec.scrollIntoView({ behavior: 'smooth' });
     }
+    if (navDashLink) navDashLink.style.display = "none";
 
     renderAdminDashboard();
     alert(`Welcome back, Registrar Administrator (${email})! Admin Dashboard loaded.`);
   } else {
-    // Student Login
-    const portalSec = document.getElementById("studentPortal");
-    const navBtn = document.getElementById("navAdminBtn");
-
-    if (portalSec) {
-      portalSec.scrollIntoView({ behavior: 'smooth' });
+    // Student Dashboard Access
+    isAdminLoggedIn = false;
+    if (adminDashboardSec) adminDashboardSec.style.display = "none";
+    if (studentDashboardSec) {
+      studentDashboardSec.style.display = "block";
+      studentDashboardSec.scrollIntoView({ behavior: 'smooth' });
     }
     if (navBtn) {
-      navBtn.innerHTML = `👤 ${name || email}`;
-      navBtn.onclick = () => portalSec.scrollIntoView({ behavior: 'smooth' });
+      navBtn.innerHTML = `👤 ${currentUser.name}`;
+      navBtn.onclick = () => studentDashboardSec.scrollIntoView({ behavior: 'smooth' });
     }
+    if (navDashLink) navDashLink.style.display = "inline-block";
 
-    alert(`Signed in successfully as ${email}! Redirected to Student Portal.`);
+    renderStudentDashboard(email);
+    alert(`Signed in successfully as ${email}! Redirected to your Student Account Dashboard.`);
   }
+}
+
+async function renderStudentDashboard(userEmail) {
+  const title = document.getElementById("studentWelcomeTitle");
+  const emailSub = document.getElementById("studentEmailSub");
+  const statusBox = document.getElementById("studentAppStatusBox");
+
+  if (title) title.innerText = `Welcome back, ${currentUser ? currentUser.name : 'Student'}!`;
+  if (emailSub) emailSub.innerText = `Registered Student Account: ${userEmail}`;
+
+  if (!statusBox || !window.firebaseManager) return;
+
+  const applications = await window.firebaseManager.getApplications();
+  const myApps = applications.filter(a => a.email.toLowerCase() === userEmail.toLowerCase());
+
+  if (myApps.length === 0) {
+    statusBox.innerHTML = `
+      <div style="background: rgba(255,255,255,0.03); border: 1px dashed var(--border-gold); padding: 30px; border-radius: 12px; text-align: center;">
+        <h3 style="color: var(--gold-light); font-family: var(--font-serif); margin-bottom: 8px;">No Application Submitted Yet</h3>
+        <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 20px;">
+          You haven't submitted your academic marksheets or degree application yet. Scroll down to apply!
+        </p>
+        <a href="#applySection" class="btn btn-gold" style="padding: 10px 24px;">📝 Fill Application & Upload Marksheets</a>
+      </div>
+    `;
+    return;
+  }
+
+  statusBox.innerHTML = `
+    <h3 style="color: var(--gold-light); font-family: var(--font-serif); margin-bottom: 16px;">
+      📋 My Degree Application Status & Records
+    </h3>
+    <div style="display: flex; flex-direction: column; gap: 16px;">
+      ${myApps.map(app => `
+        <div style="background: rgba(0,0,0,0.6); border: 1px solid var(--border-gold); padding: 20px; border-radius: 12px;">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px;">
+            <div>
+              <span style="font-family: monospace; font-size: 12px; color: var(--gold-primary); font-weight: bold;">${app.trackingId}</span>
+              <h4 style="font-size: 18px; color: #fff; margin: 4px 0;">${app.degree} in ${app.programTitle}</h4>
+              <div style="font-size: 13px; color: var(--text-muted);">Submitted on: ${app.submittedAt}</div>
+            </div>
+            <div>
+              <span class="eligibility-status-badge ${app.status.includes('ADMITTED') ? 'status-eligible' : (app.status.includes('CONDITIONAL') ? 'status-conditional' : 'status-ineligible')}" style="font-size: 12px; padding: 4px 12px;">
+                ${app.status}
+              </span>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-top: 16px; background: rgba(255,255,255,0.03); padding: 12px; border-radius: 8px; font-size: 13px;">
+            <div><strong>Tuition Fee:</strong> ${app.finalFeeDisplay || app.tuition}</div>
+            <div><strong>Referral Applied:</strong> ${app.referralCode ? `${app.referralCode} (${app.discountPercent}% OFF)` : 'None'}</div>
+            <div><strong>Uploaded Files:</strong> ${(app.uploadedMarksheets || []).length} Marksheets</div>
+          </div>
+
+          <div style="margin-top: 16px; display: flex; gap: 10px; flex-wrap: wrap;">
+            ${app.status.includes('ADMITTED') || app.status.includes('CONDITIONAL') ? `
+              <button class="btn btn-gold" onclick="downloadOfferLetterPDF('${app.trackingId}')" style="padding: 8px 18px; font-size: 13px;">
+                📜 Download Official Admission Offer Letter (PDF)
+              </button>
+            ` : ''}
+            <button class="btn btn-outline" onclick="scrollToApplySection('${app.programId}')" style="padding: 8px 16px; font-size: 13px;">
+              📁 Upload Supplementary Documents
+            </button>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+async function downloadOfferLetterPDF(trackingId) {
+  const apps = await window.firebaseManager.getApplications();
+  const app = apps.find(a => a.trackingId === trackingId);
+  if (!app) return;
+
+  const printWin = window.open('', '', 'height=800,width=800');
+  printWin.document.write(`
+    <html>
+      <head>
+        <title>UEF_Official_Admission_Offer_Letter_${app.trackingId}.pdf</title>
+        <style>
+          body { font-family: 'Times New Roman', serif; padding: 50px; color: #111; line-height: 1.6; }
+          .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px double #6b111c; padding-bottom: 15px; margin-bottom: 25px; }
+          .title { font-size: 22px; color: #6b111c; font-weight: bold; margin-bottom: 4px; }
+          .badge { background: #ecfdf5; border: 1px solid #10b981; color: #047857; padding: 6px 14px; border-radius: 20px; font-weight: bold; display: inline-block; }
+          .box { background: #fdfaf3; border: 1px solid #e7d8b1; padding: 20px; border-radius: 8px; margin: 20px 0; }
+          .footer { margin-top: 40px; border-top: 1px solid #ccc; padding-top: 15px; font-size: 12px; display: flex; justify-content: space-between; }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <div>
+            <div class="title">UNIVERSITY OF EAST FLORIDA</div>
+            <div style="font-size: 12px; color: #d4af37; font-weight: bold;">OFFICE OF THE REGISTRAR & ADMISSIONS • ORLANDO, USA</div>
+          </div>
+          <div class="badge">
+            ✓ OFFICIAL ADMISSION OFFER
+          </div>
+        </div>
+
+        <p>Date: ${app.submittedAt}</p>
+        <p>To: <strong>${app.fullName}</strong> (${app.email})<br>Country: ${app.country}</p>
+
+        <h2 style="color: #6b111c; margin-top: 20px;">OFFICIAL LETTER OF ADMISSION</h2>
+
+        <p>
+          Dear <strong>${app.fullName}</strong>,
+        </p>
+
+        <p>
+          On behalf of the Admissions Committee at the <strong>University of East Florida</strong>, we are thrilled to inform you that your academic credentials and submitted marksheets have been evaluated and accepted! You are officially granted admission into our 100% online degree program:
+        </p>
+
+        <div class="box">
+          <h3>${app.degree} in ${app.programTitle}</h3>
+          <p><strong>Tracking Reference ID:</strong> ${app.trackingId}</p>
+          <p><strong>Tuition Fee:</strong> ${app.finalFeeDisplay || app.tuition}</p>
+          <p><strong>Instruction Format:</strong> 100% Remote Virtual Campus (Orlando, FL, USA)</p>
+        </div>
+
+        <p>
+          Welcome to the UEF global academic community!
+        </p>
+
+        <div class="footer">
+          <div>
+            <strong>Office of the University Registrar</strong><br>
+            University of East Florida, Orlando, FL 32816, USA<br>
+            Email: ${SENDER_EMAIL}
+          </div>
+          <div style="text-align: right;">
+            Official Digital Crest Seal Verified
+          </div>
+        </div>
+
+        <script>
+          setTimeout(() => {
+            window.print();
+            window.close();
+          }, 400);
+        </script>
+      </body>
+    </html>
+  `);
+  printWin.document.close();
 }
 
 function openAdminLoginModal() {
@@ -278,11 +477,15 @@ function adminLogout() {
   isAdminLoggedIn = false;
   currentUser = null;
   const adminSec = document.getElementById("adminDashboardSection");
+  const studentSec = document.getElementById("studentDashboardSection");
   const navBtn = document.getElementById("navAdminBtn");
+  const navDashLink = document.getElementById("navDashboardLink");
 
   if (adminSec) adminSec.style.display = "none";
+  if (studentSec) studentSec.style.display = "none";
+  if (navDashLink) navDashLink.style.display = "none";
   if (navBtn) {
-    navBtn.innerHTML = "🔑 Sign In";
+    navBtn.innerHTML = "🔑 Sign In / Register";
     navBtn.onclick = openAdminLoginModal;
   }
   alert("Signed out successfully.");
@@ -803,9 +1006,11 @@ async function handleApplicationSubmit(event) {
   // Real Email Dispatcher to student & Registrar (t06546666@gmail.com)
   sendRealEmailNotification(applicationRecord);
 
-  // Refresh Admin Dashboard if active
+  // Refresh Student & Admin Dashboards if active
   if (isAdminLoggedIn) {
     renderAdminDashboard();
+  } else if (currentUser) {
+    renderStudentDashboard(email);
   }
 
   // Generate & Render Confirmation Email Preview

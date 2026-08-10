@@ -4,9 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>University of East Florida | 100% Online Global Accredited University</title>
-  <meta name="description" content="Official website of the University of East Florida (UEF). Earn world-class, 100% online accredited degrees with PDF brochures, interactive student eligibility portal, document upload, tiered referral discounts, admin dashboard, and global USA headquarters.">
+  <meta name="description" content="Official website of the University of East Florida (UEF). Earn world-class, 100% online accredited degrees with PDF brochures, interactive student eligibility portal, document upload, student registration, tiered referral discounts, admin dashboard, and global USA headquarters.">
   <link rel="icon" type="image/svg+xml" href="assets/logo.svg">
-  <link rel="stylesheet" href="styles.css?v=4.0">
+  <link rel="stylesheet" href="styles.css?v=5.0">
 
   <!-- EMBEDDED MASTER DESIGN SYSTEM & STYLES -->
   <style>
@@ -190,6 +190,14 @@
     .file-chip { background: rgba(212, 175, 55, 0.15); border: 1px solid var(--border-gold); color: var(--gold-light); padding: 6px 14px; border-radius: 20px; font-size: 13px; display: inline-flex; align-items: center; gap: 8px; }
     .file-chip-remove { cursor: pointer; color: #ef4444; font-weight: bold; }
 
+    /* AUTH MODAL TAB STYLES */
+    .auth-tab-row { display: flex; border-bottom: 1px solid var(--border-gold); margin-bottom: 24px; }
+    .auth-tab-btn { flex: 1; padding: 12px; background: transparent; border: none; color: var(--text-muted); font-size: 14px; font-weight: bold; cursor: pointer; border-bottom: 3px solid transparent; transition: var(--tr-fast); }
+    .auth-tab-btn.active { color: var(--gold-primary); border-bottom-color: var(--gold-primary); background: rgba(212, 175, 55, 0.08); }
+
+    /* STUDENT DASHBOARD STYLES */
+    .student-dashboard-card { background: radial-gradient(circle at 50% 0%, rgba(107, 17, 28, 0.4) 0%, rgba(15, 8, 10, 0.95) 100%); border: 1px solid var(--gold-primary); border-radius: 20px; padding: 36px; box-shadow: 0 20px 60px rgba(0,0,0,0.8); margin-bottom: 40px; }
+
     /* ADMIN DASHBOARD STYLES */
     .admin-dashboard-container { background: rgba(15, 8, 10, 0.95); border: 1px solid var(--gold-primary); border-radius: 20px; padding: 36px; box-shadow: 0 20px 60px rgba(0,0,0,0.8); }
     .admin-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 16px; }
@@ -342,9 +350,10 @@
       </div>
     </a>
 
-    <!-- Clean, non-cramped navigation links -->
+    <!-- Clean navigation links -->
     <ul class="nav-links">
       <li><a href="#programs" class="nav-link">Programs</a></li>
+      <li><a href="#studentDashboardSection" class="nav-link" id="navDashboardLink" style="display:none;">My Dashboard</a></li>
       <li><a href="#studentPortal" class="nav-link">Student Portal</a></li>
       <li><a href="#usaHeadquarters" class="nav-link">USA HQ</a></li>
     </ul>
@@ -355,7 +364,7 @@
       </a>
       <!-- CLEAN GENERIC SIGN IN BUTTON (Does NOT say "Admin" publicly) -->
       <button class="btn btn-outline" onclick="openAdminLoginModal()" id="navAdminBtn">
-        🔑 Sign In
+        🔑 Sign In / Register
       </button>
     </div>
   </header>
@@ -401,6 +410,33 @@
       <div class="stat-card">
         <div class="stat-num" style="font-size: 32px;">ORLANDO</div>
         <div class="stat-label">USA Headquarters</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PERSONAL STUDENT DASHBOARD SECTION (Visible when Student is Logged In) -->
+  <section class="section-wrapper" id="studentDashboardSection" style="display: none;">
+    <div class="student-dashboard-card">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; border-bottom: 1px solid var(--border-gold); padding-bottom: 20px; margin-bottom: 24px;">
+        <div>
+          <span class="usa-flag-badge" style="background: rgba(16,185,129,0.2); color: #34d399; margin-bottom: 6px;">
+            🎓 STUDENT ACCOUNT PORTAL
+          </span>
+          <h2 style="font-size: 28px; color: #fff; font-family: var(--font-serif);" id="studentWelcomeTitle">
+            Welcome, Student!
+          </h2>
+          <span style="font-size: 13px; color: var(--text-muted);" id="studentEmailSub">Logged in via Student Profile</span>
+        </div>
+        <div style="display: flex; gap: 10px;">
+          <button class="btn btn-outline" onclick="adminLogout()" style="border-color: #ef4444; color: #f87171;">
+            🔒 Sign Out
+          </button>
+        </div>
+      </div>
+
+      <!-- Application Status Card -->
+      <div id="studentAppStatusBox">
+        <!-- Rendered by JS -->
       </div>
     </div>
   </section>
@@ -783,7 +819,7 @@
               </div>
             </div>
 
-            <!-- All Programs Eligibility Matrix -->
+            <!-- All Programs Compatibility Matrix -->
             <div>
               <h4 style="font-size: 14px; color: var(--gold-light); margin-bottom: 12px; font-family: var(--font-serif);">
                 Program Compatibility Matrix:
@@ -894,17 +930,23 @@
     </div>
   </section>
 
-  <!-- UNIFIED PORTAL SIGN IN MODAL (1-Click Google Sign In & Clean Credentials) -->
+  <!-- UNIFIED SIGN IN & STUDENT REGISTRATION MODAL -->
   <div class="modal-backdrop" id="adminLoginModal">
     <div class="modal-box" style="max-width: 480px;">
       <div class="modal-header">
-        <h3 class="modal-title">🔐 University Portal Sign In</h3>
+        <h3 class="modal-title">🔐 University Portal Access</h3>
         <button class="modal-close" onclick="closeAdminLoginModal()">✕</button>
       </div>
 
       <div class="modal-body" style="padding: 30px;">
         
-        <!-- GOOGLE 1-CLICK AUTH BUTTON -->
+        <!-- Tab Controls: Sign In vs Student Register -->
+        <div class="auth-tab-row">
+          <button class="auth-tab-btn active" id="tabSignInBtn" onclick="switchAuthTab('signin')">Sign In</button>
+          <button class="auth-tab-btn" id="tabRegisterBtn" onclick="switchAuthTab('register')">Register / Student Sign Up</button>
+        </div>
+
+        <!-- 1-CLICK GOOGLE SIGN IN BUTTON -->
         <button class="btn btn-google" onclick="handleGoogleSignIn()" style="width: 100%; margin-bottom: 20px; padding: 12px; font-size: 14px;">
           <svg width="18" height="18" viewBox="0 0 24 24" style="vertical-align: middle;">
             <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z"/>
@@ -912,19 +954,20 @@
             <path fill="#FBBC05" d="M5.32 14.28c-.24-.72-.38-1.49-.38-2.28s.14-1.56.38-2.28V6.57H1.36C.49 8.3 0 10.09 0 12s.49 3.7 1.36 5.43l3.96-3.15z"/>
             <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.37 0 3.34 2.72 1.36 6.57l3.96 3.15c.94-2.82 3.58-4.97 6.68-4.97z"/>
           </svg>
-          Sign in with Google Account
+          1-Click Sign in with Google Account
         </button>
 
         <div style="display: flex; align-items: center; margin: 16px 0; color: var(--text-muted); font-size: 12px; text-transform: uppercase;">
           <div style="flex: 1; height: 1px; background: rgba(212,175,55,0.2);"></div>
-          <span style="padding: 0 10px;">OR SIGN IN WITH EMAIL</span>
+          <span style="padding: 0 10px;">OR USE EMAIL</span>
           <div style="flex: 1; height: 1px; background: rgba(212,175,55,0.2);"></div>
         </div>
 
-        <form onsubmit="handleAdminLoginSubmit(event)">
+        <!-- FORM 1: SIGN IN -->
+        <form id="authFormSignIn" onsubmit="handleAdminLoginSubmit(event)">
           <div class="form-group">
             <label class="form-label" for="adminEmailInput">Email Address</label>
-            <input type="email" id="adminEmailInput" class="form-control" placeholder="user@example.com" required>
+            <input type="email" id="adminEmailInput" class="form-control" placeholder="student@example.com" required>
           </div>
 
           <div class="form-group">
@@ -934,6 +977,33 @@
 
           <button type="submit" class="btn btn-gold" style="width: 100%; margin-top: 10px; padding: 12px;">
             🔑 Sign In to Portal
+          </button>
+        </form>
+
+        <!-- FORM 2: STUDENT REGISTRATION -->
+        <form id="authFormRegister" style="display: none;" onsubmit="handleStudentRegisterSubmit(event)">
+          <div class="form-group">
+            <label class="form-label" for="regFullName">Full Legal Name *</label>
+            <input type="text" id="regFullName" class="form-control" placeholder="e.g. Sarah Jenkins" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="regEmail">Student Email Address *</label>
+            <input type="email" id="regEmail" class="form-control" placeholder="sarah@example.com" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="regPhone">Phone Number *</label>
+            <input type="tel" id="regPhone" class="form-control" placeholder="+1 (555) 019-2834" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="regPassword">Create Account Password *</label>
+            <input type="password" id="regPassword" class="form-control" placeholder="••••••••" required minlength="6">
+          </div>
+
+          <button type="submit" class="btn btn-gold" style="width: 100%; margin-top: 10px; padding: 12px;">
+            🎓 Create Student Account & Sign Up
           </button>
         </form>
 
@@ -1073,7 +1143,7 @@
           <li><a href="#usaHeadquarters">1200 University Blvd, Suite 500</a></li>
           <li><a href="#usaHeadquarters">Orlando, FL 32816, USA</a></li>
           <li><a href="tel:+18005558331">+1 (800) 555-UEF1</a></li>
-          <li><a href="javascript:void(0)" onclick="openAdminLoginModal()" style="color: var(--gold-primary); font-weight: bold;">🔑 Sign In</a></li>
+          <li><a href="javascript:void(0)" onclick="openAdminLoginModal()" style="color: var(--gold-primary); font-weight: bold;">🔑 Sign In / Register</a></li>
         </ul>
       </div>
 
@@ -1099,6 +1169,6 @@
 
   <!-- Application Scripts -->
   <script src="js/firebase-config.js"></script>
-  <script src="js/app.js?v=4.0"></script>
+  <script src="js/app.js?v=5.0"></script>
 </body>
 </html>
