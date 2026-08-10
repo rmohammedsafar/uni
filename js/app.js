@@ -772,6 +772,8 @@ function copyUserReferralCode() {
 async function renderAdminDashboard() {
   if (!isAdminLoggedIn || !window.firebaseManager) return;
   renderCMSProgramTable();
+  renderAdminCampusTable();
+  renderAdminLectureTable();
 
   const applications = await window.firebaseManager.getApplications();
   const brochureLeads = await window.firebaseManager.getBrochureLeads();
@@ -2444,14 +2446,169 @@ function generateAIAdvisorResponse(query) {
 }
 
 // ============================================================
-// ADMIN CMS & UI CUSTOMIZATION ENGINE
+// ADMIN DASHBOARD TAB SWITCHER
+// ============================================================
+function switchAdminTab(tabName) {
+  const tabs = ['admissions', 'courses', 'campus', 'lectures', 'branding'];
+  tabs.forEach(t => {
+    const btn = document.getElementById(`adminTabBtn-${t}`);
+    const content = document.getElementById(`adminTab-${t}`);
+    if (btn) btn.classList.remove('active');
+    if (content) content.style.display = 'none';
+  });
+
+  const activeBtn = document.getElementById(`adminTabBtn-${tabName}`);
+  const activeContent = document.getElementById(`adminTab-${tabName}`);
+  if (activeBtn) activeBtn.classList.add('active');
+  if (activeContent) activeContent.style.display = 'block';
+}
+
+// ============================================================
+// VIRTUAL CAMPUS DEPARTMENTS MANAGER
+// ============================================================
+function renderAdminCampusTable() {
+  const tbody = document.getElementById('adminCampusTableBody');
+  if (!tbody) return;
+
+  const roomKeys = Object.keys(CAMPUS_ROOMS);
+  tbody.innerHTML = roomKeys.map(key => {
+    const r = CAMPUS_ROOMS[key];
+    const statsStr = r.stats.map(s => `${s.label}: ${s.value}`).join(' | ');
+    return `
+      <tr>
+        <td style="font-family:monospace; font-size:12px; color:var(--gold-light);">${key}</td>
+        <td style="font-weight:700;">${r.name}</td>
+        <td style="font-size:24px;">${r.icon}</td>
+        <td style="font-size:12px; color:var(--text-muted);">${statsStr}</td>
+        <td style="font-size:12px;">${r.highlight}</td>
+        <td>
+          <button class="btn btn-outline" onclick="editCampusRoom('${key}')" style="padding:4px 10px; font-size:11px;">✏️ Edit Room</button>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function editCampusRoom(roomId) {
+  const r = CAMPUS_ROOMS[roomId];
+  if (!r) return;
+
+  const newName = prompt(`Edit Department Name for '${roomId}':`, r.name);
+  if (!newName) return;
+  const newDesc = prompt(`Edit Department Description:`, r.description);
+  if (!newDesc) return;
+  const newHighlight = prompt(`Edit Department Highlight:`, r.highlight);
+  if (!newHighlight) return;
+
+  r.name = newName;
+  r.description = newDesc;
+  r.highlight = newHighlight;
+
+  switchTourRoom(roomId);
+  renderAdminCampusTable();
+  saveAdminCMSConfig();
+  alert(`✅ Department '${r.name}' updated!`);
+}
+
+// ============================================================
+// LECTURE LIBRARY MANAGER
+// ============================================================
+function renderAdminLectureTable() {
+  const tbody = document.getElementById('adminLectureTableBody');
+  if (!tbody) return;
+
+  tbody.innerHTML = LECTURES.map(lec => `
+    <tr>
+      <td style="font-family:monospace; font-size:12px; color:var(--gold-light);">${lec.id}</td>
+      <td style="font-weight:700;">${lec.title}</td>
+      <td style="font-size:12px; color:var(--text-muted);">${lec.professor}</td>
+      <td><span class="online-tag" style="position:static;">${lec.category}</span></td>
+      <td style="font-size:12px;">${lec.duration}</td>
+      <td style="font-family:monospace; font-size:12px; color:#34d399;">${lec.youtubeId}</td>
+      <td>
+        <button class="btn btn-outline" onclick="editLecture('${lec.id}')" style="padding:4px 10px; font-size:11px;">✏️ Edit</button>
+        <button class="btn btn-outline" onclick="deleteLecture('${lec.id}')" style="padding:4px 10px; font-size:11px; border-color:#ef4444; color:#f87171;">🗑️ Delete</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function openAddNewLectureModal() {
+  const form = document.getElementById('adminLectureForm');
+  if (form) form.reset();
+  document.getElementById('lecEditId').value = '';
+  document.getElementById('adminLectureModalTitle').textContent = '🎬 Add Recorded Lecture';
+  document.getElementById('adminLectureModal').classList.add('open');
+}
+
+function closeAdminLectureModal() {
+  document.getElementById('adminLectureModal').classList.remove('open');
+}
+
+function editLecture(lecId) {
+  const lec = LECTURES.find(l => l.id === lecId);
+  if (!lec) return;
+
+  document.getElementById('lecEditId').value = lec.id;
+  document.getElementById('lecTitle').value = lec.title;
+  document.getElementById('lecProfessor').value = lec.professor;
+  document.getElementById('lecCategory').value = lec.category;
+  document.getElementById('lecDuration').value = lec.duration;
+  document.getElementById('lecYoutubeId').value = lec.youtubeId;
+
+  document.getElementById('adminLectureModalTitle').textContent = '✏️ Edit Recorded Lecture: ' + lec.id;
+  document.getElementById('adminLectureModal').classList.add('open');
+}
+
+async function deleteLecture(lecId) {
+  if (!confirm(`Are you sure you want to delete lecture ID '${lecId}'?`)) return;
+
+  const idx = LECTURES.findIndex(l => l.id === lecId);
+  if (idx >= 0) {
+    LECTURES.splice(idx, 1);
+    renderLecturesGrid('all');
+    renderAdminLectureTable();
+    await saveAdminCMSConfig();
+  }
+}
+
+async function handleSaveLectureSubmit(e) {
+  e.preventDefault();
+  const editId = document.getElementById('lecEditId').value.trim();
+  const youtubeId = document.getElementById('lecYoutubeId').value.trim();
+
+  const lecData = {
+    id: editId || ('LEC-' + Math.floor(100 + Math.random() * 900)),
+    title: document.getElementById('lecTitle').value.trim(),
+    professor: document.getElementById('lecProfessor').value.trim(),
+    category: document.getElementById('lecCategory').value.trim(),
+    duration: document.getElementById('lecDuration').value.trim(),
+    youtubeId: youtubeId,
+    thumb: `https://img.youtube.com/vi/${youtubeId}/maxresdefault.jpg`
+  };
+
+  if (editId) {
+    const idx = LECTURES.findIndex(l => l.id === editId);
+    if (idx >= 0) LECTURES[idx] = lecData;
+  } else {
+    LECTURES.push(lecData);
+  }
+
+  closeAdminLectureModal();
+  renderLecturesGrid('all');
+  renderAdminLectureTable();
+  await saveAdminCMSConfig();
+  alert(`✅ Recorded Lecture '${lecData.title}' saved!`);
+}
+
+// ============================================================
+// ADMIN CMS & UI CUSTOMIZATION PERSISTENCE ENGINE
 // ============================================================
 async function loadSiteCMSConfig() {
   try {
     const config = await window.firebaseManager.getSiteConfig();
     if (!config) return;
 
-    // Apply custom branding
     if (config.uniTitle) {
       document.querySelectorAll('.brand-title-group h1, .preloader-title').forEach(el => el.textContent = config.uniTitle);
     }
@@ -2480,13 +2637,16 @@ async function loadSiteCMSConfig() {
       if (hHighlight) hHighlight.textContent = config.heroHighlight;
     }
 
-    // Apply custom degree programs if edited
     if (config.customPrograms && Array.isArray(config.customPrograms) && config.customPrograms.length > 0) {
       DEGREE_PROGRAMS.length = 0;
       config.customPrograms.forEach(p => DEGREE_PROGRAMS.push(p));
     }
 
-    // Populate CMS input fields if admin logged in
+    if (config.customLectures && Array.isArray(config.customLectures) && config.customLectures.length > 0) {
+      LECTURES.length = 0;
+      config.customLectures.forEach(l => LECTURES.push(l));
+    }
+
     populateCMSInputFields(config);
   } catch (e) {
     console.warn("CMS config load fallback:", e);
@@ -2519,17 +2679,18 @@ async function saveAdminCMSConfig() {
     heroHighlight: getVal('cmsHeroHighlight') || "100% Online & Self-Paced",
     registrarEmail: getVal('cmsRegistrarEmail') || "r.mohammedsafar@gmail.com",
     customPrograms: DEGREE_PROGRAMS,
+    customLectures: LECTURES,
     updatedAt: new Date().toISOString()
   };
 
   await window.firebaseManager.saveSiteConfig(newConfig);
   await loadSiteCMSConfig();
   renderProgramsCatalog(DEGREE_PROGRAMS);
-  alert("🎉 UI Changes Saved Live! Site content updated and synced to Cloud Firestore.");
+  alert("🎉 UI & Content Changes Saved Live! Synced to Cloud Firestore.");
 }
 
 async function resetAdminCMSConfig() {
-  if (!confirm("Are you sure you want to reset all UI text and degree program catalog back to default?")) return;
+  if (!confirm("Are you sure you want to reset all site content back to default?")) return;
 
   localStorage.removeItem('uef_site_config_backup');
   if (window.db) {
@@ -2626,6 +2787,7 @@ async function handleSaveProgramSubmit(e) {
   await saveAdminCMSConfig();
   alert(`✅ Degree Program '${progData.name}' successfully saved!`);
 }
+
 
 
 

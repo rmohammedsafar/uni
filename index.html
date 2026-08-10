@@ -761,160 +761,268 @@
           <button class="btn btn-maroon" onclick="exportApplicantsSQL()">
             🗄️ Export SQL (.sql)
           </button>
-          <button class="btn btn-outline" onclick="adminLogout()" style="border-color: #ef4444; color: #f87171;">
-            🔒 Logout Admin
-          </button>
-        </div>
+          <button class="btn btn-outline" onclick="adminLogout()" style      <!-- ADMIN TAB NAVIGATION PILLS -->
+      <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 28px; border-bottom: 1px solid var(--border-gold); padding-bottom: 16px;">
+        <button class="filter-pill active" onclick="switchAdminTab('admissions')" id="adminTabBtn-admissions">📋 Admissions & Leads</button>
+        <button class="filter-pill" onclick="switchAdminTab('courses')" id="adminTabBtn-courses">📚 Courses & Tuition CMS</button>
+        <button class="filter-pill" onclick="switchAdminTab('campus')" id="adminTabBtn-campus">🏛️ Campus & Library Manager</button>
+        <button class="filter-pill" onclick="switchAdminTab('lectures')" id="adminTabBtn-lectures">🎬 Lecture Library Manager</button>
+        <button class="filter-pill" onclick="switchAdminTab('branding')" id="adminTabBtn-branding">🎨 Branding & Site Settings</button>
       </div>
 
-      <!-- KPI Stat Cards -->
-      <div class="admin-kpi-grid">
-        <div class="admin-kpi-card">
-          <div class="kpi-icon">📋</div>
-          <div>
-            <div class="kpi-val" id="kpiTotalApps">0</div>
-            <div class="kpi-lbl">Total Applications</div>
+      <!-- TAB 1: ADMISSIONS & LEADS -->
+      <div id="adminTab-admissions">
+        <!-- KPI Stat Cards -->
+        <div class="admin-kpi-grid">
+          <div class="admin-kpi-card">
+            <div class="kpi-icon">📋</div>
+            <div>
+              <div class="kpi-val" id="kpiTotalApps">0</div>
+              <div class="kpi-lbl">Total Applications</div>
+            </div>
+          </div>
+
+          <div class="admin-kpi-card">
+            <div class="kpi-icon">📁</div>
+            <div>
+              <div class="kpi-val" id="kpiVerifiedDocs">0</div>
+              <div class="kpi-lbl">Uploaded Marksheets</div>
+            </div>
+          </div>
+
+          <div class="admin-kpi-card">
+            <div class="kpi-icon">🎓</div>
+            <div>
+              <div class="kpi-val" id="kpiAdmitted">0</div>
+              <div class="kpi-lbl">Admitted Students</div>
+            </div>
+          </div>
+
+          <div class="admin-kpi-card">
+            <div class="kpi-icon">🎁</div>
+            <div>
+              <div class="kpi-val" id="kpiReferralDiscounts">0</div>
+              <div class="kpi-lbl">Referral Discounts</div>
+            </div>
+          </div>
+
+          <div class="admin-kpi-card" style="border-color: #34d399;">
+            <div class="kpi-icon" style="color: #34d399;">📥</div>
+            <div>
+              <div class="kpi-val" id="kpiBrochureLeads" style="color: #34d399;">0</div>
+              <div class="kpi-lbl">Brochure Downloads</div>
+            </div>
+          </div>
+
+          <div class="admin-kpi-card" style="border-color: #f59e0b;">
+            <div class="kpi-icon" style="color: #f59e0b;">⭐</div>
+            <div>
+              <div class="kpi-val" id="kpiFeedbacksReceived" style="color: #f59e0b;">0</div>
+              <div class="kpi-lbl">Student Feedbacks</div>
+            </div>
           </div>
         </div>
 
-        <div class="admin-kpi-card">
-          <div class="kpi-icon">📁</div>
-          <div>
-            <div class="kpi-val" id="kpiVerifiedDocs">0</div>
-            <div class="kpi-lbl">Uploaded Marksheets</div>
+        <!-- Search & Filters -->
+        <div class="catalog-controls" style="margin-bottom: 20px;">
+          <div class="search-box">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="adminSearchInput" class="search-input" placeholder="Search applicant by name, email, or referral code..." oninput="renderAdminDashboard()">
           </div>
+          <select id="adminStatusFilter" class="form-select" style="max-width: 220px;" onchange="renderAdminDashboard()">
+            <option value="ALL">All Decision Statuses</option>
+            <option value="APPLICATION UNDER REVIEW">Under Review</option>
+            <option value="ADMITTED - OFFER ISSUED">Admitted - Offer Issued</option>
+            <option value="CONDITIONAL ADMISSION">Conditional Admission</option>
+            <option value="REJECTED">Rejected</option>
+          </select>
         </div>
 
-        <div class="admin-kpi-card">
-          <div class="kpi-icon">🎓</div>
-          <div>
-            <div class="kpi-val" id="kpiAdmitted">0</div>
-            <div class="kpi-lbl">Admitted Students</div>
-          </div>
+        <!-- Admin Roster Table -->
+        <h4 style="color: var(--gold-light); font-family: var(--font-serif); margin-bottom: 12px;">
+          📋 Official Student Applications Roster
+        </h4>
+        <div class="admin-table-container" style="margin-bottom: 36px;">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Tracking ID</th>
+                <th>Applicant Name</th>
+                <th>Email / Phone</th>
+                <th>Country</th>
+                <th>Target Program & Fee</th>
+                <th>Referral Code</th>
+                <th>Submitted Date</th>
+                <th>Decision Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="adminTableBody">
+              <!-- Injected by JS -->
+            </tbody>
+          </table>
         </div>
 
-        <div class="admin-kpi-card">
-          <div class="kpi-icon">🎁</div>
-          <div>
-            <div class="kpi-val" id="kpiReferralDiscounts">0</div>
-            <div class="kpi-lbl">Referral Discounts</div>
-          </div>
+        <!-- BROCHURE DOWNLOAD LEADS ROSTER TABLE -->
+        <h4 style="color: #34d399; font-family: var(--font-serif); margin-bottom: 12px;">
+          📥 Recorded Brochure Download Leads (Firebase Firestore: `brochure_downloads`)
+        </h4>
+        <div class="admin-table-container" style="margin-bottom: 36px;">
+          <table class="admin-table">
+            <thead>
+              <tr style="background: rgba(16, 185, 129, 0.2);">
+                <th>Lead ID</th>
+                <th>Student Name</th>
+                <th>Student Email</th>
+                <th>Program Requested</th>
+                <th>Degree Category</th>
+                <th>Download Timestamp</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="adminBrochureTableBody">
+              <!-- Injected by JS -->
+            </tbody>
+          </table>
         </div>
 
-        <!-- BROCHURE LEADS KPI CARD -->
-        <div class="admin-kpi-card" style="border-color: #34d399;">
-          <div class="kpi-icon" style="color: #34d399;">📥</div>
-          <div>
-            <div class="kpi-val" id="kpiBrochureLeads" style="color: #34d399;">0</div>
-            <div class="kpi-lbl">Brochure Downloads</div>
-          </div>
+        <!-- STUDENT FEEDBACKS & REVIEWS TABLE -->
+        <h4 style="color: #f59e0b; font-family: var(--font-serif); margin-bottom: 12px;">
+          ⭐ Student Feedbacks & Ratings (Firebase Firestore: `student_feedbacks`)
+        </h4>
+        <div class="admin-table-container">
+          <table class="admin-table">
+            <thead>
+              <tr style="background: rgba(245, 158, 11, 0.2);">
+                <th>Feedback ID</th>
+                <th>Student Name</th>
+                <th>Email</th>
+                <th>Rating</th>
+                <th>Category</th>
+                <th>Feedback Message</th>
+                <th>Submitted Date</th>
+              </tr>
+            </thead>
+            <tbody id="adminFeedbackTableBody">
+              <!-- Injected by JS -->
+            </tbody>
+          </table>
         </div>
+      </div>
 
-        <!-- NEW FEEDBACKS RECEIVED KPI CARD -->
-        <div class="admin-kpi-card" style="border-color: #f59e0b;">
-          <div class="kpi-icon" style="color: #f59e0b;">⭐</div>
-          <div>
-            <div class="kpi-val" id="kpiFeedbacksReceived" style="color: #f59e0b;">0</div>
-            <div class="kpi-lbl">Student Feedbacks</div>
+      <!-- TAB 2: COURSES & TUITION CMS -->
+      <div id="adminTab-courses" style="display: none;">
+        <div style="background: rgba(0,0,0,0.5); border: 1px solid var(--border-gold); border-radius: 14px; padding: 24px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 20px;">
+            <div>
+              <h3 style="color: var(--gold-primary); font-family: var(--font-serif); margin: 0; font-size: 22px;">
+                📚 Degree Program Catalog & Pricing Manager
+              </h3>
+              <p style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">
+                Add, edit, or remove degree programs. Tuition fees, course duration, and credit hours update live across the entire website!
+              </p>
+            </div>
+            <button class="btn btn-gold" onclick="openAddNewProgramModal()">
+              ➕ Add New Degree Program
+            </button>
+          </div>
+          <div class="admin-table-container">
+            <table class="admin-table">
+              <thead>
+                <tr style="background: rgba(212,175,55,0.2);">
+                  <th>Program ID</th>
+                  <th>Degree Title</th>
+                  <th>Category</th>
+                  <th>Tuition ($ USD)</th>
+                  <th>Duration</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="cmsProgramTableBody">
+                <!-- Injected dynamically by JS -->
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
 
-      <!-- Search & Filters -->
-      <div class="catalog-controls" style="margin-bottom: 20px;">
-        <div class="search-box">
-          <span class="search-icon">🔍</span>
-          <input type="text" id="adminSearchInput" class="search-input" placeholder="Search applicant by name, email, or referral code..." oninput="renderAdminDashboard()">
+      <!-- TAB 3: CAMPUS & LIBRARY MANAGER -->
+      <div id="adminTab-campus" style="display: none;">
+        <div style="background: rgba(0,0,0,0.5); border: 1px solid var(--border-gold); border-radius: 14px; padding: 24px;">
+          <h3 style="color: var(--gold-primary); font-family: var(--font-serif); margin-bottom: 12px; font-size: 22px;">
+            🏛️ Virtual Campus Departments & Digital Library Manager
+          </h3>
+          <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 20px;">
+            Edit virtual campus descriptions, digital library book counts, lab stats, and equipment specifications.
+          </p>
+
+          <div class="admin-table-container">
+            <table class="admin-table">
+              <thead>
+                <tr style="background: rgba(107,17,28,0.5);">
+                  <th>Dept ID</th>
+                  <th>Department Name</th>
+                  <th>Icon</th>
+                  <th>Key Statistics</th>
+                  <th>Highlight Description</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="adminCampusTableBody">
+                <!-- Injected by JS -->
+              </tbody>
+            </table>
+          </div>
         </div>
-        <select id="adminStatusFilter" class="form-select" style="max-width: 220px;" onchange="renderAdminDashboard()">
-          <option value="ALL">All Decision Statuses</option>
-          <option value="APPLICATION UNDER REVIEW">Under Review</option>
-          <option value="ADMITTED - OFFER ISSUED">Admitted - Offer Issued</option>
-          <option value="CONDITIONAL ADMISSION">Conditional Admission</option>
-          <option value="REJECTED">Rejected</option>
-        </select>
       </div>
 
-      <!-- Admin Roster Table -->
-      <h4 style="color: var(--gold-light); font-family: var(--font-serif); margin-bottom: 12px;">
-        📋 Official Student Applications Roster
-      </h4>
-      <div class="admin-table-container" style="margin-bottom: 36px;">
-        <table class="admin-table">
-          <thead>
-            <tr>
-              <th>Tracking ID</th>
-              <th>Applicant Name</th>
-              <th>Email / Phone</th>
-              <th>Country</th>
-              <th>Target Program & Fee</th>
-              <th>Referral Code</th>
-              <th>Submitted Date</th>
-              <th>Decision Status</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody id="adminTableBody">
-            <!-- Injected by JS -->
-          </tbody>
-        </table>
+      <!-- TAB 4: LECTURE LIBRARY MANAGER -->
+      <div id="adminTab-lectures" style="display: none;">
+        <div style="background: rgba(0,0,0,0.5); border: 1px solid var(--border-gold); border-radius: 14px; padding: 24px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 20px;">
+            <div>
+              <h3 style="color: var(--gold-primary); font-family: var(--font-serif); margin: 0; font-size: 22px;">
+                🎬 Recorded Class & Lecture Library Manager
+              </h3>
+              <p style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">
+                Add new YouTube public lectures or manage existing academic video content.
+              </p>
+            </div>
+            <button class="btn btn-gold" onclick="openAddNewLectureModal()">
+              ➕ Add New Recorded Lecture
+            </button>
+          </div>
+
+          <div class="admin-table-container">
+            <table class="admin-table">
+              <thead>
+                <tr style="background: rgba(59,6,13,0.8);">
+                  <th>ID</th>
+                  <th>Lecture Title</th>
+                  <th>Professor & Institution</th>
+                  <th>Category</th>
+                  <th>Duration</th>
+                  <th>YouTube ID</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="adminLectureTableBody">
+                <!-- Injected by JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
 
-      <!-- BROCHURE DOWNLOAD LEADS ROSTER TABLE -->
-      <h4 style="color: #34d399; font-family: var(--font-serif); margin-bottom: 12px;">
-        📥 Recorded Brochure Download Leads (Firebase Firestore: `brochure_downloads`)
-      </h4>
-      <div class="admin-table-container" style="margin-bottom: 36px;">
-        <table class="admin-table">
-          <thead>
-            <tr style="background: rgba(16, 185, 129, 0.2);">
-              <th>Lead ID</th>
-              <th>Student Name</th>
-              <th>Student Email</th>
-              <th>Program Requested</th>
-              <th>Degree Category</th>
-              <th>Download Timestamp</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody id="adminBrochureTableBody">
-            <!-- Injected by JS -->
-          </tbody>
-        </table>
-      </div>
-
-      <!-- NEW STUDENT FEEDBACKS & REVIEWS TABLE -->
-      <h4 style="color: #f59e0b; font-family: var(--font-serif); margin-bottom: 12px;">
-        ⭐ Student Feedbacks & Ratings (Firebase Firestore: `student_feedbacks`)
-      </h4>
-      <div class="admin-table-container">
-        <table class="admin-table">
-          <thead>
-            <tr style="background: rgba(245, 158, 11, 0.2);">
-              <th>Feedback ID</th>
-              <th>Student Name</th>
-              <th>Email</th>
-              <th>Rating</th>
-              <th>Category</th>
-              <th>Feedback Message</th>
-              <th>Submitted Date</th>
-            </tr>
-          </thead>
-          <tbody id="adminFeedbackTableBody">
-            <!-- Injected by JS -->
-          </tbody>
-        </table>
-      </div>
-
-      <!-- ADMIN UI CONTENT & SITE CUSTOMIZER CMS -->
-      <div style="margin-top: 45px; border-top: 1px solid var(--border-gold); padding-top: 32px;">
+      <!-- TAB 5: BRANDING & SITE SETTINGS -->
+      <div id="adminTab-branding" style="display: none;">
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: 24px;">
           <div>
             <h3 style="font-size: 22px; color: var(--gold-light); font-family: var(--font-serif); margin: 0;">
-              🎨 UI Content Management & Live Site Settings (Admin CMS)
+              🎨 Global UI Branding & Contact Settings
             </h3>
             <p style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">
-              Customize university name, taglines, banner text, registrar contact email, theme accent, and degree catalog pricing. Saves live to Cloud Firestore!
+              Customize university title, taglines, banner text, registrar contact email, and motto. Changes save live to Cloud Firestore!
             </p>
           </div>
           <div style="display: flex; gap: 10px; flex-wrap: wrap;">
@@ -974,30 +1082,7 @@
             </div>
           </div>
         </div>
-
-        <!-- Degree Program Catalog & Pricing Manager -->
-        <div style="background: rgba(0,0,0,0.5); border: 1px solid var(--border-gold); border-radius: 14px; padding: 24px; margin-top: 20px;">
-          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 16px;">
-            <h4 style="color: var(--gold-primary); font-family: var(--font-serif); margin: 0;">
-              📚 Degree Program Catalog & Pricing Manager
-            </h4>
-            <button class="btn btn-outline" onclick="openAddNewProgramModal()" style="padding: 6px 14px; font-size: 12px; border-color: #34d399; color: #34d399;">
-              ➕ Add New Degree Program
-            </button>
-          </div>
-          <div class="admin-table-container">
-            <table class="admin-table">
-              <thead>
-                <tr style="background: rgba(212,175,55,0.2);">
-                  <th>Program ID</th>
-                  <th>Degree Title</th>
-                  <th>Category</th>
-                  <th>Tuition ($)</th>
-                  <th>Duration</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody id="cmsProgramTableBody">
+      </div>           <tbody id="cmsProgramTableBody">
                 <!-- Injected dynamically by JS -->
               </tbody>
             </table>
@@ -1643,7 +1728,61 @@
         <!-- Injected by JS -->
       </div>
 
-  <!-- ADMIN ADD/EDIT DEGREE PROGRAM MODAL -->
+  <!-- ADMIN ADD/EDIT RECORDED LECTURE MODAL -->
+  <div class="modal-backdrop" id="adminLectureModal">
+    <div class="modal-box" style="max-width: 600px;">
+      <div class="modal-header">
+        <h3 class="modal-title" id="adminLectureModalTitle">🎬 Add Recorded Lecture</h3>
+        <button class="modal-close" onclick="closeAdminLectureModal()">✕</button>
+      </div>
+
+      <form id="adminLectureForm" onsubmit="handleSaveLectureSubmit(event)">
+        <div class="modal-body" style="padding: 24px;">
+          <input type="hidden" id="lecEditId">
+
+          <div class="form-group">
+            <label class="form-label" for="lecTitle">Lecture Title *</label>
+            <input type="text" id="lecTitle" class="form-control" placeholder="e.g. Introduction to Neural Networks & Deep Learning" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="lecProfessor">Professor & University *</label>
+            <input type="text" id="lecProfessor" class="form-control" placeholder="Prof. Andrew Ng — Stanford University" required>
+          </div>
+
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label" for="lecCategory">Subject Category *</label>
+              <select id="lecCategory" class="form-select" required>
+                <option value="cs">💻 CS & AI</option>
+                <option value="business">📊 Business</option>
+                <option value="healthcare">🏥 Healthcare</option>
+                <option value="math">📐 Mathematics</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="lecDuration">Duration *</label>
+              <input type="text" id="lecDuration" class="form-control" placeholder="1:12:34" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="lecYoutubeId">YouTube Video ID *</label>
+            <input type="text" id="lecYoutubeId" class="form-control" placeholder="jGwO_UgTS7I (e.g. from youtube.com/watch?v=jGwO_UgTS7I)" required>
+            <span style="font-size:11px; color:var(--text-muted);">Extract the 11-character code after 'v=' in YouTube URL.</span>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" onclick="closeAdminLectureModal()">Cancel</button>
+          <button type="submit" class="btn btn-gold">
+            🎬 Save Lecture Record
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
   <div class="modal-backdrop" id="adminProgramModal">
     <div class="modal-box" style="max-width: 600px;">
       <div class="modal-header">
@@ -1982,6 +2121,6 @@
   </div>
 
   <script src="js/firebase-config.js"></script>
-  <script src="js/app.js?v=11.0"></script>
+  <script src="js/app.js?v=12.0"></script>
 </body>
 </html>
