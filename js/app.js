@@ -1365,7 +1365,7 @@ function renderConfirmationEmail(record) {
     </p>
 
     <p style="font-size: 14px; color: #444; line-height: 1.6; margin-bottom: 20px;">
-      Thank you for submitting your official application to the <strong>University of East Florida</strong>. We confirm that your student records and academic marksheets have been successfully uploaded and saved into our encrypted <strong>Firebase Firestore Admissions Database</strong>.
+      Thank you for submitting your official application to the <strong>University of East Florida</strong>. We confirm that your student records and academic marksheets have been successfully uploaded and recorded into our encrypted <strong>Admissions Database</strong>.
     </p>
 
     <div style="background: #fdfaf3; border: 1px solid #e7d8b1; border-radius: 8px; padding: 20px; margin-bottom: 24px;">
