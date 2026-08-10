@@ -2783,11 +2783,29 @@ async function handleSaveProgramSubmit(e) {
     id: editId || ('UEF-PROG-' + Math.floor(100 + Math.random() * 900)),
     name: document.getElementById('progName').value.trim(),
     degree: document.getElementById('progDegree').value.trim(),
+    category: document.getElementById('progCategory').value.trim(),
+    tuition: parseInt(document.getElementById('progTuition').value) || 12000,
+    duration: document.getElementById('progDuration').value.trim(),
+    description: document.getElementById('progDescription').value.trim(),
+    format: "100% Remote / Asynchronous",
+    credits: "36 US Credit Hours (12 Core Modules)"
+  };
+
+  if (editId) {
+    const idx = DEGREE_PROGRAMS.findIndex(p => p.id === editId);
+    if (idx >= 0) DEGREE_PROGRAMS[idx] = progData;
+  } else {
+    DEGREE_PROGRAMS.push(progData);
+  }
+
+  closeAdminProgramModal();
+  renderProgramsCatalog(DEGREE_PROGRAMS);
+  renderCMSProgramTable();
+  await saveAdminCMSConfig(true);
 }
 
 // Helper to escape HTML strings in input values
 function escapeHtml(str) {
   if (!str) return '';
   return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
-}
 }
