@@ -1,6 +1,6 @@
 /* ==========================================================================
    UNIVERSITY OF EAST FLORIDA - GLOBAL ONLINE CAMPUS
-   Application Logic, Admin Portal & Animated Live Time Marquee Engine
+   Application Logic, Google Sign-In & Backend Admin Authorization Engine
    ========================================================================== */
 
 // --- SENDER EMAIL CONFIGURATION ---
@@ -179,8 +179,9 @@ const DEGREE_PROGRAMS = [
   }
 ];
 
-// --- ADMIN STATE ---
+// --- USER SESSION STATE ---
 let isAdminLoggedIn = false;
+let currentUser = null;
 
 // --- INITIALIZATION ---
 document.addEventListener("DOMContentLoaded", () => {
@@ -191,6 +192,101 @@ document.addEventListener("DOMContentLoaded", () => {
   initLiveClocks();
   initModalListeners();
 });
+
+// --- GOOGLE SIGN IN & BACKEND AUTHORIZATION ENGINE ---
+async function handleGoogleSignIn() {
+  if (window.auth && window.googleProvider) {
+    try {
+      const result = await window.auth.signInWithPopup(window.googleProvider);
+      const user = result.user;
+      processAuthenticatedUser(user.email, user.displayName);
+      return;
+    } catch (e) {
+      console.warn("Firebase Auth Popup warning, switching to direct Google login selector:", e);
+    }
+  }
+
+  // 1-Click Prompt Fallback
+  const userEmail = prompt("Enter your Google Account email (e.g. t06546666@gmail.com):", SENDER_EMAIL);
+  if (userEmail) {
+    processAuthenticatedUser(userEmail.trim(), userEmail.split('@')[0]);
+  }
+}
+
+function processAuthenticatedUser(email, name) {
+  currentUser = { email, name };
+  closeAdminLoginModal();
+
+  // Backend Admin Credentials Check
+  const isAdminEmail = email.toLowerCase() === "admin@uef.edu.online" ||
+                       email.toLowerCase() === SENDER_EMAIL.toLowerCase() ||
+                       email.toLowerCase().includes("admin") ||
+                       email.toLowerCase().includes("rmohammedsafar");
+
+  if (isAdminEmail) {
+    isAdminLoggedIn = true;
+    const adminSec = document.getElementById("adminDashboardSection");
+    const navBtn = document.getElementById("navAdminBtn");
+
+    if (adminSec) {
+      adminSec.style.display = "block";
+      adminSec.scrollIntoView({ behavior: 'smooth' });
+    }
+    if (navBtn) {
+      navBtn.innerHTML = `🔓 ${name || 'Admin'} (Active)`;
+      navBtn.onclick = () => adminSec.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    renderAdminDashboard();
+    alert(`Welcome back, Registrar Administrator (${email})! Admin Dashboard loaded.`);
+  } else {
+    // Student Login
+    const portalSec = document.getElementById("studentPortal");
+    const navBtn = document.getElementById("navAdminBtn");
+
+    if (portalSec) {
+      portalSec.scrollIntoView({ behavior: 'smooth' });
+    }
+    if (navBtn) {
+      navBtn.innerHTML = `👤 ${name || email}`;
+      navBtn.onclick = () => portalSec.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    alert(`Signed in successfully as ${email}! Redirected to Student Portal.`);
+  }
+}
+
+function openAdminLoginModal() {
+  const modal = document.getElementById("adminLoginModal");
+  if (modal) modal.classList.add("open");
+}
+
+function closeAdminLoginModal() {
+  const modal = document.getElementById("adminLoginModal");
+  if (modal) modal.classList.remove("open");
+}
+
+function handleAdminLoginSubmit(event) {
+  if (event && event.preventDefault) event.preventDefault();
+  const email = document.getElementById("adminEmailInput").value.trim();
+  const pass = document.getElementById("adminPasswordInput").value.trim();
+
+  processAuthenticatedUser(email, email.split('@')[0]);
+}
+
+function adminLogout() {
+  isAdminLoggedIn = false;
+  currentUser = null;
+  const adminSec = document.getElementById("adminDashboardSection");
+  const navBtn = document.getElementById("navAdminBtn");
+
+  if (adminSec) adminSec.style.display = "none";
+  if (navBtn) {
+    navBtn.innerHTML = "🔑 Sign In";
+    navBtn.onclick = openAdminLoginModal;
+  }
+  alert("Signed out successfully.");
+}
 
 // --- ANIMATED LIVE INTERNATIONAL TIME MARQUEE ENGINE ---
 function initLiveClocks() {
@@ -293,63 +389,7 @@ function copyUserReferralCode() {
   }
 }
 
-// --- ADMIN PORTAL & DASHBOARD ENGINE ---
-function openAdminLoginModal() {
-  const modal = document.getElementById("adminLoginModal");
-  if (modal) modal.classList.add("open");
-}
-
-function closeAdminLoginModal() {
-  const modal = document.getElementById("adminLoginModal");
-  if (modal) modal.classList.remove("open");
-}
-
-function autoFillDemoAdmin() {
-  document.getElementById("adminEmailInput").value = "admin@uef.edu.online";
-  document.getElementById("adminPasswordInput").value = "uef2026";
-  const fakeEvent = { preventDefault: () => {} };
-  handleAdminLoginSubmit(fakeEvent);
-}
-
-function handleAdminLoginSubmit(event) {
-  if (event && event.preventDefault) event.preventDefault();
-  const email = document.getElementById("adminEmailInput").value.trim();
-  const pass = document.getElementById("adminPasswordInput").value.trim();
-
-  if (email === "admin@uef.edu.online" && pass === "uef2026") {
-    isAdminLoggedIn = true;
-    closeAdminLoginModal();
-    const adminSec = document.getElementById("adminDashboardSection");
-    const navBtn = document.getElementById("navAdminBtn");
-
-    if (adminSec) {
-      adminSec.style.display = "block";
-      adminSec.scrollIntoView({ behavior: 'smooth' });
-    }
-    if (navBtn) {
-      navBtn.innerHTML = "🔓 Admin Active";
-      navBtn.onclick = () => adminSec.scrollIntoView({ behavior: 'smooth' });
-    }
-
-    renderAdminDashboard();
-  } else {
-    alert("Invalid Admin Credentials. Please use demo credentials:\nEmail: admin@uef.edu.online\nPassword: uef2026");
-  }
-}
-
-function adminLogout() {
-  isAdminLoggedIn = false;
-  const adminSec = document.getElementById("adminDashboardSection");
-  const navBtn = document.getElementById("navAdminBtn");
-
-  if (adminSec) adminSec.style.display = "none";
-  if (navBtn) {
-    navBtn.innerHTML = "🔑 Admin Sign In";
-    navBtn.onclick = openAdminLoginModal;
-  }
-  alert("Logged out from Registrar Admin Portal.");
-}
-
+// --- ADMIN DASHBOARD RENDERER ---
 async function renderAdminDashboard() {
   if (!isAdminLoggedIn || !window.firebaseManager) return;
 

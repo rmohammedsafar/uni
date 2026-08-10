@@ -1,8 +1,8 @@
 /* ==========================================================================
-   UNIVERSITY OF EAST FLORIDA - FIREBASE & STORAGE CONFIGURATION
+   UNIVERSITY OF EAST FLORIDA - FIREBASE FIRESTORE & AUTHENTICATION CONFIG
+   Project ID: university-8f798
    ========================================================================== */
 
-// Live Firebase Console Credentials for Project: university-8f798
 const firebaseConfig = {
   apiKey: "AIzaSyBdr96TA2n_N0Rohk9Yd8CbamOYn_ZJQt0",
   authDomain: "university-8f798.firebaseapp.com",
@@ -13,129 +13,102 @@ const firebaseConfig = {
   measurementId: "G-0VXXK61R3R"
 };
 
-// Initialize Live Firebase SDK
-if (typeof firebase !== "undefined" && firebase.apps && !firebase.apps.length) {
+// Initialize Firebase App
+if (typeof firebase !== 'undefined' && !firebase.apps.length) {
+  firebase.initializeApp(firebaseConfig);
+  console.log("🔥 Live Firebase App Initialized for university-8f798");
+}
+
+if (typeof firebase !== 'undefined' && firebase.apps.length > 0) {
+  window.db = firebase.firestore();
   try {
-    firebase.initializeApp(firebaseConfig);
-    window.db = firebase.firestore();
-    console.log("🔥 [Firebase] Live Firebase Firestore Connected Successfully to project: university-8f798!");
-  } catch (err) {
-    console.warn("⚠️ Live Firebase initialization notice:", err);
+    window.auth = firebase.auth();
+    window.googleProvider = new firebase.auth.GoogleAuthProvider();
+    console.log("🔑 Firebase Auth & Google Identity Provider Initialized");
+  } catch (e) {
+    console.log("Firebase Auth Initializer fallback");
   }
 }
 
-// Storage Manager (Live Firebase Firestore with Fallback)
+// Global Firebase Storage & Application Manager
 class FirebaseStorageManager {
   constructor() {
-    this.collectionName = "uef_student_applications";
-    this.initSeedData();
+    this.collectionName = 'student_applications';
+    this.fallbackStorageKey = 'uef_student_applications_backup';
   }
 
-  initSeedData() {
-    let existingApps = JSON.parse(localStorage.getItem(this.collectionName) || "[]");
-    if (existingApps.length === 0) {
-      const seedApps = [
-        {
-          trackingId: "UEF-2026-REG-9482",
-          fullName: "Sophia Rodriguez",
-          email: "sophia.rodriguez@example.com",
-          phone: "+1 (305) 555-0142",
-          country: "United States",
-          programId: "ms-cs-ai",
-          programTitle: "Computer Science & Artificial Intelligence",
-          degree: "Master of Science",
-          previousSchool: "Florida International University",
-          uploadedMarksheets: [
-            { name: "BS_ComputerScience_Transcript.pdf", size: "2.4 MB" },
-            { name: "HighSchool_Diploma.pdf", size: "1.1 MB" }
-          ],
-          submittedAt: "Aug 10, 2026 at 09:30 AM",
-          status: "ADMITTED - OFFER ISSUED"
-        },
-        {
-          trackingId: "UEF-2026-REG-8371",
-          fullName: "Rohan Sharma",
-          email: "rohan.sharma@example.com",
-          phone: "+91 98765 43210",
-          country: "India",
-          programId: "global-mba",
-          programTitle: "Global MBA & Digital Leadership",
-          degree: "Master of Business Administration",
-          previousSchool: "Delhi Technological University",
-          uploadedMarksheets: [
-            { name: "BTech_Semester_Marksheets.pdf", size: "3.8 MB" }
-          ],
-          submittedAt: "Aug 10, 2026 at 10:15 AM",
-          status: "APPLICATION UNDER REVIEW"
-        }
-      ];
-      localStorage.setItem(this.collectionName, JSON.stringify(seedApps));
-    }
-  }
-
-  async saveApplication(applicationData) {
-    console.log("🔥 [Firebase Engine] Saving application record...", applicationData);
-
-    try {
-      if (window.db && typeof window.db.collection === "function") {
-        const docRef = await window.db.collection("student_applications").add(applicationData);
-        console.log("✅ Saved to live Firebase Firestore with ID:", docRef.id);
-        return { success: true, id: docRef.id, isLiveFirebase: true };
+  // Save new student application
+  async saveApplication(appData) {
+    console.log("💾 Saving application record:", appData);
+    
+    // 1. Live Cloud Firestore Sync
+    if (window.db) {
+      try {
+        await window.db.collection(this.collectionName).doc(appData.trackingId).set(appData);
+        console.log("✅ Successfully saved to Cloud Firestore:", appData.trackingId);
+      } catch (err) {
+        console.warn("⚠️ Firestore network warning (Using Local Backup Fallback):", err);
       }
-    } catch (err) {
-      console.warn("⚠️ Live Firebase Firestore save notice:", err);
     }
 
-    let existingApps = JSON.parse(localStorage.getItem(this.collectionName) || "[]");
-    existingApps.unshift(applicationData);
-    localStorage.setItem(this.collectionName, JSON.stringify(existingApps));
-
-    return { success: true, id: applicationData.trackingId, isLiveFirebase: false };
+    // 2. Persistent Local Storage Engine
+    this.saveToLocalStorage(appData);
+    return appData;
   }
 
+  // Fetch all applications for Admin Dashboard
   async getApplications() {
-    try {
-      if (window.db && typeof window.db.collection === "function") {
-        const snapshot = await window.db.collection("student_applications").get();
-        let firestoreApps = [];
-        snapshot.forEach(doc => firestoreApps.push({ id: doc.id, ...doc.data() }));
-        if (firestoreApps.length > 0) return firestoreApps;
+    let firestoreRecords = [];
+
+    if (window.db) {
+      try {
+        const snapshot = await window.db.collection(this.collectionName).get();
+        snapshot.forEach(doc => {
+          firestoreRecords.push(doc.data());
+        });
+      } catch (err) {
+        console.warn("⚠️ Firestore fetch warning:", err);
       }
-    } catch (err) {
-      console.warn("⚠️ Reading fallback store:", err);
     }
 
-    return JSON.parse(localStorage.getItem(this.collectionName) || "[]");
+    const localRecords = this.getFromLocalStorage();
+    const mergedMap = new Map();
+    
+    localRecords.forEach(rec => mergedMap.set(rec.trackingId, rec));
+    firestoreRecords.forEach(rec => mergedMap.set(rec.trackingId, rec));
+
+    const result = Array.from(mergedMap.values());
+    result.sort((a, b) => new Date(b.submittedAt) - new Date(a.submittedAt));
+    return result;
   }
 
+  // Update Decision Status
   async updateStatus(trackingId, newStatus) {
-    let updated = false;
-
-    try {
-      if (window.db && typeof window.db.collection === "function") {
-        const query = await window.db.collection("student_applications").where("trackingId", "==", trackingId).get();
-        query.forEach(async (doc) => {
-          await window.db.collection("student_applications").doc(doc.id).update({ status: newStatus });
-        });
-        updated = true;
+    if (window.db) {
+      try {
+        await window.db.collection(this.collectionName).doc(trackingId).update({ status: newStatus });
+      } catch (e) {
+        console.warn("Status update fallback:", e);
       }
-    } catch (err) {
-      console.warn("⚠️ Status update fallback:", err);
     }
 
-    let existingApps = JSON.parse(localStorage.getItem(this.collectionName) || "[]");
-    existingApps = existingApps.map(app => {
-      if (app.trackingId === trackingId) {
-        app.status = newStatus;
-        updated = true;
-      }
-      return app;
-    });
-
-    if (updated) {
-      localStorage.setItem(this.collectionName, JSON.stringify(existingApps));
+    const local = this.getFromLocalStorage();
+    const item = local.find(i => i.trackingId === trackingId);
+    if (item) {
+      item.status = newStatus;
+      localStorage.setItem(this.fallbackStorageKey, JSON.stringify(local));
     }
-    return updated;
+  }
+
+  saveToLocalStorage(appData) {
+    let current = this.getFromLocalStorage();
+    current.unshift(appData);
+    localStorage.setItem(this.fallbackStorageKey, JSON.stringify(current));
+  }
+
+  getFromLocalStorage() {
+    const raw = localStorage.getItem(this.fallbackStorageKey);
+    return raw ? JSON.parse(raw) : [];
   }
 }
 
