@@ -207,6 +207,14 @@ function initPreloader() {
 
 window.addEventListener("load", initPreloader);
 
+// --- MOBILE NAVIGATION DRAWER TOGGLE ENGINE ---
+function toggleMobileMenu() {
+  const drawer = document.getElementById("mobileNavDrawer");
+  if (drawer) {
+    drawer.classList.toggle("open");
+  }
+}
+
 // --- AUTOMATIC FIREBASE LEAD LOGGING & PDF BROCHURE DOWNLOAD ENGINE ---
 async function handleBrochureDownloadClick(programId) {
   const program = DEGREE_PROGRAMS.find(p => p.id === programId);

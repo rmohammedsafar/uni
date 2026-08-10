@@ -405,12 +405,116 @@
     .footer-links a:hover { color: var(--gold-primary); }
     .footer-bottom { max-width: 1300px; margin: 0 auto; padding-top: 24px; border-top: 1px solid rgba(255, 255, 255, 0.05); display: flex; justify-content: space-between; align-items: center; font-size: 13px; flex-wrap: wrap; gap: 12px; }
 
+    /* COMPLETE ULTRA MOBILE RESPONSIVE SYSTEM */
+    .mobile-menu-btn {
+      display: none;
+      background: transparent;
+      border: 1px solid var(--border-gold);
+      color: var(--gold-light);
+      font-size: 22px;
+      padding: 6px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .mobile-nav-drawer {
+      position: fixed;
+      top: 0;
+      right: -100%;
+      width: 280px;
+      height: 100vh;
+      background: #140a0d;
+      border-left: 1px solid var(--gold-primary);
+      z-index: 10000;
+      padding: 30px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      box-shadow: -10px 0 30px rgba(0,0,0,0.8);
+      transition: right 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .mobile-nav-drawer.open {
+      right: 0;
+    }
+
+    .mobile-nav-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border-gold);
+      padding-bottom: 16px;
+    }
+
+    .mobile-nav-links {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .mobile-nav-links a {
+      color: #fff;
+      text-decoration: none;
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    @media (max-width: 992px) {
+      .app-header { padding: 14px 24px; }
+      .brand-title-group h1 { font-size: 17px; }
+      .brand-title-group p { font-size: 10px; letter-spacing: 1.5px; }
+      .nav-links { gap: 20px; }
+    }
+
     @media (max-width: 768px) {
-      .app-header { padding: 12px 20px; }
+      .usa-top-banner { padding: 8px 16px; font-size: 11px; flex-direction: column; justify-content: center; text-align: center; }
+      .banner-left, .banner-right { flex-wrap: wrap; justify-content: center; gap: 8px; }
+      .app-header { padding: 12px 16px; }
       .nav-links { display: none; }
-      .hero-title { font-size: 34px; }
-      .section-wrapper { padding: 50px 20px; }
-      .application-portal-box { padding: 24px; }
+      .mobile-menu-btn { display: inline-block; }
+      
+      .hero-section { padding: 50px 16px 70px; }
+      .hero-title { font-size: clamp(28px, 6vw, 42px); }
+      .hero-subtitle { font-size: 15px; }
+      .hero-cta-group { flex-direction: column; gap: 12px; }
+      .hero-cta-group .btn { width: 100%; }
+
+      .hero-stats-row { grid-template-columns: 1fr 1fr; gap: 12px; }
+      .stat-card { padding: 16px 12px; }
+      .stat-num { font-size: 28px; }
+
+      .section-wrapper { padding: 40px 16px; }
+      .section-title { font-size: 28px; }
+
+      .catalog-controls { padding: 12px; gap: 12px; }
+      .search-box { min-width: 100%; }
+      .filter-pills { width: 100%; justify-content: center; }
+
+      .programs-grid { grid-template-columns: 1fr; }
+      .program-card { margin-bottom: 10px; }
+
+      .application-portal-box { padding: 20px 16px; border-radius: 14px; }
+      .form-control, .form-select { font-size: 16px; min-height: 46px; }
+      .drop-zone { padding: 20px 12px; }
+
+      .portal-container { padding: 20px 14px; }
+      .admin-dashboard-container { padding: 20px 14px; }
+      .admin-kpi-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+      .admin-kpi-card { padding: 12px; }
+      .kpi-val { font-size: 22px; }
+
+      .modal-box { max-width: 95%; max-height: 94vh; }
+      .modal-body { padding: 16px; }
+      .pdf-document-paper, .email-paper-card { padding: 18px 14px; }
+    }
+
+    @media (max-width: 480px) {
+      .hero-stats-row { grid-template-columns: 1fr; }
+      .admin-kpi-grid { grid-template-columns: 1fr; }
+      .brand-title-group h1 { font-size: 15px; }
+      .brand-logo-img { width: 40px; height: 40px; }
+      .gpa-display-box { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -481,15 +585,40 @@
     </ul>
 
     <div class="nav-actions">
-      <a href="#applySection" class="btn btn-gold">
-        📝 Apply & Upload
+      <a href="#applySection" class="btn btn-gold" style="padding: 9px 16px; font-size: 13px;">
+        📝 Apply
       </a>
-      <!-- CLEAN GENERIC SIGN IN BUTTON -->
       <button class="btn btn-outline" onclick="openAdminLoginModal()" id="navAdminBtn">
-        🔑 Sign In / Register
+        🔑 Sign In
+      </button>
+      <button class="mobile-menu-btn" onclick="toggleMobileMenu()" id="mobileMenuBtn">
+        ☰
       </button>
     </div>
   </header>
+
+  <!-- MOBILE SLIDE-OUT NAVIGATION DRAWER -->
+  <div class="mobile-nav-drawer" id="mobileNavDrawer">
+    <div class="mobile-nav-header">
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <img src="assets/logo.svg" alt="UEF Crest" style="width: 36px; height: 36px;">
+        <span style="font-family: var(--font-serif); font-size: 16px; color: var(--gold-light); font-weight: bold;">UEF CAMPUS</span>
+      </div>
+      <button class="modal-close" onclick="toggleMobileMenu()">✕</button>
+    </div>
+    <ul class="mobile-nav-links">
+      <li><a href="#programs" onclick="toggleMobileMenu()">📚 Degree Programs</a></li>
+      <li><a href="#applySection" onclick="toggleMobileMenu()">📝 Apply & Upload Marksheets</a></li>
+      <li><a href="#studentPortal" onclick="toggleMobileMenu()">📊 Student Portal & Referral Hub</a></li>
+      <li><a href="#feedbackSection" onclick="toggleMobileMenu()">⭐ Feedback & Reviews</a></li>
+      <li><a href="#usaHeadquarters" onclick="toggleMobileMenu()">🏛️ USA Headquarters</a></li>
+      <li><a href="javascript:void(0)" onclick="toggleMobileMenu(); openAdminLoginModal();" style="color: var(--gold-primary);">🔑 Sign In / Register</a></li>
+    </ul>
+    <div style="margin-top: auto; border-top: 1px solid var(--border-gold); padding-top: 16px; text-align: center; font-size: 12px; color: var(--text-muted);">
+      Orlando, Florida, USA<br>
+      Toll-Free: +1 (800) 555-UEF1
+    </div>
+  </div>
 
   <!-- Hero Section -->
   <section class="hero-section">
