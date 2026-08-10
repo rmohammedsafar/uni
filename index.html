@@ -458,12 +458,20 @@
       
       <div class="admin-header-row">
         <div>
-          <h3 style="font-size: 24px; color: #fff; font-family: var(--font-serif);">
-            📊 Admissions Overview & Firebase Records
-          </h3>
-          <span style="font-size: 12px; color: var(--gold-light);">Syncing live with Firestore collection `student_applications` and `brochure_downloads`</span>
+          <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
+            <h3 style="font-size: 24px; color: #fff; font-family: var(--font-serif); margin: 0;">
+              📊 Admissions Overview & Firebase Records
+            </h3>
+            <span class="usa-flag-badge" id="firebaseLiveStatusBadge" style="background: rgba(16,185,129,0.2); color: #34d399; font-size: 12px;">
+              🔥 Firebase Firestore: Live Connected
+            </span>
+          </div>
+          <span style="font-size: 12px; color: var(--gold-light);">Syncing live with Cloud Firestore project: <strong style="color: #fff;">university-8f798</strong></span>
         </div>
-        <div style="display: flex; gap: 12px;">
+        <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+          <button class="btn btn-outline" onclick="testFirebaseConnection()" style="border-color: #34d399; color: #34d399;">
+            🧪 Test Firebase Sync
+          </button>
           <button class="btn btn-gold" onclick="exportApplicantsCSV()">
             📥 Export Roster (CSV)
           </button>

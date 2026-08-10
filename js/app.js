@@ -1596,3 +1596,36 @@ function submitContactInquiry(event) {
   alert(`Thank you! Your inquiry has been sent to the Registrar (${SENDER_EMAIL}). An advisor will reply to your email shortly.`);
   event.target.reset();
 }
+
+// --- FIREBASE LIVE CONNECTION DIAGNOSTIC TEST ENGINE ---
+async function testFirebaseConnection() {
+  const badge = document.getElementById("firebaseLiveStatusBadge");
+  if (!window.db) {
+    alert("⚠️ Firebase SDK is operating in persistent Local Storage Backup mode.");
+    if (badge) {
+      badge.style.background = "rgba(239, 68, 68, 0.2)";
+      badge.style.color = "#f87171";
+      badge.innerText = "⚠️ Firebase: Local Storage Mode";
+    }
+    return;
+  }
+
+  try {
+    const testDocId = "TEST-PING-" + Date.now();
+    await window.db.collection("system_pings").doc(testDocId).set({
+      pingedAt: new Date().toISOString(),
+      status: "SUCCESS",
+      project: "university-8f798"
+    });
+
+    if (badge) {
+      badge.style.background = "rgba(16,185,129,0.2)";
+      badge.style.color = "#34d399";
+      badge.innerText = "🔥 Firebase Firestore: Live Connected (Verified)";
+    }
+    alert("🎉 Firebase Firestore Live Connection Verified! Successfully written diagnostic ping document to project `university-8f798`.");
+  } catch (err) {
+    console.error("Firebase Test Ping error:", err);
+    alert(`⚠️ Firebase Firestore Connection Notice:\n\n${err.message}\n\nPlease verify that Cloud Firestore database rules allow write access in console.firebase.google.com for project 'university-8f798'.`);
+  }
+}
