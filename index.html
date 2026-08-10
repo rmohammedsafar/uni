@@ -587,6 +587,34 @@
       <span class="time-marquee-item" id="marqueeClockJST2">🌐 Japan (Tokyo/JST): Loading...</span>
       <span class="time-marquee-item" id="marqueeClockIST2">🌐 India (New Delhi/IST): Loading...</span>
     </div>
+    <script>
+      (function startInstantClocks() {
+        function tick() {
+          var now = new Date();
+          var est = now.toLocaleTimeString("en-US", { timeZone: "America/New_York", hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+          var gmt = now.toLocaleTimeString("en-US", { timeZone: "Europe/London", hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+          var jst = now.toLocaleTimeString("en-US", { timeZone: "Asia/Tokyo", hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+          var ist = now.toLocaleTimeString("en-US", { timeZone: "Asia/Kolkata", hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+          var e1 = document.getElementById("clockEST"), e2 = document.getElementById("clockGMT");
+          if (e1) e1.innerText = "USA (Orlando/EST): " + est;
+          if (e2) e2.innerText = "UK (GMT): " + gmt;
+
+          for (var i = 1; i <= 2; i++) {
+            var mE = document.getElementById("marqueeClockEST" + i);
+            var mG = document.getElementById("marqueeClockGMT" + i);
+            var mJ = document.getElementById("marqueeClockJST" + i);
+            var mI = document.getElementById("marqueeClockIST" + i);
+            if (mE) mE.innerText = "📍 USA (Orlando/EST): " + est;
+            if (mG) mG.innerText = "🌐 UK (London/GMT): " + gmt;
+            if (mJ) mJ.innerText = "🌐 Japan (Tokyo/JST): " + jst;
+            if (mI) mI.innerText = "🌐 India (New Delhi/IST): " + ist;
+          }
+        }
+        tick();
+        setInterval(tick, 1000);
+      })();
+    </script>
   </div>
 
   <!-- STREAMLINED MAIN NAVIGATION HEADER -->
@@ -2130,6 +2158,6 @@
   </div>
 
   <script src="js/firebase-config.js"></script>
-  <script src="js/app.js?v=16.0"></script>
+  <script src="js/app.js?v=17.0"></script>
 </body>
 </html>

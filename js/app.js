@@ -184,19 +184,21 @@ let isAdminLoggedIn = false;
 let currentUser = null;
 
 // --- INITIALIZATION ---
-document.addEventListener("DOMContentLoaded", async () => {
+document.addEventListener("DOMContentLoaded", () => {
   initPreloader();
-  await loadSiteCMSConfig();
+  initLiveClocks();
   renderProgramsCatalog(DEGREE_PROGRAMS);
   initSearchAndFilter();
   initStudentPortal();
   initApplicationUploadForm();
-  initLiveClocks();
   initModalListeners();
   renderPublicTestimonials();
   initCampusTour();
   renderLecturesGrid('all');
   loadGlobalNews();
+
+  // Load CMS Config & Firestore listeners asynchronously without blocking UI or clocks
+  loadSiteCMSConfig();
 });
 
 // --- AUTOMATIC PRELOADER SPLASH SCREEN FADE OUT ENGINE ---
