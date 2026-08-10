@@ -174,7 +174,7 @@ h1, h2, h3, h4, .brand-font {
 .nav-links {
   display: flex;
   align-items: center;
-  gap: 45px; /* Increased spacing to prevent overlapping */
+  gap: 45px;
   list-style: none;
 }
 
@@ -701,6 +701,100 @@ h1, h2, h3, h4, .brand-font {
   cursor: pointer;
   color: #ef4444;
   font-weight: bold;
+}
+
+/* ADMIN PORTAL & DASHBOARD STYLES */
+.admin-dashboard-container {
+  background: rgba(15, 8, 10, 0.95);
+  border: 1px solid var(--gold-primary);
+  border-radius: 20px;
+  padding: 36px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+}
+
+.admin-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.admin-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  margin-bottom: 36px;
+}
+
+.admin-kpi-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-gold);
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.kpi-icon {
+  font-size: 32px;
+  color: var(--gold-primary);
+}
+
+.kpi-val {
+  font-size: 28px;
+  font-weight: 800;
+  color: #fff;
+  font-family: var(--font-serif);
+}
+
+.kpi-lbl {
+  font-size: 12px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.admin-table-container {
+  border: 1px solid var(--border-gold);
+  border-radius: 12px;
+  overflow-x: auto;
+  background: rgba(10, 5, 7, 0.8);
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 14px;
+}
+
+.admin-table th {
+  background: rgba(107, 17, 28, 0.9);
+  color: var(--gold-light);
+  padding: 14px 18px;
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 12px;
+  letter-spacing: 1px;
+}
+
+.admin-table td {
+  padding: 14px 18px;
+  border-top: 1px solid rgba(212, 175, 55, 0.15);
+  color: #fff;
+}
+
+.admin-status-select {
+  padding: 6px 10px;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid var(--border-gold);
+  color: var(--gold-light);
+  font-size: 12px;
+  outline: none;
+  cursor: pointer;
 }
 
 /* SIMULATED CONFIRMATION EMAIL MODAL */

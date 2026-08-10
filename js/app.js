@@ -1,6 +1,6 @@
 /* ==========================================================================
    UNIVERSITY OF EAST FLORIDA - GLOBAL ONLINE CAMPUS
-   Application Logic, Drag & Drop Upload, Firebase & Email Engine
+   Application Logic, Admin Portal, Firebase & Email Engine
    ========================================================================== */
 
 // --- 100% ONLINE DEGREE PROGRAM DATABASE ---
@@ -159,6 +159,9 @@ const DEGREE_PROGRAMS = [
   }
 ];
 
+// --- ADMIN STATE ---
+let isAdminLoggedIn = false;
+
 // --- INITIALIZATION ---
 document.addEventListener("DOMContentLoaded", () => {
   renderProgramsCatalog(DEGREE_PROGRAMS);
@@ -168,6 +171,243 @@ document.addEventListener("DOMContentLoaded", () => {
   initLiveClocks();
   initModalListeners();
 });
+
+// --- ADMIN PORTAL & DASHBOARD ENGINE ---
+function openAdminLoginModal() {
+  const modal = document.getElementById("adminLoginModal");
+  if (modal) modal.classList.add("open");
+}
+
+function closeAdminLoginModal() {
+  const modal = document.getElementById("adminLoginModal");
+  if (modal) modal.classList.remove("open");
+}
+
+function autoFillDemoAdmin() {
+  document.getElementById("adminEmailInput").value = "admin@uef.edu.online";
+  document.getElementById("adminPasswordInput").value = "uef2026";
+}
+
+function handleAdminLoginSubmit(event) {
+  event.preventDefault();
+  const email = document.getElementById("adminEmailInput").value.trim();
+  const pass = document.getElementById("adminPasswordInput").value.trim();
+
+  if (email === "admin@uef.edu.online" && pass === "uef2026") {
+    isAdminLoggedIn = true;
+    closeAdminLoginModal();
+    const adminSec = document.getElementById("adminDashboardSection");
+    const navBtn = document.getElementById("navAdminBtn");
+
+    if (adminSec) {
+      adminSec.style.display = "block";
+      adminSec.scrollIntoView({ behavior: 'smooth' });
+    }
+    if (navBtn) {
+      navBtn.innerHTML = "🔓 Admin Active";
+      navBtn.onclick = () => adminSec.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    renderAdminDashboard();
+  } else {
+    alert("Invalid Admin Credentials. Please use demo credentials:\nEmail: admin@uef.edu.online\nPassword: uef2026");
+  }
+}
+
+function adminLogout() {
+  isAdminLoggedIn = false;
+  const adminSec = document.getElementById("adminDashboardSection");
+  const navBtn = document.getElementById("navAdminBtn");
+
+  if (adminSec) adminSec.style.display = "none";
+  if (navBtn) {
+    navBtn.innerHTML = "🔑 Admin Sign In";
+    navBtn.onclick = openAdminLoginModal;
+  }
+  alert("Logged out from Registrar Admin Portal.");
+}
+
+async function renderAdminDashboard() {
+  if (!isAdminLoggedIn || !window.firebaseManager) return;
+
+  const applications = await window.firebaseManager.getApplications();
+  const tbody = document.getElementById("adminTableBody");
+  const searchVal = (document.getElementById("adminSearchInput")?.value || "").toLowerCase().trim();
+  const filterStatus = document.getElementById("adminStatusFilter")?.value || "ALL";
+
+  // Compute KPI Stats
+  let totalApps = applications.length;
+  let totalDocs = 0;
+  let admittedCount = 0;
+  let pendingCount = 0;
+
+  applications.forEach(a => {
+    totalDocs += (a.uploadedMarksheets || []).length;
+    if (a.status.includes("ADMITTED")) admittedCount++;
+    if (a.status.includes("REVIEW") || a.status.includes("PENDING")) pendingCount++;
+  });
+
+  document.getElementById("kpiTotalApps").innerText = totalApps;
+  document.getElementById("kpiVerifiedDocs").innerText = totalDocs;
+  document.getElementById("kpiAdmitted").innerText = admittedCount;
+  document.getElementById("kpiPending").innerText = pendingCount;
+
+  // Filter Applications
+  let filtered = applications.filter(a => {
+    const matchSearch = a.fullName.toLowerCase().includes(searchVal) ||
+                        a.email.toLowerCase().includes(searchVal) ||
+                        a.country.toLowerCase().includes(searchVal) ||
+                        a.programTitle.toLowerCase().includes(searchVal) ||
+                        a.trackingId.toLowerCase().includes(searchVal);
+
+    const matchStatus = filterStatus === "ALL" || a.status === filterStatus;
+    return matchSearch && matchStatus;
+  });
+
+  if (!tbody) return;
+
+  if (filtered.length === 0) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="9" style="text-align: center; padding: 30px; color: var(--text-muted);">
+          No student applications found.
+        </td>
+      </tr>
+    `;
+    return;
+  }
+
+  tbody.innerHTML = filtered.map(app => `
+    <tr>
+      <td><strong style="color: var(--gold-primary); font-family: monospace;">${app.trackingId}</strong></td>
+      <td><strong>${app.fullName}</strong></td>
+      <td>${app.email}<br><span style="font-size: 11px; color: var(--text-muted);">${app.phone}</span></td>
+      <td>${app.country}</td>
+      <td>${app.degree} in ${app.programTitle}</td>
+      <td>
+        <span class="usa-flag-badge" style="cursor: pointer;" onclick="inspectApplicantDocs('${app.trackingId}')">
+          📁 ${(app.uploadedMarksheets || []).length} Marksheets
+        </span>
+      </td>
+      <td style="font-size: 12px; color: var(--text-muted);">${app.submittedAt}</td>
+      <td>
+        <select class="admin-status-select" onchange="changeApplicantStatus('${app.trackingId}', this.value)">
+          <option value="APPLICATION UNDER REVIEW" ${app.status === 'APPLICATION UNDER REVIEW' ? 'selected' : ''}>Under Review</option>
+          <option value="ADMITTED - OFFER ISSUED" ${app.status === 'ADMITTED - OFFER ISSUED' ? 'selected' : ''}>Admitted (Offer Issued)</option>
+          <option value="CONDITIONAL ADMISSION" ${app.status === 'CONDITIONAL ADMISSION' ? 'selected' : ''}>Conditional Admission</option>
+          <option value="REJECTED" ${app.status === 'REJECTED' ? 'selected' : ''}>Rejected</option>
+        </select>
+      </td>
+      <td>
+        <button class="btn btn-outline" onclick="inspectApplicantDocs('${app.trackingId}')" style="padding: 4px 10px; font-size: 11px;">
+          👁️ View Profile
+        </button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+async function changeApplicantStatus(trackingId, newStatus) {
+  if (window.firebaseManager) {
+    await window.firebaseManager.updateStatus(trackingId, newStatus);
+    alert(`Applicant ${trackingId} status updated to: ${newStatus}`);
+    renderAdminDashboard();
+  }
+}
+
+async function inspectApplicantDocs(trackingId) {
+  const apps = await window.firebaseManager.getApplications();
+  const app = apps.find(a => a.trackingId === trackingId);
+  if (!app) return;
+
+  const title = document.getElementById("adminDocModalTitle");
+  const body = document.getElementById("adminDocModalBody");
+  const modal = document.getElementById("adminDocPreviewModal");
+
+  if (title) title.innerText = `Document Inspector: ${app.fullName} (${app.trackingId})`;
+
+  if (body) {
+    body.innerHTML = `
+      <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-gold); padding: 20px; border-radius: 12px; margin-bottom: 20px;">
+        <h4 style="color: var(--gold-light); font-family: var(--font-serif); margin-bottom: 12px;">👤 Student Details</h4>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 14px; color: #ddd;">
+          <div><strong>Full Name:</strong> ${app.fullName}</div>
+          <div><strong>Email:</strong> ${app.email}</div>
+          <div><strong>Phone:</strong> ${app.phone}</div>
+          <div><strong>Country:</strong> ${app.country}</div>
+          <div><strong>Target Degree:</strong> ${app.degree} in ${app.programTitle}</div>
+          <div><strong>Previous Institution:</strong> ${app.previousSchool}</div>
+        </div>
+      </div>
+
+      <h4 style="color: var(--gold-light); font-family: var(--font-serif); margin-bottom: 12px;">📁 Uploaded Marksheets & Transcripts</h4>
+      <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px;">
+        ${(app.uploadedMarksheets || []).map(m => `
+          <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.5); border: 1px solid var(--border-gold); padding: 12px 16px; border-radius: 8px;">
+            <div>
+              <strong style="color: #fff; font-size: 14px;">📄 ${m.name}</strong>
+              <div style="font-size: 11px; color: var(--text-muted);">Size: ${m.size} • Encrypted PDF / Image</div>
+            </div>
+            <button class="btn btn-gold" onclick="alert('Opening document preview for ${m.name} (Simulated File Preview)...')" style="padding: 6px 14px; font-size: 12px;">
+              👁️ Preview File
+            </button>
+          </div>
+        `).join('')}
+      </div>
+
+      <div style="background: #1e090e; border: 1px solid var(--border-gold); padding: 16px; border-radius: 10px;">
+        <label class="form-label">Update Decision Status:</label>
+        <div style="display: flex; gap: 10px;">
+          <select id="inspectorStatusSelect" class="form-select" style="flex: 1;">
+            <option value="APPLICATION UNDER REVIEW" ${app.status === 'APPLICATION UNDER REVIEW' ? 'selected' : ''}>Under Review</option>
+            <option value="ADMITTED - OFFER ISSUED" ${app.status === 'ADMITTED - OFFER ISSUED' ? 'selected' : ''}>Admitted - Offer Issued</option>
+            <option value="CONDITIONAL ADMISSION" ${app.status === 'CONDITIONAL ADMISSION' ? 'selected' : ''}>Conditional Admission</option>
+            <option value="REJECTED" ${app.status === 'REJECTED' ? 'selected' : ''}>Rejected</option>
+          </select>
+          <button class="btn btn-gold" onclick="saveInspectorStatus('${app.trackingId}')" style="padding: 8px 20px; font-size: 13px;">
+            Save Status
+          </button>
+        </div>
+      </div>
+    `;
+  }
+
+  if (modal) modal.classList.add("open");
+}
+
+async function saveInspectorStatus(trackingId) {
+  const select = document.getElementById("inspectorStatusSelect");
+  if (select) {
+    await changeApplicantStatus(trackingId, select.value);
+    closeAdminDocModal();
+  }
+}
+
+function closeAdminDocModal() {
+  const modal = document.getElementById("adminDocPreviewModal");
+  if (modal) modal.classList.remove("open");
+}
+
+async function exportApplicantsCSV() {
+  if (!window.firebaseManager) return;
+  const apps = await window.firebaseManager.getApplications();
+
+  let csvContent = "data:text/csv;charset=utf-8,";
+  csvContent += "Tracking ID,Full Name,Email,Phone,Country,Program,Previous Institution,Submitted Date,Status\n";
+
+  apps.forEach(a => {
+    let row = `"${a.trackingId}","${a.fullName}","${a.email}","${a.phone}","${a.country}","${a.programTitle}","${a.previousSchool}","${a.submittedAt}","${a.status}"`;
+    csvContent += row + "\n";
+  });
+
+  const encodedUri = encodeURI(csvContent);
+  const link = document.createElement("a");
+  link.setAttribute("href", encodedUri);
+  link.setAttribute("download", "UEF_Student_Applications_Roster.csv");
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
 
 // --- PROGRAM CATALOG RENDERER ---
 function renderProgramsCatalog(programs) {
@@ -379,6 +619,11 @@ async function handleApplicationSubmit(event) {
   // Save to Firebase Firestore / Local Persistence Engine
   if (window.firebaseManager) {
     await window.firebaseManager.saveApplication(applicationRecord);
+  }
+
+  // Refresh Admin Dashboard if active
+  if (isAdminLoggedIn) {
+    renderAdminDashboard();
   }
 
   // Generate & Render Confirmation Email Preview
@@ -694,6 +939,20 @@ function initModalListeners() {
   if (emailModal) {
     emailModal.addEventListener("click", (e) => {
       if (e.target === emailModal) closeConfirmationEmailModal();
+    });
+  }
+
+  const adminModal = document.getElementById("adminLoginModal");
+  if (adminModal) {
+    adminModal.addEventListener("click", (e) => {
+      if (e.target === adminModal) closeAdminLoginModal();
+    });
+  }
+
+  const adminDocModal = document.getElementById("adminDocPreviewModal");
+  if (adminDocModal) {
+    adminDocModal.addEventListener("click", (e) => {
+      if (e.target === adminDocModal) closeAdminDocModal();
     });
   }
 }
