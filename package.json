@@ -1,0 +1,9 @@
+{
+  "name": "uef-university-backend",
+  "version": "1.0.0",
+  "description": "University of East Florida Serverless Backend Email Dispatcher API",
+  "main": "api/send-email.js",
+  "dependencies": {
+    "nodemailer": "^6.9.13"
+  }
+}

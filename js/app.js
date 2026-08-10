@@ -219,6 +219,24 @@ async function handleBrochureDownloadClick(programId) {
     await window.firebaseManager.saveBrochureLead(leadData);
   }
 
+  // Dispatch real backend confirmation email via Vercel Serverless API
+  try {
+    fetch('/api/send-email', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        toEmail: studentEmail,
+        toName: studentName,
+        program: `${program.degree} in ${program.title}`,
+        tuition: program.tuition,
+        status: 'OFFICIAL BROCHURE ISSUED',
+        type: 'brochure'
+      })
+    });
+  } catch (e) {
+    console.warn("Brochure backend email trigger:", e);
+  }
+
   // Render Preview Modal & Trigger Download
   openBrochureModal(programId);
 }
@@ -1255,22 +1273,30 @@ async function handleApplicationSubmit(event) {
   openConfirmationEmailModal();
 }
 
-function sendRealEmailNotification(record) {
-  console.log(`✉️ Dispatching Real Email Notification to ${record.email} and ${SENDER_EMAIL}...`);
-  if (typeof emailjs !== "undefined") {
-    try {
-      emailjs.send("service_default", "template_admissions", {
-        to_name: record.fullName,
-        to_email: record.email,
-        admin_email: SENDER_EMAIL,
-        tracking_id: record.trackingId,
+async function sendRealEmailNotification(record) {
+  console.log(`✉️ Dispatching Real Backend Serverless Email to ${record.email} and ${SENDER_EMAIL}...`);
+  
+  try {
+    const response = await fetch('/api/send-email', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        toEmail: record.email,
+        toName: record.fullName,
+        trackingId: record.trackingId,
         program: `${record.degree} in ${record.programTitle}`,
-        tuition: record.finalFeeDisplay,
-        status: record.status
-      });
-    } catch (e) {
-      console.warn("EmailJS notification trigger:", e);
-    }
+        tuition: record.finalFeeDisplay || record.tuition,
+        status: record.status,
+        type: 'application'
+      })
+    });
+    
+    const resData = await response.json();
+    console.log("✅ Real Backend Serverless Email Dispatch Result:", resData);
+  } catch (err) {
+    console.warn("⚠️ Backend email dispatch fetch notice:", err);
   }
 }
 
