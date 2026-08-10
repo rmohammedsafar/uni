@@ -739,9 +739,9 @@
 
     <div class="admin-dashboard-container">
       
-      <div class="admin-header-row">
+      <div class="admin-header-row" style="margin-bottom: 24px;">
         <div>
-          <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
+          <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px; flex-wrap: wrap;">
             <h3 style="font-size: 24px; color: #fff; font-family: var(--font-serif); margin: 0;">
               📊 Admissions Overview & Firebase Records
             </h3>
@@ -751,17 +751,23 @@
           </div>
           <span style="font-size: 12px; color: var(--gold-light);">Syncing live with Cloud Firestore project: <strong style="color: #fff;">university-8f798</strong></span>
         </div>
-        <div style="display: flex; gap: 12px; flex-wrap: wrap;">
-          <button class="btn btn-outline" onclick="testFirebaseConnection()" style="border-color: #34d399; color: #34d399;">
-            🧪 Test Firebase Sync
+        <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+          <button class="btn btn-outline" onclick="testFirebaseConnection()" style="border-color: #34d399; color: #34d399; padding: 8px 14px; font-size: 13px;">
+            🧪 Test Sync
           </button>
-          <button class="btn btn-gold" onclick="exportApplicantsCSV()">
+          <button class="btn btn-gold" onclick="exportApplicantsCSV()" style="padding: 8px 14px; font-size: 13px;">
             📥 Export CSV
           </button>
-          <button class="btn btn-maroon" onclick="exportApplicantsSQL()">
-            🗄️ Export SQL (.sql)
+          <button class="btn btn-maroon" onclick="exportApplicantsSQL()" style="padding: 8px 14px; font-size: 13px;">
+            🗄️ Export SQL
           </button>
-          <button class="btn btn-outline" onclick="adminLogout()" style      <!-- ADMIN TAB NAVIGATION PILLS -->
+          <button class="btn btn-outline" onclick="adminLogout()" style="border-color: #ef4444; color: #f87171; padding: 8px 14px; font-size: 13px;">
+            🔒 Logout Admin
+          </button>
+        </div>
+      </div>
+
+      <!-- ADMIN TAB NAVIGATION PILLS -->
       <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 28px; border-bottom: 1px solid var(--border-gold); padding-bottom: 16px;">
         <button class="filter-pill active" onclick="switchAdminTab('admissions')" id="adminTabBtn-admissions">📋 Admissions & Leads</button>
         <button class="filter-pill" onclick="switchAdminTab('courses')" id="adminTabBtn-courses">📚 Courses & Tuition CMS</button>
@@ -2121,6 +2127,6 @@
   </div>
 
   <script src="js/firebase-config.js"></script>
-  <script src="js/app.js?v=12.0"></script>
+  <script src="js/app.js?v=13.0"></script>
 </body>
 </html>

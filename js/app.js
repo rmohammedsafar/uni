@@ -449,7 +449,7 @@ function processAuthenticatedUser(email, name) {
       adminDashboardSec.scrollIntoView({ behavior: 'smooth' });
     }
     if (navBtn) {
-      navBtn.innerHTML = `🔓 ${currentUser.name} (Admin)`;
+      navBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg> Admin Portal`;
       navBtn.onclick = () => adminDashboardSec.scrollIntoView({ behavior: 'smooth' });
     }
     if (navDashLink) navDashLink.style.display = "none";
@@ -664,7 +664,7 @@ function adminLogout() {
   if (studentSec) studentSec.style.display = "none";
   if (navDashLink) navDashLink.style.display = "none";
   if (navBtn) {
-    navBtn.innerHTML = "🔑 Sign In / Register";
+    navBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg> Sign In`;
     navBtn.onclick = openAdminLoginModal;
   }
   alert("Signed out successfully.");
