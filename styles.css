@@ -1,6 +1,6 @@
 /* ==========================================================================
    UNIVERSITY OF EAST FLORIDA - GLOBAL ONLINE CAMPUS
-   Design System, Luxury Animations & Master Stylesheet
+   Design System, Animated Live Time Marquee Ticker & Stylesheet
    ========================================================================== */
 
 @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;800;900&family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,400&display=swap');
@@ -111,58 +111,58 @@ h1, h2, h3, h4, .brand-font {
   font-weight: 600;
 }
 
-.time-widget {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  color: var(--text-gold);
-  font-family: monospace;
-  font-size: 13px;
-}
-
-/* LUXURY CONTINUOUS INFINITE MARQUEE TICKER BANNER */
-.marquee-ticker-container {
-  background: linear-gradient(90deg, #3b060d 0%, #6b111c 50%, #3b060d 100%);
+/* STYLISH ANIMATED LIVE TIME MARQUEE TICKER */
+.time-marquee-ticker {
+  background: linear-gradient(90deg, #3b060d 0%, #8e1827 50%, #3b060d 100%);
+  border-top: 1px solid var(--gold-primary);
   border-bottom: 1px solid var(--gold-primary);
   overflow: hidden;
   position: relative;
-  padding: 8px 0;
+  padding: 10px 0;
   white-space: nowrap;
-  box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.7);
+  z-index: 998;
 }
 
-.marquee-track {
+.time-marquee-track {
   display: inline-flex;
-  animation: marqueeScroll 25s linear infinite;
+  align-items: center;
+  animation: timeMarqueeScroll 25s linear infinite;
 }
 
-.marquee-track:hover {
+.time-marquee-track:hover {
   animation-play-state: paused;
 }
 
-.marquee-item {
+.time-marquee-item {
   display: inline-flex;
   align-items: center;
-  gap: 12px;
-  margin-right: 40px;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--gold-light);
-  letter-spacing: 1px;
-  text-transform: uppercase;
-}
-
-.marquee-dot {
-  color: var(--gold-primary);
+  gap: 10px;
+  margin-right: 45px;
   font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+  font-family: monospace, var(--font-body);
+  letter-spacing: 1px;
+  text-shadow: 0 0 10px rgba(212, 175, 55, 0.6);
 }
 
-@keyframes marqueeScroll {
+.time-marquee-badge {
+  background: rgba(212, 175, 55, 0.25);
+  border: 1px solid var(--gold-primary);
+  color: var(--gold-light);
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+@keyframes timeMarqueeScroll {
   0% { transform: translateX(0%); }
   100% { transform: translateX(-50%); }
 }
 
-/* STREAMLINED & SPACED MAIN NAVBAR */
+/* MAIN NAVBAR HEADER */
 .app-header {
   position: sticky;
   top: 0;
@@ -212,7 +212,6 @@ h1, h2, h3, h4, .brand-font {
   font-weight: 600;
 }
 
-/* DECLUTTERED NAV LINKS */
 .nav-links {
   display: flex;
   align-items: center;
@@ -319,17 +318,6 @@ h1, h2, h3, h4, .brand-font {
   overflow: hidden;
 }
 
-.hero-bg-crest {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 600px;
-  height: 600px;
-  opacity: 0.05;
-  pointer-events: none;
-}
-
 .hero-badge {
   display: inline-flex;
   align-items: center;
@@ -370,7 +358,6 @@ h1, h2, h3, h4, .brand-font {
   margin-bottom: 50px;
 }
 
-/* STYLISH GLOWING ANIMATED NUMBERS CARDS */
 .hero-stats-row {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -391,20 +378,9 @@ h1, h2, h3, h4, .brand-font {
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
 }
 
-.stat-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 3px;
-  background: linear-gradient(90deg, transparent, var(--gold-primary), transparent);
-  transition: var(--tr-fast);
-}
-
 .stat-card:hover {
   border-color: var(--gold-primary);
-  transform: translateY(-8px) scale(1.02);
+  transform: translateY(-6px);
   box-shadow: 0 20px 40px rgba(212, 175, 55, 0.25);
 }
 
@@ -412,9 +388,7 @@ h1, h2, h3, h4, .brand-font {
   font-family: var(--font-serif);
   font-size: 38px;
   font-weight: 900;
-  background: linear-gradient(135deg, #ffffff 0%, #f7e096 50%, #d4af37 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: var(--gold-primary);
   line-height: 1;
   margin-bottom: 8px;
   letter-spacing: 1px;
@@ -531,7 +505,6 @@ h1, h2, h3, h4, .brand-font {
   border-color: var(--gold-primary);
 }
 
-/* Program Cards Grid */
 .programs-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
@@ -701,7 +674,6 @@ h1, h2, h3, h4, .brand-font {
   color: #fff;
 }
 
-/* DRAG AND DROP FILE UPLOAD ZONE */
 .drop-zone {
   border: 2px dashed var(--border-gold);
   background: rgba(107, 17, 28, 0.15);
@@ -985,7 +957,6 @@ h1, h2, h3, h4, .brand-font {
   }
 }
 
-/* Dynamic Grade Table */
 .grade-table-wrapper {
   margin: 20px 0;
   border: 1px solid var(--border-gold);
@@ -1034,7 +1005,6 @@ h1, h2, h3, h4, .brand-font {
   color: #fff;
 }
 
-/* Eligibility Result Card */
 .result-card {
   background: rgba(15, 8, 10, 0.9);
   border: 2px solid var(--border-gold);
@@ -1178,7 +1148,6 @@ h1, h2, h3, h4, .brand-font {
   color: var(--text-muted);
 }
 
-/* Interactive Map Container */
 .map-container-box {
   background: var(--glass-bg);
   border: var(--glass-border);
@@ -1207,7 +1176,7 @@ h1, h2, h3, h4, .brand-font {
   filter: contrast(1.1) opacity(0.9);
 }
 
-/* MODAL STYLES (PDF Brochure Preview) */
+/* MODALS */
 .modal-backdrop {
   position: fixed;
   top: 0;
@@ -1283,7 +1252,6 @@ h1, h2, h3, h4, .brand-font {
   flex: 1;
 }
 
-/* Printable PDF Document Styles */
 .pdf-document-paper {
   background: #fffefb;
   color: #1a080c;
@@ -1384,7 +1352,6 @@ h1, h2, h3, h4, .brand-font {
   gap: 14px;
 }
 
-/* FOOTER */
 .site-footer {
   background: #070405;
   border-top: 1px solid var(--border-gold);

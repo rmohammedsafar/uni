@@ -6,7 +6,7 @@
   <title>University of East Florida | 100% Online Global Accredited University</title>
   <meta name="description" content="Official website of the University of East Florida (UEF). Earn world-class, 100% online accredited degrees with PDF brochures, interactive student eligibility portal, document upload, tiered referral discounts, admin dashboard, and global USA headquarters.">
   <link rel="icon" type="image/svg+xml" href="assets/logo.svg">
-  <link rel="stylesheet" href="styles.css?v=2.0">
+  <link rel="stylesheet" href="styles.css?v=3.0">
 
   <!-- EMBEDDED MASTER DESIGN SYSTEM & STYLES (Bulletproof Inline Sync) -->
   <style>
@@ -53,8 +53,8 @@
     .usa-flag-badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(212, 175, 55, 0.15); padding: 3px 10px; border-radius: 20px; border: 1px solid var(--border-gold); color: var(--gold-light); font-weight: 600; }
     .time-widget { display: flex; align-items: center; gap: 6px; color: var(--text-gold); font-family: monospace; font-size: 13px; }
 
-    /* HIGH VISIBILITY CONTINUOUS INFINITE MARQUEE TICKER BANNER */
-    .marquee-ticker-container {
+    /* ANIMATED LIVE TIME MARQUEE TICKER BANNER */
+    .time-marquee-ticker {
       background: linear-gradient(90deg, #3b060d 0%, #8e1827 50%, #3b060d 100%);
       border-top: 1px solid var(--gold-primary);
       border-bottom: 1px solid var(--gold-primary);
@@ -62,39 +62,44 @@
       position: relative;
       padding: 10px 0;
       white-space: nowrap;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.6);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.7);
       z-index: 998;
     }
 
-    .marquee-track {
+    .time-marquee-track {
       display: inline-flex;
-      animation: marqueeScroll 20s linear infinite;
+      align-items: center;
+      animation: timeMarqueeScroll 25s linear infinite;
     }
 
-    .marquee-track:hover {
+    .time-marquee-track:hover {
       animation-play-state: paused;
     }
 
-    .marquee-item {
+    .time-marquee-item {
       display: inline-flex;
       align-items: center;
-      gap: 12px;
-      margin-right: 40px;
+      gap: 10px;
+      margin-right: 45px;
       font-size: 14px;
       font-weight: 700;
       color: #fff;
+      font-family: monospace, var(--font-body);
       letter-spacing: 1px;
-      text-transform: uppercase;
-      text-shadow: 0 0 8px rgba(212, 175, 55, 0.6);
+      text-shadow: 0 0 10px rgba(212, 175, 55, 0.6);
     }
 
-    .marquee-dot {
-      color: var(--gold-primary);
-      font-size: 16px;
+    .time-marquee-badge {
+      background: rgba(212, 175, 55, 0.25);
+      border: 1px solid var(--gold-primary);
+      color: var(--gold-light);
+      padding: 2px 10px;
+      border-radius: 12px;
+      font-size: 12px;
       font-weight: bold;
     }
 
-    @keyframes marqueeScroll {
+    @keyframes timeMarqueeScroll {
       0% { transform: translateX(0%); }
       100% { transform: translateX(-50%); }
     }
@@ -127,12 +132,10 @@
     .hero-subtitle { font-size: 18px; color: var(--text-muted); max-width: 750px; margin: 0 auto 36px; font-weight: 300; }
     .hero-cta-group { display: flex; justify-content: center; gap: 18px; flex-wrap: wrap; margin-bottom: 50px; }
 
-    /* STYLISH ANIMATED STAT CARDS */
     .hero-stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 24px; max-width: 1100px; margin: 0 auto; }
     .stat-card { background: radial-gradient(circle at 50% 0%, rgba(107, 17, 28, 0.4) 0%, rgba(20, 10, 14, 0.85) 100%); border: 1px solid var(--border-gold); backdrop-filter: blur(14px); padding: 26px 20px; border-radius: 16px; transition: var(--tr-smooth); position: relative; overflow: hidden; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); }
-    .stat-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 3px; background: linear-gradient(90deg, transparent, var(--gold-primary), transparent); transition: var(--tr-fast); }
-    .stat-card:hover { border-color: var(--gold-primary); transform: translateY(-8px) scale(1.02); box-shadow: 0 20px 40px rgba(212, 175, 55, 0.25); }
-    .stat-num { font-family: var(--font-serif); font-size: 38px; font-weight: 900; background: linear-gradient(135deg, #ffffff 0%, #f7e096 50%, #d4af37 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; line-height: 1; margin-bottom: 8px; letter-spacing: 1px; }
+    .stat-card:hover { border-color: var(--gold-primary); transform: translateY(-6px); box-shadow: 0 20px 40px rgba(212, 175, 55, 0.25); }
+    .stat-num { font-family: var(--font-serif); font-size: 38px; font-weight: 900; color: var(--gold-primary); line-height: 1; margin-bottom: 8px; letter-spacing: 1px; }
     .stat-label { font-size: 13px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600; }
 
     .section-wrapper { padding: 80px 40px; max-width: 1300px; margin: 0 auto; }
@@ -310,20 +313,20 @@
     </div>
   </div>
 
-  <!-- CONTINUOUS INFINITE MARQUEE TICKER BANNER -->
-  <div class="marquee-ticker-container">
-    <div class="marquee-track">
-      <span class="marquee-item">🎓 100% ONLINE ACCREDITED DEGREES</span> <span class="marquee-dot">•</span>
-      <span class="marquee-item">🇺🇸 USA ORLANDO HEADQUARTERS</span> <span class="marquee-dot">•</span>
-      <span class="marquee-item">🎟️ REFER FRIENDS & GET UP TO 35% TUITION DISCOUNT</span> <span class="marquee-dot">•</span>
-      <span class="marquee-item">📜 INSTANT PDF BROCHURE DOWNLOADS</span> <span class="marquee-dot">•</span>
-      <span class="marquee-item">⚡ LIVE FIREBASE FIRESTORE ADMISSIONS SYNC</span> <span class="marquee-dot">•</span>
-      <span class="marquee-item">🔑 REGISTRAR ADMIN PORTAL ENABLED</span> <span class="marquee-dot">•</span>
-      <span class="marquee-item">🎓 100% ONLINE ACCREDITED DEGREES</span> <span class="marquee-dot">•</span>
-      <span class="marquee-item">🇺🇸 USA ORLANDO HEADQUARTERS</span> <span class="marquee-dot">•</span>
-      <span class="marquee-item">🎟️ REFER FRIENDS & GET UP TO 35% TUITION DISCOUNT</span> <span class="marquee-dot">•</span>
-      <span class="marquee-item">📜 INSTANT PDF BROCHURE DOWNLOADS</span> <span class="marquee-dot">•</span>
-      <span class="marquee-item">⚡ LIVE FIREBASE FIRESTORE ADMISSIONS SYNC</span> <span class="marquee-dot">•</span>
+  <!-- ANIMATED LIVE INTERNATIONAL TIME MARQUEE TICKER BANNER -->
+  <div class="time-marquee-ticker">
+    <div class="time-marquee-track">
+      <span class="time-marquee-badge">🕒 LIVE WORLD CLOCKS</span>
+      <span class="time-marquee-item" id="marqueeClockEST1">🇺🇸 USA (Orlando/EST): Loading...</span>
+      <span class="time-marquee-item" id="marqueeClockGMT1">🇬🇧 UK (London/GMT): Loading...</span>
+      <span class="time-marquee-item" id="marqueeClockJST1">🇯🇵 Japan (Tokyo/JST): Loading...</span>
+      <span class="time-marquee-item" id="marqueeClockIST1">🇮🇳 India (New Delhi/IST): Loading...</span>
+      
+      <span class="time-marquee-badge">🕒 LIVE WORLD CLOCKS</span>
+      <span class="time-marquee-item" id="marqueeClockEST2">🇺🇸 USA (Orlando/EST): Loading...</span>
+      <span class="time-marquee-item" id="marqueeClockGMT2">🇬🇧 UK (London/GMT): Loading...</span>
+      <span class="time-marquee-item" id="marqueeClockJST2">🇯🇵 Japan (Tokyo/JST): Loading...</span>
+      <span class="time-marquee-item" id="marqueeClockIST2">🇮🇳 India (New Delhi/IST): Loading...</span>
     </div>
   </div>
 
@@ -379,18 +382,18 @@
       </a>
     </div>
 
-    <!-- STYLISH ANIMATED STATS ROW -->
+    <!-- STATS ROW -->
     <div class="hero-stats-row">
       <div class="stat-card">
-        <div class="stat-num" data-counter-target="100" data-counter-suffix="%">0%</div>
+        <div class="stat-num">100%</div>
         <div class="stat-label">Online & Remote</div>
       </div>
       <div class="stat-card">
-        <div class="stat-num" data-counter-target="120" data-counter-suffix="+">0+</div>
+        <div class="stat-num">120+</div>
         <div class="stat-label">Countries Represented</div>
       </div>
       <div class="stat-card">
-        <div class="stat-num" data-counter-target="15000" data-counter-suffix="+">0+</div>
+        <div class="stat-num">15,000+</div>
         <div class="stat-label">Global Graduates</div>
       </div>
       <div class="stat-card">
@@ -1084,6 +1087,6 @@
 
   <!-- Application Scripts -->
   <script src="js/firebase-config.js"></script>
-  <script src="js/app.js?v=2.0"></script>
+  <script src="js/app.js?v=3.0"></script>
 </body>
 </html>

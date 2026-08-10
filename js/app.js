@@ -1,6 +1,6 @@
 /* ==========================================================================
    UNIVERSITY OF EAST FLORIDA - GLOBAL ONLINE CAMPUS
-   Application Logic, Admin Portal, Animations & Timezone Engine
+   Application Logic, Admin Portal & Animated Live Time Marquee Engine
    ========================================================================== */
 
 // --- SENDER EMAIL CONFIGURATION ---
@@ -190,47 +190,44 @@ document.addEventListener("DOMContentLoaded", () => {
   initApplicationUploadForm();
   initLiveClocks();
   initModalListeners();
-  initAnimatedCounters();
 });
 
-// --- STYLISH NUMBER COUNTER ANIMATION ENGINE ---
-function initAnimatedCounters() {
-  const counterElems = document.querySelectorAll("[data-counter-target]");
-  
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        const elem = entry.target;
-        const targetVal = parseInt(elem.getAttribute("data-counter-target"), 10);
-        const suffix = elem.getAttribute("data-counter-suffix") || "";
-        animateSingleCounter(elem, targetVal, suffix, 1800);
-        observer.unobserve(elem);
-      }
-    });
-  }, { threshold: 0.3 });
-
-  counterElems.forEach(el => observer.observe(el));
-}
-
-function animateSingleCounter(elem, target, suffix, duration) {
-  let startTime = null;
-  const startVal = 0;
-
-  function step(timestamp) {
-    if (!startTime) startTime = timestamp;
-    const progress = Math.min((timestamp - startTime) / duration, 1);
-    const currentVal = Math.floor(progress * (target - startVal) + startVal);
+// --- ANIMATED LIVE INTERNATIONAL TIME MARQUEE ENGINE ---
+function initLiveClocks() {
+  function updateClocks() {
+    const now = new Date();
     
-    elem.innerText = currentVal.toLocaleString() + suffix;
+    // Timezone Formatters
+    const estStr = now.toLocaleTimeString("en-US", { timeZone: "America/New_York", hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    const gmtStr = now.toLocaleTimeString("en-US", { timeZone: "Europe/London", hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    const jstStr = now.toLocaleTimeString("en-US", { timeZone: "Asia/Tokyo", hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    const istStr = now.toLocaleTimeString("en-US", { timeZone: "Asia/Kolkata", hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit' });
 
-    if (progress < 1) {
-      window.requestAnimationFrame(step);
-    } else {
-      elem.innerText = target.toLocaleString() + suffix;
+    // Update Top Banner Widgets
+    const clockEst = document.getElementById("clockEST");
+    const clockGmt = document.getElementById("clockGMT");
+    const clockJst = document.getElementById("clockJST");
+
+    if (clockEst) clockEst.innerText = `USA (Orlando/EST): ${estStr}`;
+    if (clockGmt) clockGmt.innerText = `UK (GMT): ${gmtStr}`;
+    if (clockJst) clockJst.innerText = `Japan (Tokyo/JST): ${jstStr}`;
+
+    // Update ANIMATED LIVE TIME MARQUEE TICKER (Loops 1 and 2)
+    for (let i of [1, 2]) {
+      const mEst = document.getElementById(`marqueeClockEST${i}`);
+      const mGmt = document.getElementById(`marqueeClockGMT${i}`);
+      const mJst = document.getElementById(`marqueeClockJST${i}`);
+      const mIst = document.getElementById(`marqueeClockIST${i}`);
+
+      if (mEst) mEst.innerText = `🇺🇸 USA (Orlando/EST): ${estStr}`;
+      if (mGmt) mGmt.innerText = `🇬🇧 UK (London/GMT): ${gmtStr}`;
+      if (mJst) mJst.innerText = `🇯🇵 Japan (Tokyo/JST): ${jstStr}`;
+      if (mIst) mIst.innerText = `🇮🇳 India (New Delhi/IST): ${istStr}`;
     }
   }
 
-  window.requestAnimationFrame(step);
+  updateClocks();
+  setInterval(updateClocks, 1000);
 }
 
 // --- STUDENT REFERRAL & DISCOUNT CALCULATION ENGINE ---
@@ -377,10 +374,10 @@ async function renderAdminDashboard() {
   const kpiAdmittedElem = document.getElementById("kpiAdmitted");
   const kpiReferralElem = document.getElementById("kpiReferralDiscounts");
 
-  if (kpiAppsElem) animateSingleCounter(kpiAppsElem, totalApps, "", 1000);
-  if (kpiDocsElem) animateSingleCounter(kpiDocsElem, totalDocs, "", 1000);
-  if (kpiAdmittedElem) animateSingleCounter(kpiAdmittedElem, admittedCount, "", 1000);
-  if (kpiReferralElem) animateSingleCounter(kpiReferralElem, referralDiscountsCount, "", 1000);
+  if (kpiAppsElem) kpiAppsElem.innerText = totalApps;
+  if (kpiDocsElem) kpiDocsElem.innerText = totalDocs;
+  if (kpiAdmittedElem) kpiAdmittedElem.innerText = admittedCount;
+  if (kpiReferralElem) kpiReferralElem.innerText = referralDiscountsCount;
 
   let filtered = applications.filter(a => {
     const matchSearch = a.fullName.toLowerCase().includes(searchVal) ||
@@ -1069,29 +1066,6 @@ function calculateStudentEligibility() {
       `;
     }).join('');
   }
-}
-
-// --- LIVE INTERNATIONAL CLOCKS ENGINE ---
-function initLiveClocks() {
-  function updateClocks() {
-    const now = new Date();
-    
-    // Timezone Formatters
-    const estStr = now.toLocaleTimeString("en-US", { timeZone: "America/New_York", hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit' });
-    const gmtStr = now.toLocaleTimeString("en-US", { timeZone: "Europe/London", hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit' });
-    const jstStr = now.toLocaleTimeString("en-US", { timeZone: "Asia/Tokyo", hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit' });
-
-    const clockEst = document.getElementById("clockEST");
-    const clockGmt = document.getElementById("clockGMT");
-    const clockJst = document.getElementById("clockJST");
-
-    if (clockEst) clockEst.innerText = `🇺🇸 USA (Orlando/EST): ${estStr}`;
-    if (clockGmt) clockGmt.innerText = `🇬🇧 UK (London/GMT): ${gmtStr}`;
-    if (clockJst) clockJst.innerText = `🇯🇵 Japan (Tokyo/JST): ${jstStr}`;
-  }
-
-  updateClocks();
-  setInterval(updateClocks, 1000);
 }
 
 // --- PDF BROCHURE PREVIEW & DOWNLOAD SYSTEM ---
