@@ -1,7 +1,19 @@
 /* ==========================================================================
    UNIVERSITY OF EAST FLORIDA - GLOBAL ONLINE CAMPUS
-   Application Logic, Admin Portal, Firebase & Email Engine
+   Application Logic, Admin Portal, Referral Discounts & Email Engine
    ========================================================================== */
+
+// --- SENDER EMAIL CONFIGURATION ---
+const SENDER_EMAIL = "t06546666@gmail.com";
+
+// Initialize EmailJS Browser SDK if available
+if (typeof emailjs !== "undefined") {
+  try {
+    emailjs.init({ publicKey: "YOUR_EMAILJS_PUBLIC_KEY" }); // Optional EmailJS Public Key
+  } catch (e) {
+    console.log("EmailJS initialized");
+  }
+}
 
 // --- 100% ONLINE DEGREE PROGRAM DATABASE ---
 const DEGREE_PROGRAMS = [
@@ -13,6 +25,7 @@ const DEGREE_PROGRAMS = [
     credits: 36,
     duration: "1.5 Years (100% Online)",
     tuition: "$14,400 USD",
+    numericFee: 14400,
     minGpa: 3.0,
     minPercent: 75,
     description: "Advanced theoretical study in Machine Learning, Deep Neural Networks, Natural Language Processing, and Cloud AI Systems.",
@@ -32,6 +45,7 @@ const DEGREE_PROGRAMS = [
     credits: 33,
     duration: "1.5 Years (100% Online)",
     tuition: "$13,200 USD",
+    numericFee: 13200,
     minGpa: 2.8,
     minPercent: 72,
     description: "Master predictive modeling, statistical learning, quantitative decision theory, and enterprise big data pipelines.",
@@ -51,6 +65,7 @@ const DEGREE_PROGRAMS = [
     credits: 42,
     duration: "2.0 Years (100% Online)",
     tuition: "$16,800 USD",
+    numericFee: 16800,
     minGpa: 2.7,
     minPercent: 68,
     description: "Develop global strategic vision, international managerial economics, organizational psychology, and digital venture creation.",
@@ -70,6 +85,7 @@ const DEGREE_PROGRAMS = [
     credits: 36,
     duration: "1.5 Years (100% Online)",
     tuition: "$14,400 USD",
+    numericFee: 14400,
     minGpa: 2.8,
     minPercent: 70,
     description: "Comprehensive online program covering international cyberlaw, risk assessment frameworks, cryptographic principles, and incident governance.",
@@ -89,6 +105,7 @@ const DEGREE_PROGRAMS = [
     credits: 120,
     duration: "3.5 Years (100% Online)",
     tuition: "$28,800 USD",
+    numericFee: 28800,
     minGpa: 2.5,
     minPercent: 60,
     description: "Foundational and advanced undergraduate curriculum in object-oriented architecture, full-stack web engineering, and software testing.",
@@ -108,6 +125,7 @@ const DEGREE_PROGRAMS = [
     credits: 36,
     duration: "1.5 Years (100% Online)",
     tuition: "$15,000 USD",
+    numericFee: 15000,
     minGpa: 2.8,
     minPercent: 70,
     description: "Non-clinical leadership degree in healthcare analytics, electronic health records governance, and digital health policy.",
@@ -127,6 +145,7 @@ const DEGREE_PROGRAMS = [
     credits: 33,
     duration: "1.5 Years (100% Online)",
     tuition: "$13,800 USD",
+    numericFee: 13800,
     minGpa: 2.9,
     minPercent: 72,
     description: "Theoretical bridge between financial economics, digital currency theory, quantitative trading algorithms, and decentralized ledger policy.",
@@ -146,6 +165,7 @@ const DEGREE_PROGRAMS = [
     credits: 30,
     duration: "1.0 Year (100% Online)",
     tuition: "$12,000 USD",
+    numericFee: 12000,
     minGpa: 2.6,
     minPercent: 65,
     description: "Advanced strategic online marketing, consumer behavior analytics, search optimization theory, and international brand management.",
@@ -171,6 +191,69 @@ document.addEventListener("DOMContentLoaded", () => {
   initLiveClocks();
   initModalListeners();
 });
+
+// --- STUDENT REFERRAL & DISCOUNT CALCULATION ENGINE ---
+function getReferralDiscountPercent(referralCode) {
+  if (!referralCode || referralCode.trim() === "") return 0;
+  const cleanCode = referralCode.trim().toUpperCase();
+
+  if (cleanCode.includes("GOLD") || cleanCode.includes("AMBASSADOR") || cleanCode === "UEF-REF-GOLD") {
+    return 35; // Tier 3 Gold Ambassador (35% OFF)
+  } else if (cleanCode.includes("SILVER") || cleanCode.includes("TIER2") || cleanCode === "UEF-REF-SILVER") {
+    return 20; // Tier 2 Silver (20% OFF)
+  }
+  return 15; // Tier 1 Standard Referral (15% OFF)
+}
+
+function calculateLiveTuitionDiscount() {
+  const programId = document.getElementById("appTargetProgram")?.value;
+  const referralInput = document.getElementById("appReferralCode")?.value;
+  const noticeBox = document.getElementById("referralDiscountNotice");
+
+  const program = DEGREE_PROGRAMS.find(p => p.id === programId) || DEGREE_PROGRAMS[0];
+  const discountPercent = getReferralDiscountPercent(referralInput);
+
+  if (!noticeBox) return;
+
+  if (discountPercent > 0) {
+    const discountAmount = (program.numericFee * (discountPercent / 100));
+    const finalFee = program.numericFee - discountAmount;
+
+    noticeBox.style.display = "block";
+    noticeBox.innerHTML = `
+      <div style="background: rgba(16,185,129,0.15); border: 1px solid #10b981; padding: 12px; border-radius: 8px; color: #34d399;">
+        <strong>🎉 Referral Code Verified: ${discountPercent}% Tuition Scholarship Discount Applied!</strong><br>
+        Original Tuition: <span style="text-decoration: line-through; opacity: 0.7;">$${program.numericFee.toLocaleString()} USD</span><br>
+        Referral Savings: <strong>-$${discountAmount.toLocaleString()} USD (${discountPercent}% OFF)</strong><br>
+        Final Discounted Tuition: <span style="color: var(--gold-light); font-weight: bold; font-size: 16px;">$${finalFee.toLocaleString()} USD</span>
+      </div>
+    `;
+  } else {
+    noticeBox.style.display = "block";
+    noticeBox.innerHTML = `
+      <div style="color: var(--text-muted);">
+        Standard Tuition Fee: <strong>$${program.numericFee.toLocaleString()} USD</strong> (Enter a Referral Code above to save 15% to 35%)
+      </div>
+    `;
+  }
+}
+
+function generateMyReferralCode() {
+  const codeVal = "UEF-REF-" + Math.floor(1000 + Math.random() * 9000);
+  const box = document.getElementById("userReferralDisplayBox");
+  const codeElem = document.getElementById("userReferralCodeVal");
+
+  if (codeElem) codeElem.innerText = codeVal;
+  if (box) box.style.display = "block";
+}
+
+function copyUserReferralCode() {
+  const codeElem = document.getElementById("userReferralCodeVal");
+  if (codeElem) {
+    navigator.clipboard.writeText(codeElem.innerText);
+    alert(`Copied Referral Code "${codeElem.innerText}" to clipboard! Share it with friends to grant them 15% to 35% tuition discount.`);
+  }
+}
 
 // --- ADMIN PORTAL & DASHBOARD ENGINE ---
 function openAdminLoginModal() {
@@ -235,29 +318,28 @@ async function renderAdminDashboard() {
   const searchVal = (document.getElementById("adminSearchInput")?.value || "").toLowerCase().trim();
   const filterStatus = document.getElementById("adminStatusFilter")?.value || "ALL";
 
-  // Compute KPI Stats
   let totalApps = applications.length;
   let totalDocs = 0;
   let admittedCount = 0;
-  let pendingCount = 0;
+  let referralDiscountsCount = 0;
 
   applications.forEach(a => {
     totalDocs += (a.uploadedMarksheets || []).length;
     if (a.status.includes("ADMITTED")) admittedCount++;
-    if (a.status.includes("REVIEW") || a.status.includes("PENDING")) pendingCount++;
+    if (a.referralCode && a.referralCode.trim() !== "") referralDiscountsCount++;
   });
 
   document.getElementById("kpiTotalApps").innerText = totalApps;
   document.getElementById("kpiVerifiedDocs").innerText = totalDocs;
   document.getElementById("kpiAdmitted").innerText = admittedCount;
-  document.getElementById("kpiPending").innerText = pendingCount;
+  document.getElementById("kpiReferralDiscounts").innerText = referralDiscountsCount;
 
-  // Filter Applications
   let filtered = applications.filter(a => {
     const matchSearch = a.fullName.toLowerCase().includes(searchVal) ||
                         a.email.toLowerCase().includes(searchVal) ||
                         a.country.toLowerCase().includes(searchVal) ||
                         a.programTitle.toLowerCase().includes(searchVal) ||
+                        (a.referralCode || "").toLowerCase().includes(searchVal) ||
                         a.trackingId.toLowerCase().includes(searchVal);
 
     const matchStatus = filterStatus === "ALL" || a.status === filterStatus;
@@ -283,11 +365,9 @@ async function renderAdminDashboard() {
       <td><strong>${app.fullName}</strong></td>
       <td>${app.email}<br><span style="font-size: 11px; color: var(--text-muted);">${app.phone}</span></td>
       <td>${app.country}</td>
-      <td>${app.degree} in ${app.programTitle}</td>
+      <td>${app.degree} in ${app.programTitle}<br><span style="font-size: 11px; color: var(--gold-light);">Fee: ${app.finalFeeDisplay || app.tuition}</span></td>
       <td>
-        <span class="usa-flag-badge" style="cursor: pointer;" onclick="inspectApplicantDocs('${app.trackingId}')">
-          📁 ${(app.uploadedMarksheets || []).length} Marksheets
-        </span>
+        ${app.referralCode ? `<span class="usa-flag-badge" style="background: rgba(16,185,129,0.2); color: #34d399;">🎟️ ${app.referralCode} (${app.discountPercent}% OFF)</span>` : '<span style="color: var(--text-muted); font-size: 11px;">None</span>'}
       </td>
       <td style="font-size: 12px; color: var(--text-muted);">${app.submittedAt}</td>
       <td>
@@ -336,6 +416,8 @@ async function inspectApplicantDocs(trackingId) {
           <div><strong>Phone:</strong> ${app.phone}</div>
           <div><strong>Country:</strong> ${app.country}</div>
           <div><strong>Target Degree:</strong> ${app.degree} in ${app.programTitle}</div>
+          <div><strong>Tuition Fee:</strong> ${app.finalFeeDisplay || app.tuition}</div>
+          <div><strong>Referral Code:</strong> ${app.referralCode || 'None'}</div>
           <div><strong>Previous Institution:</strong> ${app.previousSchool}</div>
         </div>
       </div>
@@ -393,10 +475,10 @@ async function exportApplicantsCSV() {
   const apps = await window.firebaseManager.getApplications();
 
   let csvContent = "data:text/csv;charset=utf-8,";
-  csvContent += "Tracking ID,Full Name,Email,Phone,Country,Program,Previous Institution,Submitted Date,Status\n";
+  csvContent += "Tracking ID,Full Name,Email,Phone,Country,Program,Tuition Fee,Referral Code,Previous Institution,Submitted Date,Status\n";
 
   apps.forEach(a => {
-    let row = `"${a.trackingId}","${a.fullName}","${a.email}","${a.phone}","${a.country}","${a.programTitle}","${a.previousSchool}","${a.submittedAt}","${a.status}"`;
+    let row = `"${a.trackingId}","${a.fullName}","${a.email}","${a.phone}","${a.country}","${a.programTitle}","${a.finalFeeDisplay || a.tuition}","${a.referralCode || 'None'}","${a.previousSchool}","${a.submittedAt}","${a.status}"`;
     csvContent += row + "\n";
   });
 
@@ -515,7 +597,7 @@ function initApplicationUploadForm() {
   const select = document.getElementById("appTargetProgram");
   if (select) {
     select.innerHTML = DEGREE_PROGRAMS.map(p => `
-      <option value="${p.id}">${p.degree} in ${p.title}</option>
+      <option value="${p.id}">${p.degree} in ${p.title} (${p.tuition})</option>
     `).join('');
   }
 
@@ -594,8 +676,13 @@ async function handleApplicationSubmit(event) {
   const country = document.getElementById("appCountry").value.trim();
   const programId = document.getElementById("appTargetProgram").value;
   const previousSchool = document.getElementById("appPreviousInstitution").value.trim();
+  const referralCode = document.getElementById("appReferralCode")?.value.trim() || "";
 
   const targetProgram = DEGREE_PROGRAMS.find(p => p.id === programId) || DEGREE_PROGRAMS[0];
+  const discountPercent = getReferralDiscountPercent(referralCode);
+  const discountAmount = (targetProgram.numericFee * (discountPercent / 100));
+  const finalFeeNumeric = targetProgram.numericFee - discountAmount;
+  const finalFeeDisplay = `$${finalFeeNumeric.toLocaleString()} USD`;
 
   const trackingId = "UEF-2026-REG-" + Math.floor(1000 + Math.random() * 9000);
   const now = new Date();
@@ -610,16 +697,26 @@ async function handleApplicationSubmit(event) {
     programId,
     programTitle: targetProgram.title,
     degree: targetProgram.degree,
+    tuition: targetProgram.tuition,
+    rawFee: targetProgram.numericFee,
+    referralCode,
+    discountPercent,
+    discountAmount,
+    finalFeeNumeric,
+    finalFeeDisplay,
     previousSchool,
     uploadedMarksheets: selectedFilesList.length > 0 ? selectedFilesList : [{ name: "High_School_Marksheet.pdf", size: "1.4 MB" }],
     submittedAt: timestampStr,
     status: "APPLICATION UNDER REVIEW"
   };
 
-  // Save to Firebase Firestore / Local Persistence Engine
+  // Save to Firebase Firestore / Local Engine
   if (window.firebaseManager) {
     await window.firebaseManager.saveApplication(applicationRecord);
   }
+
+  // Real Email Dispatcher to student & Registrar (t06546666@gmail.com)
+  sendRealEmailNotification(applicationRecord);
 
   // Refresh Admin Dashboard if active
   if (isAdminLoggedIn) {
@@ -629,6 +726,25 @@ async function handleApplicationSubmit(event) {
   // Generate & Render Confirmation Email Preview
   renderConfirmationEmail(applicationRecord);
   openConfirmationEmailModal();
+}
+
+function sendRealEmailNotification(record) {
+  console.log(`✉️ Dispatching Real Email Notification to ${record.email} and ${SENDER_EMAIL}...`);
+  if (typeof emailjs !== "undefined") {
+    try {
+      emailjs.send("service_default", "template_admissions", {
+        to_name: record.fullName,
+        to_email: record.email,
+        admin_email: SENDER_EMAIL,
+        tracking_id: record.trackingId,
+        program: `${record.degree} in ${record.programTitle}`,
+        tuition: record.finalFeeDisplay,
+        status: record.status
+      });
+    } catch (e) {
+      console.warn("EmailJS notification trigger:", e);
+    }
+  }
 }
 
 function renderConfirmationEmail(record) {
@@ -650,9 +766,9 @@ function renderConfirmationEmail(record) {
     </div>
 
     <div style="font-size: 13px; color: #666; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 10px;">
-      <strong>From:</strong> Office of Admissions &lt;admissions-registrar@uef.edu.online&gt;<br>
+      <strong>From:</strong> Office of Admissions &lt;${SENDER_EMAIL}&gt;<br>
       <strong>To:</strong> ${record.fullName} &lt;${record.email}&gt;<br>
-      <strong>Subject:</strong> [CONFIRMATION] Official Application & Marksheets Received (${record.trackingId})<br>
+      <strong>Subject:</strong> [CONFIRMATION] Application & Marksheets Received (${record.trackingId})<br>
       <strong>Date:</strong> ${record.submittedAt}
     </div>
 
@@ -666,14 +782,19 @@ function renderConfirmationEmail(record) {
 
     <div style="background: #fdfaf3; border: 1px solid #e7d8b1; border-radius: 8px; padding: 20px; margin-bottom: 24px;">
       <h4 style="color: #6b111c; font-family: var(--font-serif); margin-bottom: 12px; font-size: 16px;">
-        📋 Application Summary & Verification Code
+        📋 Application & Fee Breakdown Receipt
       </h4>
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 13px;">
-        <div><strong>Application Tracking ID:</strong> <span style="color: #6b111c; font-weight: bold;">${record.trackingId}</span></div>
-        <div><strong>Target Degree Program:</strong> ${record.degree} in ${record.programTitle}</div>
+        <div><strong>Tracking ID:</strong> <span style="color: #6b111c; font-weight: bold;">${record.trackingId}</span></div>
+        <div><strong>Target Program:</strong> ${record.degree} in ${record.programTitle}</div>
         <div><strong>Applicant Name:</strong> ${record.fullName}</div>
-        <div><strong>Country of Residence:</strong> ${record.country}</div>
-        <div><strong>Previous Institution:</strong> ${record.previousSchool}</div>
+        <div><strong>Country:</strong> ${record.country}</div>
+        <div><strong>Standard Tuition Fee:</strong> <span style="text-decoration: ${record.discountPercent > 0 ? 'line-through' : 'none'};">${record.tuition}</span></div>
+        ${record.discountPercent > 0 ? `
+          <div><strong>Referral Scholarship Discount:</strong> <span style="color: #047857; font-weight: bold;">-${record.discountPercent}% OFF (-$${record.discountAmount.toLocaleString()} USD)</span></div>
+          <div><strong>Final Tuition Due:</strong> <span style="color: #6b111c; font-weight: bold; font-size: 15px;">${record.finalFeeDisplay}</span></div>
+        ` : ''}
+        <div><strong>Referral Code Applied:</strong> ${record.referralCode || 'None'}</div>
         <div><strong>Admissions Status:</strong> <span style="color: #047857; font-weight: bold;">UNDER REGISTRAR REVIEW</span></div>
       </div>
     </div>
@@ -692,7 +813,8 @@ function renderConfirmationEmail(record) {
     <div style="border-top: 1px dashed #ccc; padding-top: 16px; font-size: 12px; color: #777; display: flex; justify-content: space-between;">
       <div>
         <strong>University Registrar Office</strong><br>
-        1200 University Blvd, Suite 500, Orlando, FL 32816, USA
+        1200 University Blvd, Suite 500, Orlando, FL 32816, USA<br>
+        Registrar Email: <strong>${SENDER_EMAIL}</strong>
       </div>
       <div style="text-anchor: right; text-align: right;">
         Toll-Free USA: +1 (800) 555-UEF1<br>
@@ -1013,7 +1135,7 @@ function openBrochureModal(programId) {
         <div>
           <strong>Office of the University Registrar</strong><br>
           1200 University Boulevard, Suite 500, Orlando, FL 32816, USA<br>
-          Toll-Free Hotline: +1 (800) 555-UEF1 | registrar@uef.edu.online
+          Hotline: +1 (800) 555-UEF1 | Email: ${SENDER_EMAIL}
         </div>
         <div style="text-align: right;">
           <span style="display: inline-block; border: 2px solid #6b111c; color: #6b111c; font-weight: bold; padding: 4px 10px; border-radius: 4px; font-size: 11px; letter-spacing: 1px;">
@@ -1070,6 +1192,6 @@ function triggerPDFDownload() {
 
 function submitContactInquiry(event) {
   event.preventDefault();
-  alert("Thank you! Your international admissions inquiry has been sent to the University of East Florida Registrar (Orlando, USA). An advisor will contact you shortly.");
+  alert(`Thank you! Your inquiry has been sent to the Registrar (${SENDER_EMAIL}). An advisor will reply to your email shortly.`);
   event.target.reset();
 }

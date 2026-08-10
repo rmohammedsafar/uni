@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>University of East Florida | 100% Online Global Accredited University</title>
-  <meta name="description" content="Official website of the University of East Florida (UEF). Earn world-class, 100% online accredited degrees with PDF brochures, interactive student eligibility portal, document upload, and global USA headquarters.">
+  <meta name="description" content="Official website of the University of East Florida (UEF). Earn world-class, 100% online accredited degrees with PDF brochures, interactive student eligibility portal, document upload, tiered referral discounts, and global USA headquarters.">
   <link rel="icon" type="image/svg+xml" href="assets/logo.svg">
   <link rel="stylesheet" href="styles.css">
 
@@ -337,7 +337,7 @@
       <span class="section-tag" style="color: #34d399;">🔑 Administrative Portal</span>
       <h2 class="section-title">Official Student Application & Document Manager</h2>
       <p class="section-desc">
-        Logged in as Registrar Officer. View student profiles, inspect attached marksheets, update admission decisions, and export student roster data.
+        Logged in as Registrar Officer (<strong style="color: var(--gold-light);">t06546666@gmail.com</strong>). View student profiles, inspect attached marksheets, update admission decisions, and export student roster data.
       </p>
     </div>
 
@@ -387,10 +387,10 @@
         </div>
 
         <div class="admin-kpi-card">
-          <div class="kpi-icon">⏳</div>
+          <div class="kpi-icon">🎁</div>
           <div>
-            <div class="kpi-val" id="kpiPending">0</div>
-            <div class="kpi-lbl">Pending Review</div>
+            <div class="kpi-val" id="kpiReferralDiscounts">0</div>
+            <div class="kpi-lbl">Referral Discounts</div>
           </div>
         </div>
       </div>
@@ -399,7 +399,7 @@
       <div class="catalog-controls" style="margin-bottom: 20px;">
         <div class="search-box">
           <span class="search-icon">🔍</span>
-          <input type="text" id="adminSearchInput" class="search-input" placeholder="Search applicant by name, email, or country..." oninput="renderAdminDashboard()">
+          <input type="text" id="adminSearchInput" class="search-input" placeholder="Search applicant by name, email, or referral code..." oninput="renderAdminDashboard()">
         </div>
         <select id="adminStatusFilter" class="form-select" style="max-width: 220px;" onchange="renderAdminDashboard()">
           <option value="ALL">All Decision Statuses</option>
@@ -419,8 +419,8 @@
               <th>Applicant Name</th>
               <th>Email / Phone</th>
               <th>Country</th>
-              <th>Target Program</th>
-              <th>Marksheets Attached</th>
+              <th>Target Program & Fee</th>
+              <th>Referral Code</th>
               <th>Submitted Date</th>
               <th>Decision Status</th>
               <th>Actions</th>
@@ -466,13 +466,13 @@
     </div>
   </section>
 
-  <!-- OFFICIAL STUDENT APPLICATION & MARKSHEET UPLOAD PORTAL -->
+  <!-- OFFICIAL STUDENT APPLICATION & MARKSHEET UPLOAD PORTAL WITH REFERRAL DISCOUNT -->
   <section class="section-wrapper" id="applySection">
     <div class="section-header">
-      <span class="section-tag">Online Admissions</span>
+      <span class="section-tag">Online Admissions & Fee Discounts</span>
       <h2 class="section-title">Official Student Marksheet Upload & Application</h2>
       <p class="section-desc">
-        Submit your student profile along with your academic marksheets and transcripts. Your application record will be safely stored in **Firebase Firestore** and an official **Confirmation Email** will be generated instantly.
+        Submit your student profile along with your academic marksheets and transcripts. Enter an optional **Student Referral Code** below to receive up to 35% instant discount on your academic tuition fees!
       </p>
     </div>
 
@@ -490,7 +490,7 @@
           </div>
 
           <div class="form-group">
-            <label class="form-label" for="appEmail">Email Address (for Confirmation Email) *</label>
+            <label class="form-label" for="appEmail">Email Address (Receives Confirmation Email) *</label>
             <input type="email" id="appEmail" class="form-control" placeholder="alexander@example.com" required>
           </div>
 
@@ -506,7 +506,7 @@
 
           <div class="form-group">
             <label class="form-label" for="appTargetProgram">Target Degree Program *</label>
-            <select id="appTargetProgram" class="form-select" required>
+            <select id="appTargetProgram" class="form-select" required onchange="calculateLiveTuitionDiscount()">
               <!-- Populated by JS -->
             </select>
           </div>
@@ -514,6 +514,28 @@
           <div class="form-group">
             <label class="form-label" for="appPreviousInstitution">Previous High School / University *</label>
             <input type="text" id="appPreviousInstitution" class="form-control" placeholder="e.g. St. Jude High School / State University" required>
+          </div>
+        </div>
+
+        <!-- OPTIONAL REFERRAL CODE & FEE DISCOUNT SECTION -->
+        <div style="background: rgba(212, 175, 55, 0.08); border: 1px solid var(--border-gold); padding: 24px; border-radius: 12px; margin-top: 10px; margin-bottom: 24px;">
+          <h4 style="font-size: 16px; color: var(--gold-light); margin-bottom: 6px; font-family: var(--font-serif);">
+            🎁 Student Referral & Academic Fee Discount (Optional)
+          </h4>
+          <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 14px;">
+            Were you referred by a friend or current student? Enter their Referral Code or Student Email below to claim your <strong>10% to 35% Tuition Discount</strong>!
+          </p>
+
+          <div style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
+            <input type="text" id="appReferralCode" class="form-control" placeholder="e.g. UEF-REF-9482 or referrer@example.com (Optional)" style="flex: 1; min-width: 220px;" oninput="calculateLiveTuitionDiscount()">
+            <button type="button" class="btn btn-gold" onclick="calculateLiveTuitionDiscount()" style="padding: 11px 20px; font-size: 13px;">
+              ⚡ Apply Referral Discount
+            </button>
+          </div>
+
+          <!-- Real-Time Discount Calculator Output -->
+          <div id="referralDiscountNotice" style="margin-top: 14px; font-size: 13px; display: none;">
+            <!-- Rendered by JS -->
           </div>
         </div>
 
@@ -539,10 +561,10 @@
 
         <div style="margin-top: 30px; text-align: center;">
           <button type="submit" class="btn btn-gold" style="padding: 14px 40px; font-size: 16px; width: 100%; max-width: 450px;">
-            🚀 Submit Application & Receive Confirmation Email
+            🚀 Submit Application & Send Confirmation Email
           </button>
           <div style="font-size: 12px; color: var(--text-muted); margin-top: 10px;">
-            🔒 Data automatically synchronized with Firebase Firestore database (`student_applications`)
+            🔒 Notifications dispatched to student & Registrar (<strong style="color: var(--gold-light);">t06546666@gmail.com</strong>)
           </div>
         </div>
 
@@ -550,16 +572,69 @@
     </div>
   </section>
 
-  <!-- Interactive Student Portal & Eligibility Evaluator -->
+  <!-- Interactive Student Portal & Referral Rewards Hub -->
   <section class="section-wrapper" id="studentPortal">
     <div class="section-header">
-      <span class="section-tag">Student Portal</span>
-      <h2 class="section-title">Marks & Program Eligibility Evaluator</h2>
+      <span class="section-tag">Student Portal & Rewards</span>
+      <h2 class="section-title">Marks Evaluator & Referral Discount Hub</h2>
       <p class="section-desc">
-        Enter your academic marks below to instantly convert your grades into the US 4.0 GPA scale, ECTS European scale, and calculate your admission eligibility across all University of East Florida online degree programs.
+        Calculate your GPA, check your academic eligibility across degree programs, and generate your personal **Student Referral Code** to earn tuition fee credits for your next semester!
       </p>
     </div>
 
+    <!-- STUDENT REFERRAL CODE GENERATOR HUB -->
+    <div style="background: linear-gradient(135deg, rgba(107, 17, 28, 0.4) 0%, rgba(20, 10, 14, 0.95) 100%); border: 1px solid var(--gold-primary); border-radius: 20px; padding: 32px; margin-bottom: 40px; box-shadow: var(--shadow-gold);">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px;">
+        <div>
+          <span class="usa-flag-badge" style="background: rgba(212,175,55,0.2); color: var(--gold-light); margin-bottom: 8px;">🎁 STUDENT REFERRAL SCHOLARSHIP PROGRAM</span>
+          <h3 style="font-size: 24px; color: #fff; font-family: var(--font-serif);">
+            Share Your Referral Code & Save Up To 35% On Tuition!
+          </h3>
+          <p style="font-size: 14px; color: var(--text-muted); max-width: 750px; margin-top: 6px;">
+            Give your friends an instant <strong>10% to 35% discount</strong> on their degree tuition fees. Every friend who enrolls earns you <strong>$500 to $1,500 tuition credit</strong> towards your own academic fees!
+          </p>
+        </div>
+        <div>
+          <button class="btn btn-gold" onclick="generateMyReferralCode()" style="padding: 12px 24px;">
+            🔑 Generate My Referral Code
+          </button>
+        </div>
+      </div>
+
+      <!-- Referral Tiers Cards -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-top: 24px;">
+        <div style="background: rgba(0,0,0,0.5); border: 1px solid var(--border-gold); padding: 16px; border-radius: 10px;">
+          <div style="font-size: 11px; color: var(--gold-light); text-transform: uppercase;">Tier 1 • 1 Referral</div>
+          <div style="font-size: 20px; font-weight: 800; color: #fff; font-family: var(--font-serif);">10% OFF Tuition</div>
+          <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">Saves ~$1,440 USD for referee</div>
+        </div>
+
+        <div style="background: rgba(0,0,0,0.5); border: 1px solid var(--border-gold); padding: 16px; border-radius: 10px;">
+          <div style="font-size: 11px; color: var(--gold-light); text-transform: uppercase;">Tier 2 • 2-3 Referrals</div>
+          <div style="font-size: 20px; font-weight: 800; color: var(--gold-primary); font-family: var(--font-serif);">20% OFF Tuition</div>
+          <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">Saves ~$2,880 USD for referee</div>
+        </div>
+
+        <div style="background: rgba(0,0,0,0.5); border: 1px solid #10b981; padding: 16px; border-radius: 10px;">
+          <div style="font-size: 11px; color: #34d399; text-transform: uppercase;">Tier 3 • 4+ Referrals (Gold)</div>
+          <div style="font-size: 20px; font-weight: 800; color: #34d399; font-family: var(--font-serif);">35% OFF Tuition</div>
+          <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">Saves ~$5,000 USD + Ambassador Badge</div>
+        </div>
+      </div>
+
+      <!-- Generated Code Box -->
+      <div id="userReferralDisplayBox" style="margin-top: 20px; display: none; background: rgba(0,0,0,0.7); border: 1px dashed var(--gold-primary); padding: 16px; border-radius: 10px; text-align: center;">
+        <span style="font-size: 13px; color: var(--text-muted);">Your Personal UEF Student Referral Code:</span>
+        <div style="font-size: 26px; font-weight: 800; color: var(--gold-primary); font-family: monospace; letter-spacing: 2px; margin: 6px 0;" id="userReferralCodeVal">
+          UEF-REF-8492
+        </div>
+        <button class="btn btn-outline" onclick="copyUserReferralCode()" style="padding: 4px 14px; font-size: 12px;">
+          📋 Copy Code to Clipboard
+        </button>
+      </div>
+    </div>
+
+    <!-- Marks Evaluator Container -->
     <div class="portal-container" id="eligibility">
       <div class="portal-grid">
         
@@ -698,8 +773,8 @@
           <div class="address-text">
             <h4>Official Email Contacts</h4>
             <p>
-              Admissions Office: <strong>admissions@uef.edu.online</strong><br>
-              Registrar & Transcripts: <strong>registrar@uef.edu.online</strong><br>
+              Admissions Registrar: <strong>t06546666@gmail.com</strong><br>
+              Official Domain Mail: <strong>admissions@uef.edu.online</strong><br>
               International Support: <strong>global@uef.edu.online</strong>
             </p>
           </div>
@@ -801,14 +876,14 @@
     </div>
   </div>
 
-  <!-- SIMULATED CONFIRMATION EMAIL & RECEIPT MODAL -->
+  <!-- SIMULATED & REAL CONFIRMATION EMAIL MODAL -->
   <div class="email-modal-backdrop" id="confirmationEmailModal">
     <div class="email-window">
       
       <div class="email-top-bar">
         <div class="email-client-badge">
           <span>📨 Official Confirmation Email Received</span>
-          <span class="usa-flag-badge" style="background: rgba(16,185,129,0.2); color: #34d399;">FIREBASE RECORD STORED</span>
+          <span class="usa-flag-badge" style="background: rgba(16,185,129,0.2); color: #34d399;">FIREBASE & EMAIL DISPATCHED</span>
         </div>
         <button class="modal-close" onclick="closeConfirmationEmailModal()">✕</button>
       </div>
@@ -904,18 +979,18 @@
         <ul class="footer-links">
           <li><a href="#applySection">Marksheet Upload</a></li>
           <li><a href="#studentPortal">Marks Evaluator</a></li>
-          <li><a href="#studentPortal">GPA Calculator</a></li>
+          <li><a href="#studentPortal">Referral Discount Hub</a></li>
           <li><a href="#programs">PDF Brochure Downloads</a></li>
         </ul>
       </div>
 
       <div class="footer-col">
-        <h4>USA Office</h4>
+        <h4>USA Office & Registrar</h4>
         <ul class="footer-links">
           <li><a href="#usaHeadquarters">1200 University Blvd, Suite 500</a></li>
           <li><a href="#usaHeadquarters">Orlando, FL 32816, USA</a></li>
           <li><a href="tel:+18005558331">+1 (800) 555-UEF1</a></li>
-          <li><a href="#usaHeadquarters">admissions@uef.edu.online</a></li>
+          <li><a href="mailto:t06546666@gmail.com">t06546666@gmail.com</a></li>
         </ul>
       </div>
 
@@ -930,6 +1005,9 @@
       </div>
     </div>
   </footer>
+
+  <!-- EmailJS Real Email Dispatcher SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 
   <!-- Firebase App & Firestore SDKs (v10 CDN) -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
