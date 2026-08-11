@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { saveApplicationRecord } from '../services/firebase';
+import { sendConfirmationEmail } from '../services/emailService';
 
 export default function EnrollmentForm({ programs, selectedProgramId }) {
   const [fullName, setFullName] = useState('');
@@ -12,7 +13,7 @@ export default function EnrollmentForm({ programs, selectedProgramId }) {
   const [idFiles, setIdFiles] = useState([]);
   const [submittedApp, setSubmittedApp] = useState(null);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!fullName || !email) {
       alert('Please fill out all required fields.');
@@ -38,8 +39,9 @@ export default function EnrollmentForm({ programs, selectedProgramId }) {
     };
 
     saveApplicationRecord(appData);
+    await sendConfirmationEmail(appData);
     setSubmittedApp(appData);
-    alert(`🎉 Application Submitted Successfully! Your Official UEF Tracking ID is ${trackingId}.`);
+    alert(`🎉 Application Submitted Successfully! Official Confirmation Email & Receipt sent for Tracking ID ${trackingId}.`);
   };
 
   return (
