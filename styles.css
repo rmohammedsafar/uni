@@ -170,6 +170,105 @@ body.light-theme .modal-box {
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.07) !important;
 }
 
+body.light-theme .card-header {
+  background: linear-gradient(135deg, #4a0910 0%, #290407 100%) !important;
+  border-bottom: 1px solid var(--border-gold) !important;
+}
+
+body.light-theme .card-header .program-degree,
+body.light-theme .program-card .program-degree {
+  color: #fbbf24 !important;
+  font-weight: 700 !important;
+  letter-spacing: 1.5px !important;
+}
+
+body.light-theme .card-header .program-name,
+body.light-theme .card-header h3,
+body.light-theme .program-card .program-name,
+body.light-theme .program-card h3 {
+  color: #ffffff !important;
+  font-weight: 800 !important;
+}
+
+body.light-theme .card-header .online-tag,
+body.light-theme .program-card .online-tag {
+  background: #064e3b !important;
+  color: #6ee7b7 !important;
+  border-color: #34d399 !important;
+  font-weight: 700 !important;
+}
+
+body.light-theme .program-card .card-body {
+  background: #ffffff !important;
+  color: #0f172a !important;
+}
+
+body.light-theme .program-card .program-desc {
+  color: #334155 !important;
+  font-size: 13.5px !important;
+  line-height: 1.5 !important;
+}
+
+body.light-theme .card-body-specs,
+body.light-theme .spec-box {
+  background: #f8fafc !important;
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 12px !important;
+}
+
+body.light-theme .spec-label {
+  color: #475569 !important;
+  font-weight: 600 !important;
+  font-size: 11px !important;
+  text-transform: uppercase !important;
+}
+
+body.light-theme .spec-val,
+body.light-theme .spec-value {
+  color: #0f172a !important;
+  font-weight: 800 !important;
+}
+
+body.light-theme .spec-val.tuition-val,
+body.light-theme .spec-value.tuition-val {
+  color: #047857 !important;
+  font-size: 15px !important;
+  font-weight: 900 !important;
+}
+
+body.light-theme .btn-maroon {
+  background: #6b111c !important;
+  color: #ffffff !important;
+  font-weight: 700 !important;
+  border: 1px solid #6b111c !important;
+}
+
+body.light-theme .btn-gold {
+  background: #d4af37 !important;
+  color: #000000 !important;
+  font-weight: 800 !important;
+  border: 1px solid #b45309 !important;
+}
+
+body.light-theme .filter-pill {
+  background: #ffffff !important;
+  color: #334155 !important;
+  border: 1px solid #cbd5e1 !important;
+  font-weight: 600 !important;
+}
+
+body.light-theme .filter-pill:hover {
+  border-color: #6b111c !important;
+  color: #6b111c !important;
+}
+
+body.light-theme .filter-pill.active {
+  background: #6b111c !important;
+  color: #ffffff !important;
+  border-color: #6b111c !important;
+  font-weight: 700 !important;
+}
+
 body.light-theme .stat-num {
   color: #b45309 !important;
   font-weight: 900 !important;
@@ -180,13 +279,11 @@ body.light-theme .stat-label {
   font-weight: 600 !important;
 }
 
-body.light-theme .program-title,
 body.light-theme .lecture-title,
 body.light-theme .news-title {
   color: #0f172a;
 }
 
-body.light-theme .program-desc,
 body.light-theme .lecture-prof,
 body.light-theme .news-snippet {
   color: #334155;
