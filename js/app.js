@@ -1250,9 +1250,10 @@ function initSearchAndFilter() {
   function applyFilters() {
     let filtered = DEGREE_PROGRAMS.filter(p => {
       const matchCat = currentCategory === "all" || p.category === currentCategory;
-      const matchSearch = p.title.toLowerCase().includes(currentSearch) || 
-                          p.degree.toLowerCase().includes(currentSearch) ||
-                          p.description.toLowerCase().includes(currentSearch);
+      const titleStr = (p.title || p.name || '').toLowerCase();
+      const degreeStr = (p.degree || '').toLowerCase();
+      const descStr = (p.description || '').toLowerCase();
+      const matchSearch = titleStr.includes(currentSearch) || degreeStr.includes(currentSearch) || descStr.includes(currentSearch);
       return matchCat && matchSearch;
     });
     renderProgramsCatalog(filtered);
@@ -1291,9 +1292,11 @@ function initApplicationUploadForm() {
   if (select && DEGREE_PROGRAMS && DEGREE_PROGRAMS.length > 0) {
     const currentVal = select.value;
     select.innerHTML = '<option value="" disabled selected>-- Select Target Degree Program --</option>' +
-      DEGREE_PROGRAMS.map(p => `
-        <option value="${p.id}" ${currentVal === p.id ? 'selected' : ''}>${p.degree} in ${p.name || p.title || 'Degree Program'}</option>
-      `).join('');
+      DEGREE_PROGRAMS.map(p => {
+        const titleText = p.title || p.name || p.id;
+        const degreePrefix = p.degree ? `${p.degree} in ` : '';
+        return `<option value="${p.id}" ${currentVal === p.id ? 'selected' : ''}>${degreePrefix}${titleText}</option>`;
+      }).join('');
   }
 
   const dropZone = document.getElementById("marksheetDropZone");
