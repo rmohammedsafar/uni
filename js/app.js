@@ -185,6 +185,7 @@ let currentUser = null;
 
 // --- INITIALIZATION ---
 document.addEventListener("DOMContentLoaded", () => {
+  initTheme();
   initPreloader();
   initLiveClocks();
   renderProgramsCatalog(DEGREE_PROGRAMS);
@@ -200,6 +201,31 @@ document.addEventListener("DOMContentLoaded", () => {
   // Load CMS Config & Firestore listeners asynchronously without blocking UI or clocks
   loadSiteCMSConfig();
 });
+
+// --- DYNAMIC LIGHT / DARK THEME ENGINE ---
+function initTheme() {
+  const savedTheme = localStorage.getItem('uef_theme') || 'dark';
+  if (savedTheme === 'light') {
+    document.body.classList.add('light-theme');
+    updateThemeBtnText(true);
+  } else {
+    document.body.classList.remove('light-theme');
+    updateThemeBtnText(false);
+  }
+}
+
+function toggleThemeMode() {
+  const isLight = document.body.classList.toggle('light-theme');
+  localStorage.setItem('uef_theme', isLight ? 'light' : 'dark');
+  updateThemeBtnText(isLight);
+}
+
+function updateThemeBtnText(isLight) {
+  const btn = document.getElementById('themeToggleBtn');
+  if (btn) {
+    btn.innerHTML = isLight ? '☀️ Light Mode' : '🌙 Dark Mode';
+  }
+}
 
 // --- AUTOMATIC PRELOADER SPLASH SCREEN FADE OUT ENGINE ---
 function initPreloader() {

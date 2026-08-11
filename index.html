@@ -635,11 +635,14 @@
       <li><a href="#quizSection" class="nav-link">Quiz</a></li>
       <li><a href="#globalNewsSection" class="nav-link">News</a></li>
       <li><a href="#studentDashboardSection" class="nav-link" id="navDashboardLink" style="display:none;">My Dashboard</a></li>
-      <li><a href="#studentPortal" class="nav-link">Portal</a></li>
+      <li><a href="#applySection" class="nav-link">Enroll Now</a></li>
       <li><a href="#feedbackSection" class="nav-link">Feedback</a></li>
     </ul>
 
     <div class="nav-actions">
+      <button class="theme-toggle-btn" onclick="toggleThemeMode()" id="themeToggleBtn" title="Toggle Light / Dark Mode">
+        🌙 Dark Mode
+      </button>
       <a href="#applySection" class="btn btn-gold" style="padding: 8px 16px; font-size: 13px; gap: 6px; white-space: nowrap;">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Apply
       </a>
@@ -1306,14 +1309,14 @@
     </div>
   </section>
 
-  <!-- OFFICIAL STUDENT APPLICATION & MARKSHEET UPLOAD PORTAL WITH REFERRAL DISCOUNT -->
+  <!-- OFFICIAL STUDENT APPLICATION & MARKSHEET UPLOAD PORTAL -->
   <section class="section-wrapper" id="applySection">
 
     <div class="section-header">
-      <span class="section-tag">Online Admissions & Fee Discounts</span>
-      <h2 class="section-title">Official Student Marksheet Upload & Application</h2>
+      <span class="section-tag">Official Admissions</span>
+      <h2 class="section-title">Enroll Now</h2>
       <p class="section-desc">
-        Submit your student profile along with your academic marksheets and transcripts. Enter an optional **Student Referral Code** below to receive up to 35% instant discount on your academic tuition fees!
+        Submit your student profile along with your academic marksheets and transcripts for instant admissions processing and advisor verification.
       </p>
     </div>
 
@@ -1347,7 +1350,7 @@
 
           <div class="form-group">
             <label class="form-label" for="appTargetProgram">Target Degree Program *</label>
-            <select id="appTargetProgram" class="form-select" required onchange="calculateLiveTuitionDiscount()">
+            <select id="appTargetProgram" class="form-select" required>
               <!-- Populated by JS -->
             </select>
           </div>
@@ -1355,28 +1358,6 @@
           <div class="form-group">
             <label class="form-label" for="appPreviousInstitution">Previous High School / University *</label>
             <input type="text" id="appPreviousInstitution" class="form-control" placeholder="e.g. St. Jude High School / State University" required>
-          </div>
-        </div>
-
-        <!-- OPTIONAL REFERRAL CODE & FEE DISCOUNT SECTION -->
-        <div style="background: rgba(212, 175, 55, 0.08); border: 1px solid var(--border-gold); padding: 24px; border-radius: 12px; margin-top: 10px; margin-bottom: 24px;">
-          <h4 style="font-size: 16px; color: var(--gold-light); margin-bottom: 6px; font-family: var(--font-serif);">
-            🎁 Student Referral & Academic Fee Discount (Optional)
-          </h4>
-          <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 14px;">
-            Were you referred by a friend or current student? Enter their Referral Code or Student Email below to claim your <strong>10% to 35% Tuition Discount</strong>!
-          </p>
-
-          <div style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
-            <input type="text" id="appReferralCode" class="form-control" placeholder="e.g. UEF-REF-9482 or referrer@example.com (Optional)" style="flex: 1; min-width: 220px;" oninput="calculateLiveTuitionDiscount()">
-            <button type="button" class="btn btn-gold" onclick="calculateLiveTuitionDiscount()" style="padding: 11px 20px; font-size: 13px;">
-              ⚡ Apply Referral Discount
-            </button>
-          </div>
-
-          <!-- Real-Time Discount Calculator Output -->
-          <div id="referralDiscountNotice" style="margin-top: 14px; font-size: 13px; display: none;">
-            <!-- Rendered by JS -->
           </div>
         </div>
 
@@ -1413,159 +1394,7 @@
     </div>
   </section>
 
-  <!-- Interactive Student Portal & Referral Rewards Hub -->
-  <section class="section-wrapper" id="studentPortal">
-    <div class="section-header">
-      <span class="section-tag">Student Portal & Rewards</span>
-      <h2 class="section-title">Marks Evaluator & Referral Discount Hub</h2>
-      <p class="section-desc">
-        Calculate your GPA, check your academic eligibility across degree programs, and generate your personal **Student Referral Code** to earn tuition fee credits for your next semester!
-      </p>
-    </div>
 
-    <!-- STUDENT REFERRAL CODE GENERATOR HUB -->
-    <div style="background: linear-gradient(135deg, rgba(107, 17, 28, 0.4) 0%, rgba(20, 10, 14, 0.95) 100%); border: 1px solid var(--gold-primary); border-radius: 20px; padding: 32px; margin-bottom: 40px; box-shadow: var(--shadow-gold);">
-      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px;">
-        <div>
-          <span class="usa-flag-badge" style="background: rgba(212,175,55,0.2); color: var(--gold-light); margin-bottom: 8px;">🎁 STUDENT REFERRAL SCHOLARSHIP PROGRAM</span>
-          <h3 style="font-size: 24px; color: #fff; font-family: var(--font-serif);">
-            Share Your Referral Code & Save Up To 35% On Tuition!
-          </h3>
-          <p style="font-size: 14px; color: var(--text-muted); max-width: 750px; margin-top: 6px;">
-            Give your friends an instant <strong>10% to 35% discount</strong> on their degree tuition fees. Every friend who enrolls earns you <strong>$500 to $1,500 tuition credit</strong> towards your own academic fees!
-          </p>
-        </div>
-        <div>
-          <button class="btn btn-gold" onclick="generateMyReferralCode()" style="padding: 12px 24px;">
-            🔑 Generate My Referral Code
-          </button>
-        </div>
-      </div>
-
-      <!-- Referral Tiers Cards -->
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-top: 24px;">
-        <div style="background: rgba(0,0,0,0.5); border: 1px solid var(--border-gold); padding: 16px; border-radius: 10px;">
-          <div style="font-size: 11px; color: var(--gold-light); text-transform: uppercase;">Tier 1 • 1 Referral</div>
-          <div style="font-size: 20px; font-weight: 800; color: #fff; font-family: var(--font-serif);">10% OFF Tuition</div>
-          <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">Saves ~$1,440 USD for referee</div>
-        </div>
-
-        <div style="background: rgba(0,0,0,0.5); border: 1px solid var(--border-gold); padding: 16px; border-radius: 10px;">
-          <div style="font-size: 11px; color: var(--gold-light); text-transform: uppercase;">Tier 2 • 2-3 Referrals</div>
-          <div style="font-size: 20px; font-weight: 800; color: var(--gold-primary); font-family: var(--font-serif);">20% OFF Tuition</div>
-          <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">Saves ~$2,880 USD for referee</div>
-        </div>
-
-        <div style="background: rgba(0,0,0,0.5); border: 1px solid #10b981; padding: 16px; border-radius: 10px;">
-          <div style="font-size: 11px; color: #34d399; text-transform: uppercase;">Tier 3 • 4+ Referrals (Gold)</div>
-          <div style="font-size: 20px; font-weight: 800; color: #34d399; font-family: var(--font-serif);">35% OFF Tuition</div>
-          <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">Saves ~$5,000 USD + Ambassador Badge</div>
-        </div>
-      </div>
-
-      <!-- Generated Code Box -->
-      <div id="userReferralDisplayBox" style="margin-top: 20px; display: none; background: rgba(0,0,0,0.7); border: 1px dashed var(--gold-primary); padding: 16px; border-radius: 10px; text-align: center;">
-        <span style="font-size: 13px; color: var(--text-muted);">Your Personal UEF Student Referral Code:</span>
-        <div style="font-size: 26px; font-weight: 800; color: var(--gold-primary); font-family: monospace; letter-spacing: 2px; margin: 6px 0;" id="userReferralCodeVal">
-          UEF-REF-8492
-        </div>
-        <button class="btn btn-outline" onclick="copyUserReferralCode()" style="padding: 4px 14px; font-size: 12px;">
-          📋 Copy Code to Clipboard
-        </button>
-      </div>
-    </div>
-
-    <!-- Marks Evaluator Container -->
-    <div class="portal-container" id="eligibility">
-      <div class="portal-grid">
-        
-        <!-- Left Column: Student Marks Input Form -->
-        <div>
-          <h3 style="font-size: 20px; color: var(--gold-light); margin-bottom: 16px; font-family: var(--font-serif);">
-            📝 Step 1: Input Your Subject Marks
-          </h3>
-          <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 20px;">
-            Add your subjects and percentage scores (0 - 100%). The system will automatically compute your weighted GPA.
-          </p>
-
-          <!-- Dynamic Subject Grade Table -->
-          <div class="grade-table-wrapper">
-            <table class="grade-table">
-              <thead>
-                <tr>
-                  <th>Academic Subject Name</th>
-                  <th>Score (%)</th>
-                  <th>Credits</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody id="gradeTableBody">
-                <!-- Rows injected dynamically -->
-              </tbody>
-            </table>
-          </div>
-
-          <button class="btn btn-outline" id="addSubjectBtn" style="margin-bottom: 24px;">
-            ➕ Add Subject Row
-          </button>
-
-          <div class="form-group">
-            <label class="form-label" for="targetProgramSelect">Select Target Degree Program to Evaluate:</label>
-            <select id="targetProgramSelect" class="form-select">
-              <!-- Options populated by JS -->
-            </select>
-          </div>
-        </div>
-
-        <!-- Right Column: Real-Time Eligibility & GPA Result Card -->
-        <div>
-          <h3 style="font-size: 20px; color: var(--gold-light); margin-bottom: 16px; font-family: var(--font-serif);">
-            📊 Step 2: Admission Status & GPA Breakdown
-          </h3>
-
-          <div class="result-card">
-            
-            <div class="result-badge-container">
-              <div id="eligibilityBadge" class="eligibility-status-badge status-eligible">
-                ✓ ELIGIBLE FOR DIRECT ADMISSION
-              </div>
-              <div id="eligibilityAdvice" style="font-size: 14px; color: var(--text-main); margin-top: 10px;">
-                Calculating eligibility...
-              </div>
-            </div>
-
-            <!-- GPA Multi-System Scale Conversion -->
-            <div class="gpa-display-box">
-              <div class="gpa-item">
-                <div class="gpa-val" id="gpaValue">3.65</div>
-                <div class="gpa-lbl">US 4.0 GPA</div>
-              </div>
-              <div class="gpa-item">
-                <div class="gpa-val" id="percentValue">84.2%</div>
-                <div class="gpa-lbl">Weighted Avg</div>
-              </div>
-              <div class="gpa-item">
-                <div class="gpa-val" id="ectsValue">4.5 / 5.0</div>
-                <div class="gpa-lbl">ECTS Grade</div>
-              </div>
-            </div>
-
-            <!-- All Programs Compatibility Matrix -->
-            <div>
-              <h4 style="font-size: 14px; color: var(--gold-light); margin-bottom: 12px; font-family: var(--font-serif);">
-                Program Compatibility Matrix:
-              </h4>
-              <div class="eligible-programs-list" id="matchedProgramsList">
-                <!-- List items rendered by JS -->
-              </div>
-            </div>
-
-          </div>
-        </div>
-
-      </div>
-    </div>
-  </section>
 
   <!-- USA Headquarters & International Hub Section -->
   <section class="section-wrapper" id="usaHeadquarters">
@@ -2158,6 +1987,6 @@
   </div>
 
   <script src="js/firebase-config.js"></script>
-  <script src="js/app.js?v=17.0"></script>
+  <script src="js/app.js?v=18.0"></script>
 </body>
 </html>
