@@ -248,15 +248,29 @@ body.light-theme .admin-dashboard-container h4 {
   color: #0f172a !important;
 }
 
+body.light-theme .admin-table {
+  background: #ffffff !important;
+  color: #0f172a !important;
+}
+
 body.light-theme .admin-table th {
-  background: rgba(212, 175, 55, 0.2);
-  color: #0f172a;
-  font-weight: 700;
+  background: #f1f5f9 !important;
+  color: #0f172a !important;
+  font-weight: 800 !important;
+  border-bottom: 2px solid #cbd5e1 !important;
+}
+
+body.light-theme .admin-table tr {
+  background: #ffffff !important;
+}
+
+body.light-theme .admin-table tr:nth-child(even) {
+  background: #f8fafc !important;
 }
 
 body.light-theme .admin-table td {
-  color: #1e293b;
-  border-bottom-color: #e2e8f0;
+  color: #0f172a !important;
+  border-bottom: 1px solid #e2e8f0 !important;
 }
 
 .theme-toggle-btn {

@@ -2842,13 +2842,17 @@ async function deleteProgram(progId) {
 async function handleSaveProgramSubmit(e) {
   e.preventDefault();
   const editId = document.getElementById('progEditId').value.trim();
+  const progName = document.getElementById('progName').value.trim();
+  const tuitionVal = parseInt(document.getElementById('progTuition').value) || 12000;
 
   const progData = {
-    id: editId || ('UEF-PROG-' + Math.floor(100 + Math.random() * 900)),
-    name: document.getElementById('progName').value.trim(),
+    id: editId || ('uef-prog-' + Math.floor(100 + Math.random() * 900)),
+    name: progName,
+    title: progName,
     degree: document.getElementById('progDegree').value.trim(),
     category: document.getElementById('progCategory').value.trim(),
-    tuition: parseInt(document.getElementById('progTuition').value) || 12000,
+    tuition: `$${tuitionVal.toLocaleString()} USD`,
+    numericFee: tuitionVal,
     duration: document.getElementById('progDuration').value.trim(),
     description: document.getElementById('progDescription').value.trim(),
     format: "100% Remote / Asynchronous",
@@ -2865,7 +2869,9 @@ async function handleSaveProgramSubmit(e) {
   closeAdminProgramModal();
   renderProgramsCatalog(DEGREE_PROGRAMS);
   renderCMSProgramTable();
+  initApplicationUploadForm();
   await saveAdminCMSConfig(true);
+  alert(`✅ Degree program '${progName}' successfully added and published across the website!`);
 }
 
 // Helper to escape HTML strings in input values
