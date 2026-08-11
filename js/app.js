@@ -2848,17 +2848,21 @@ function editProgram(progId) {
 function toggleAddProgramPortal() {
   const portal = document.getElementById('inlineAddProgramPortal');
   const btn = document.getElementById('toggleProgramPortalBtn');
-  if (!portal) return;
-
-  const isOpen = portal.style.display !== 'none';
-  if (isOpen) {
-    portal.style.display = 'none';
-    if (btn) btn.innerHTML = '➕ Add New Degree Program';
-  } else {
-    portal.style.display = 'block';
-    portal.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    if (btn) btn.innerHTML = '✕ Close Creation Portal';
+  
+  if (portal) {
+    const isOpen = portal.style.display !== 'none';
+    if (isOpen) {
+      portal.style.display = 'none';
+      if (btn) btn.innerHTML = '➕ Add New Degree Program';
+    } else {
+      portal.style.display = 'block';
+      portal.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      if (btn) btn.innerHTML = '✕ Close Creation Portal';
+    }
   }
+
+  // Also trigger popup modal so it opens seamlessly in both view modes!
+  openAddNewProgramModal();
 }
 
 async function handleSaveInlineProgramSubmit(e) {
