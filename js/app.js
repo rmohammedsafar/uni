@@ -207,28 +207,52 @@ async function saveAdminCMSConfig(silent = false) {
   try {
     const cmsConfigData = {
       programs: DEGREE_PROGRAMS,
+      isCustomized: true,
       updatedAt: new Date().toISOString()
     };
 
     localStorage.setItem('uef_cms_config', JSON.stringify(cmsConfigData));
 
-    if (window.firebaseManager && typeof window.firebaseManager.saveCMSConfig === 'function') {
-      await window.firebaseManager.saveCMSConfig(cmsConfigData);
+    if (window.firebaseManager && typeof window.firebaseManager.saveSiteConfig === 'function') {
+      await window.firebaseManager.saveSiteConfig(cmsConfigData);
     }
   } catch (err) {
     console.warn('CMS Config save notice:', err.message);
   }
 }
 
-function loadSiteCMSConfig() {
+async function loadSiteCMSConfig() {
   try {
+    let loadedPrograms = null;
+    let isCustomized = false;
+
     const localData = localStorage.getItem('uef_cms_config');
     if (localData) {
       const parsed = JSON.parse(localData);
-      if (parsed && Array.isArray(parsed.programs) && parsed.programs.length > 0) {
-        DEGREE_PROGRAMS.length = 0;
-        DEGREE_PROGRAMS.push(...parsed.programs);
+      if (parsed && Array.isArray(parsed.programs)) {
+        loadedPrograms = parsed.programs;
+        isCustomized = parsed.isCustomized || true;
       }
+    }
+
+    if (window.firebaseManager && typeof window.firebaseManager.getSiteConfig === 'function') {
+      try {
+        const remoteConfig = await window.firebaseManager.getSiteConfig();
+        if (remoteConfig && Array.isArray(remoteConfig.programs)) {
+          loadedPrograms = remoteConfig.programs;
+          isCustomized = true;
+        }
+      } catch (e) {
+        console.warn("Firestore site config fetch fallback:", e);
+      }
+    }
+
+    if (isCustomized && loadedPrograms !== null) {
+      DEGREE_PROGRAMS.length = 0;
+      DEGREE_PROGRAMS.push(...loadedPrograms);
+      renderProgramsCatalog(DEGREE_PROGRAMS);
+      initApplicationUploadForm();
+      renderCMSProgramTable();
     }
   } catch (err) {
     console.warn('CMS Config load notice:', err.message);
