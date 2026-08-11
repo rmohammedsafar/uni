@@ -2848,21 +2848,25 @@ function editProgram(progId) {
 function toggleAddProgramPortal() {
   const portal = document.getElementById('inlineAddProgramPortal');
   const btn = document.getElementById('toggleProgramPortalBtn');
-  
-  if (portal) {
-    const isOpen = portal.style.display !== 'none';
-    if (isOpen) {
-      portal.style.display = 'none';
-      if (btn) btn.innerHTML = '➕ Add New Degree Program';
-    } else {
-      portal.style.display = 'block';
-      portal.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-      if (btn) btn.innerHTML = '✕ Close Creation Portal';
-    }
-  }
+  if (!portal) return;
 
-  // Also trigger popup modal so it opens seamlessly in both view modes!
-  openAddNewProgramModal();
+  const isOpen = portal.style.display !== 'none';
+  if (isOpen) {
+    portal.style.display = 'none';
+    if (btn) btn.innerHTML = '➕ Add New Degree Program';
+  } else {
+    portal.style.display = 'block';
+    portal.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    if (btn) btn.innerHTML = '✕ Close Creation Portal';
+
+    // Auto-focus on title input for instant typing!
+    setTimeout(() => {
+      const titleInput = document.getElementById('inlineProgTitleInput');
+      if (titleInput) {
+        titleInput.focus();
+      }
+    }, 100);
+  }
 }
 
 async function handleSaveInlineProgramSubmit(e) {
