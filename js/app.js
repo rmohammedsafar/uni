@@ -184,10 +184,14 @@ let isAdminLoggedIn = false;
 let currentUser = null;
 
 // --- INITIALIZATION ---
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
   initTheme();
   initPreloader();
   initLiveClocks();
+
+  // Load saved CMS Config FIRST before rendering catalog
+  await loadSiteCMSConfig();
+
   renderProgramsCatalog(DEGREE_PROGRAMS);
   initSearchAndFilter();
   initStudentPortal();
@@ -197,9 +201,6 @@ document.addEventListener("DOMContentLoaded", () => {
   initCampusTour();
   renderLecturesGrid('all');
   loadGlobalNews();
-
-  // Load CMS Config & Firestore listeners asynchronously without blocking UI or clocks
-  loadSiteCMSConfig();
 });
 
 // --- GLOBAL CMS PERSISTENCE ENGINE ---
@@ -231,7 +232,7 @@ async function loadSiteCMSConfig() {
       const parsed = JSON.parse(localData);
       if (parsed && Array.isArray(parsed.programs)) {
         loadedPrograms = parsed.programs;
-        isCustomized = parsed.isCustomized || true;
+        isCustomized = true;
       }
     }
 
@@ -252,7 +253,7 @@ async function loadSiteCMSConfig() {
       DEGREE_PROGRAMS.push(...loadedPrograms);
       renderProgramsCatalog(DEGREE_PROGRAMS);
       initApplicationUploadForm();
-      renderCMSProgramTable();
+      if (typeof renderCMSProgramTable === 'function') renderCMSProgramTable();
     }
   } catch (err) {
     console.warn('CMS Config load notice:', err.message);

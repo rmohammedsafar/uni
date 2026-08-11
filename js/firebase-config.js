@@ -42,7 +42,7 @@ class FirebaseStorageManager {
     this.fallbackUsersKey = 'uef_users_backup';
     this.fallbackLeadsKey = 'uef_brochure_leads_backup';
     this.fallbackFeedbacksKey = 'uef_student_feedbacks_backup';
-    this.fallbackConfigKey = 'uef_site_config_backup';
+    this.fallbackConfigKey = 'uef_cms_config';
   }
 
   // Save UI Content & Site Customization Settings into Firestore
