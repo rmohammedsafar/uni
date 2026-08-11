@@ -1183,7 +1183,35 @@
 
       <!-- Tour Display -->
       <div class="tour-room-display" id="tourRoomDisplay">
-        <!-- Injected by JS -->
+        <div style="text-align: left;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <span style="font-size: 42px;">📚</span>
+              <div>
+                <h3 style="font-size: 24px; color: var(--gold-light); font-family: var(--font-serif); margin: 0;">24/7 Digital Library & Repository</h3>
+                <span class="online-tag" style="position: static; margin-top: 4px; display: inline-block;">100% Virtual Access</span>
+              </div>
+            </div>
+            <a href="#applySection" class="btn btn-gold" style="padding: 8px 18px; font-size: 13px;">Apply For Student Pass</a>
+          </div>
+          <p style="font-size: 14px; color: var(--text-muted); line-height: 1.7; margin-bottom: 24px;">
+            Access over 2.4 million peer-reviewed journals, IEEE research papers, eBooks, and digital archives from anywhere in the world. Includes 24/7 online reference librarians.
+          </p>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px;">
+            <div class="stat-card" style="padding: 16px; background: rgba(0,0,0,0.4);">
+              <div class="stat-value" style="font-size: 22px;">2.4M+</div>
+              <div class="stat-lbl" style="font-size: 12px;">Digital Volumes & Journals</div>
+            </div>
+            <div class="stat-card" style="padding: 16px; background: rgba(0,0,0,0.4);">
+              <div class="stat-value" style="font-size: 22px;">24 / 7</div>
+              <div class="stat-lbl" style="font-size: 12px;">Virtual Desk Support</div>
+            </div>
+            <div class="stat-card" style="padding: 16px; background: rgba(0,0,0,0.4);">
+              <div class="stat-value" style="font-size: 22px;">IEEE / ACM</div>
+              <div class="stat-lbl" style="font-size: 12px;">Full Direct Access</div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </section>
@@ -1387,44 +1415,20 @@
               <option value="Romania">Romania</option>
               <option value="Russia">Russia</option>
               <option value="Ukraine">Ukraine</option>
-              <option value="Algeria">Algeria</option>
-              <option value="Angola">Angola</option>
-              <option value="Bangladesh">Bangladesh</option>
-              <option value="Cambodia">Cambodia</option>
-              <option value="Cameroon">Cameroon</option>
-              <option value="Costa Rica">Costa Rica</option>
-              <option value="Croatia">Croatia</option>
-              <option value="Cyprus">Cyprus</option>
-              <option value="Ecuador">Ecuador</option>
-              <option value="Ethiopia">Ethiopia</option>
-              <option value="Ghana">Ghana</option>
-              <option value="Guatemala">Guatemala</option>
-              <option value="Iceland">Iceland</option>
-              <option value="Iran">Iran</option>
-              <option value="Iraq">Iraq</option>
-              <option value="Jamaica">Jamaica</option>
-              <option value="Jordan">Jordan</option>
-              <option value="Kazakhstan">Kazakhstan</option>
-
-              <option value="Lebanon">Lebanon</option>
-              <option value="Luxembourg">Luxembourg</option>
-              <option value="Maldives">Maldives</option>
-              <option value="Malta">Malta</option>
-              <option value="Morocco">Morocco</option>
-              <option value="Nepal">Nepal</option>
-              <option value="Panama">Panama</option>
-              <option value="Serbia">Serbia</option>
-              <option value="Sri Lanka">Sri Lanka</option>
-              <option value="Tanzania">Tanzania</option>
-              <option value="Tunisia">Tunisia</option>
-              <option value="Uganda">Uganda</option>
-              <option value="Uruguay">Uruguay</option>
-
-              <option value="Venezuela">Venezuela</option>
-
-              <option value="Zambia">Zambia</option>
-              <option value="Zimbabwe">Zimbabwe</option>
               <option value="Other / International">Other / International</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="appHighestQualification">Highest Qualification *</label>
+            <select id="appHighestQualification" class="form-select" required>
+              <option value="" disabled selected>-- Select Highest Qualification --</option>
+              <option value="SSLC / 10th Standard">SSLC / 10th Standard</option>
+              <option value="Plus Two / Higher Secondary (12th Grade)">Plus Two / Higher Secondary (12th Grade)</option>
+              <option value="Bachelor's Degree (B.Sc / B.A / B.Com)">Bachelor's Degree (B.Sc / B.A / B.Com)</option>
+              <option value="Engineering Degree (B.Tech / B.E)">Engineering Degree (B.Tech / B.E)</option>
+              <option value="Master's Degree (M.Sc / M.Tech / MBA)">Master's Degree (M.Sc / M.Tech / MBA)</option>
+              <option value="Doctorate / Ph.D.">Doctorate / Ph.D.</option>
             </select>
           </div>
 
@@ -1441,33 +1445,49 @@
             </select>
           </div>
 
-          <div class="form-group">
-            <label class="form-label" for="appPreviousInstitution">Previous High School / University *</label>
+          <div class="form-group" style="grid-column: 1 / -1;">
+            <label class="form-label" for="appPreviousInstitution">Previous High School / College / University Name *</label>
             <input type="text" id="appPreviousInstitution" class="form-control" placeholder="e.g. St. Jude High School / State University" required>
           </div>
         </div>
 
-        <!-- DRAG AND DROP MARKSHEET UPLOADER -->
-        <h3 style="font-size: 20px; color: var(--gold-light); margin-top: 24px; margin-bottom: 12px; font-family: var(--font-serif);">
-          📁 Upload Marksheets & Transcripts (PDF / Images)
-        </h3>
-        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 14px;">
-          Drag and drop your scanned marksheets, high school diplomas, or college transcripts below. Supported formats: PDF, PNG, JPG (Max 10MB per file).
-        </p>
+        <!-- SIDE-BY-SIDE COMPACT DRAG AND DROP UPLOADERS -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-top: 24px;">
+          
+          <!-- Uploader 1: Marksheet / Transcripts -->
+          <div>
+            <h4 style="font-size: 15px; color: var(--gold-light); margin-bottom: 8px; font-family: var(--font-serif);">
+              📁 Upload Marksheet / Transcripts *
+            </h4>
+            <div class="drop-zone" id="marksheetDropZone" onclick="document.getElementById('marksheetFileInput').click()" style="padding: 20px 14px;">
+              <div class="drop-icon" style="font-size: 28px;">📤</div>
+              <div class="drop-text" style="font-size: 13px;">Drag & Drop Marksheets or Click</div>
+              <div class="drop-subtext" style="font-size: 11px;">PDF, PNG, JPG (Max 10MB)</div>
+              <input type="file" id="marksheetFileInput" class="hidden-file-input" multiple accept=".pdf,.png,.jpg,.jpeg" onchange="handleFileSelection(event)">
+            </div>
+          </div>
 
-        <div class="drop-zone" id="marksheetDropZone" onclick="document.getElementById('marksheetFileInput').click()">
-          <div class="drop-icon">📤</div>
-          <div class="drop-text">Drag & Drop Your Marksheets Here, or Click to Browse</div>
-          <div class="drop-subtext">Upload scanned transcripts, semester marksheets, or grade certificates</div>
-          <input type="file" id="marksheetFileInput" class="hidden-file-input" multiple accept=".pdf,.png,.jpg,.jpeg" onchange="handleFileSelection(event)">
+          <!-- Uploader 2: Government ID / Passport for Nationality -->
+          <div>
+            <h4 style="font-size: 15px; color: var(--gold-light); margin-bottom: 8px; font-family: var(--font-serif);">
+              🪪 Upload Passport / Govt ID (Nationality Verification) *
+            </h4>
+            <div class="drop-zone" id="idDropZone" onclick="document.getElementById('idFileInput').click()" style="padding: 20px 14px; border-color: rgba(16,185,129,0.4);">
+              <div class="drop-icon" style="font-size: 28px;">🆔</div>
+              <div class="drop-text" style="font-size: 13px;">Drag & Drop Passport / ID Card or Click</div>
+              <div class="drop-subtext" style="font-size: 11px;">Passport, National ID, Driver License (PDF/JPG)</div>
+              <input type="file" id="idFileInput" class="hidden-file-input" multiple accept=".pdf,.png,.jpg,.jpeg" onchange="handleIDFileSelection(event)">
+            </div>
+          </div>
+
         </div>
 
-        <!-- File List Chips -->
-        <div class="uploaded-files-list" id="uploadedFilesList">
+        <!-- Uploaded Files List Chips -->
+        <div class="uploaded-files-list" id="uploadedFilesList" style="margin-top: 14px;">
           <!-- Chips inserted dynamically -->
         </div>
 
-        <div style="margin-top: 30px; text-align: center;">
+        <div style="margin-top: 28px; text-align: center;">
           <button type="submit" class="btn btn-gold" style="padding: 14px 40px; font-size: 16px; width: 100%; max-width: 450px;">
             🚀 Submit Application & Send Confirmation Email
           </button>
@@ -2073,6 +2093,6 @@
   </div>
 
   <script src="js/firebase-config.js"></script>
-  <script src="js/app.js?v=20.0"></script>
+  <script src="js/app.js?v=21.0"></script>
 </body>
 </html>
