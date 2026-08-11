@@ -202,6 +202,39 @@ document.addEventListener("DOMContentLoaded", () => {
   loadSiteCMSConfig();
 });
 
+// --- GLOBAL CMS PERSISTENCE ENGINE ---
+async function saveAdminCMSConfig(silent = false) {
+  try {
+    const cmsConfigData = {
+      programs: DEGREE_PROGRAMS,
+      updatedAt: new Date().toISOString()
+    };
+
+    localStorage.setItem('uef_cms_config', JSON.stringify(cmsConfigData));
+
+    if (window.firebaseManager && typeof window.firebaseManager.saveCMSConfig === 'function') {
+      await window.firebaseManager.saveCMSConfig(cmsConfigData);
+    }
+  } catch (err) {
+    console.warn('CMS Config save notice:', err.message);
+  }
+}
+
+function loadSiteCMSConfig() {
+  try {
+    const localData = localStorage.getItem('uef_cms_config');
+    if (localData) {
+      const parsed = JSON.parse(localData);
+      if (parsed && Array.isArray(parsed.programs) && parsed.programs.length > 0) {
+        DEGREE_PROGRAMS.length = 0;
+        DEGREE_PROGRAMS.push(...parsed.programs);
+      }
+    }
+  } catch (err) {
+    console.warn('CMS Config load notice:', err.message);
+  }
+}
+
 // --- DYNAMIC LIGHT / DARK THEME ENGINE ---
 function initTheme() {
   const savedTheme = localStorage.getItem('uef_theme') || 'dark';
@@ -2907,7 +2940,13 @@ async function handleSaveProgramSubmit(e) {
   renderProgramsCatalog(DEGREE_PROGRAMS);
   renderCMSProgramTable();
   initApplicationUploadForm();
-  await saveAdminCMSConfig(true);
+
+  try {
+    await saveAdminCMSConfig(true);
+  } catch (err) {
+    console.warn("Notice saving CMS config:", err);
+  }
+
   alert(`✅ Degree program '${progName}' successfully added and published across the website!`);
 }
 
