@@ -2816,18 +2816,44 @@ async function saveInlineProgram(progId) {
 }
 
 function openAddNewProgramModal() {
-  const form = document.getElementById('adminProgramForm');
-  if (form) form.reset();
-  document.getElementById('progEditId').value = '';
-  document.getElementById('progTuition').value = '14400';
-  document.getElementById('progDuration').value = '1.5 Years (100% Remote)';
-  document.getElementById('progDescription').value = 'Comprehensive 100% remote theoretical curriculum covering core principles, analytical modeling, and digital case studies.';
-  document.getElementById('adminProgramModalTitle').textContent = '➕ Add New Degree Program';
-  document.getElementById('adminProgramModal').classList.add('open');
+  try {
+    const modal = document.getElementById('adminProgramModal');
+    if (!modal) {
+      alert('Error: Admin Program Modal element not found in DOM.');
+      return;
+    }
+    const form = document.getElementById('adminProgramForm');
+    if (form) form.reset();
+    
+    const editId = document.getElementById('progEditId');
+    if (editId) editId.value = '';
+    
+    const tuition = document.getElementById('progTuition');
+    if (tuition) tuition.value = '14400';
+    
+    const duration = document.getElementById('progDuration');
+    if (duration) duration.value = '1.5 Years (100% Remote)';
+    
+    const desc = document.getElementById('progDescription');
+    if (desc) desc.value = 'Comprehensive 100% remote theoretical curriculum covering core principles, analytical modeling, and digital case studies.';
+    
+    const titleElem = document.getElementById('adminProgramModalTitle');
+    if (titleElem) titleElem.textContent = '➕ Add New Degree Program';
+
+    modal.classList.add('open');
+    modal.style.display = 'flex';
+  } catch (err) {
+    console.error('Error in openAddNewProgramModal:', err);
+    alert('Error opening modal: ' + err.message);
+  }
 }
 
 function closeAdminProgramModal() {
-  document.getElementById('adminProgramModal').classList.remove('open');
+  const modal = document.getElementById('adminProgramModal');
+  if (modal) {
+    modal.classList.remove('open');
+    modal.style.display = 'none';
+  }
 }
 
 async function deleteProgram(progId) {

@@ -1498,8 +1498,9 @@ h1, h2, h3, h4, .brand-font {
 }
 
 .modal-backdrop.open {
-  opacity: 1;
-  pointer-events: auto;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  display: flex !important;
 }
 
 .modal-box {
