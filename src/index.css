@@ -1098,15 +1098,6 @@ h1, h2, h3, h4, .brand-font {
   font-size: 10px;
   color: var(--text-muted);
 }
-  color: #fff;
-  margin-bottom: 4px;
-  font-weight: 600;
-}
-
-.drop-subtext {
-  font-size: 12px;
-  color: var(--text-muted);
-}
 
 .hidden-file-input {
   display: none;
