@@ -631,8 +631,7 @@
     <ul class="nav-links">
       <li><a href="#programs" class="nav-link">Programs</a></li>
       <li><a href="#campusTour" class="nav-link">Campus Tour</a></li>
-      <li><a href="#recordedLectures" class="nav-link">Lectures</a></li>
-      <li><a href="#quizSection" class="nav-link">Quiz</a></li>
+      <li><a href="#researchPapersSection" class="nav-link">Research</a></li>
       <li><a href="#globalNewsSection" class="nav-link">News</a></li>
       <li><a href="#studentDashboardSection" class="nav-link" id="navDashboardLink" style="display:none;">My Dashboard</a></li>
       <li><a href="#applySection" class="nav-link">Enroll Now</a></li>
@@ -1189,101 +1188,88 @@
     </div>
   </section>
 
-  <!-- ===== SECTION 2: RECORDED LECTURES ===== -->
-  <section class="section-wrapper" id="recordedLectures" style="max-width:100%; padding: 70px 40px; background: rgba(10,5,7,0.6); border-top: 1px solid var(--border-gold); border-bottom: 1px solid var(--border-gold);">
+  <!-- ===== SECTION: ACADEMIC RESEARCH & PUBLICATIONS ===== -->
+  <section class="section-wrapper" id="researchPapersSection" style="max-width:100%; padding: 70px 40px; border-top: 1px solid var(--border-gold); border-bottom: 1px solid var(--border-gold);">
     <div class="section-header" style="max-width:800px; margin:0 auto 50px;">
-      <span class="section-tag">🎬 Free Academic Lectures</span>
-      <h2 class="section-title">Recorded Class Library</h2>
-      <p class="section-desc">Watch curated public lectures from world-class professors across our degree programs. Free access — no login required.</p>
+      <span class="section-tag">📄 Faculty & Student Publications</span>
+      <h2 class="section-title">Academic Research & White Papers</h2>
+      <p class="section-desc">Explore open-access research papers, policy briefs, and technical white papers published by University of East Florida faculty and graduate scholars.</p>
     </div>
 
-    <div style="max-width:1200px; margin:0 auto;">
-      <!-- Category Filter -->
-      <div style="display:flex; justify-content:center; gap:12px; flex-wrap:wrap; margin-bottom:36px;">
-        <button class="filter-pill active" onclick="filterLectures('all')" id="lecFilter-all">All Subjects</button>
-        <button class="filter-pill" onclick="filterLectures('cs')" id="lecFilter-cs">💻 CS & AI</button>
-        <button class="filter-pill" onclick="filterLectures('business')" id="lecFilter-business">📊 Business</button>
-        <button class="filter-pill" onclick="filterLectures('healthcare')" id="lecFilter-healthcare">🏥 Healthcare</button>
-        <button class="filter-pill" onclick="filterLectures('math')" id="lecFilter-math">📐 Mathematics</button>
-      </div>
-
-      <!-- Lecture Cards Grid -->
-      <div class="lectures-grid" id="lecturesGrid">
-        <!-- Injected by JS -->
-      </div>
-    </div>
-
-    <!-- Video Modal -->
-    <div class="modal-backdrop" id="lectureVideoModal" onclick="closeLectureModal(event)">
-      <div class="modal-box" style="max-width:900px;">
-        <div class="modal-header">
-          <span class="modal-title" id="lectureModalTitle">Lecture Title</span>
-          <button class="modal-close" onclick="closeLectureModal()">✕</button>
-        </div>
-        <div class="modal-body" style="padding:0; background:#000;">
-          <div style="position:relative; padding-bottom:56.25%; height:0;">
-            <iframe id="lectureVideoFrame" src="" frameborder="0" allowfullscreen
-              style="position:absolute; top:0; left:0; width:100%; height:100%; border:none;">
-            </iframe>
+    <div style="max-width:1200px; margin:0 auto; display:grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px;">
+      
+      <!-- Research Paper 1 -->
+      <div class="news-card" style="display:flex; flex-direction:column; justify-content:space-between; padding:28px;">
+        <div>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <span class="online-tag" style="position:static; background:rgba(212,175,55,0.15); color:var(--gold-light);">💻 Artificial Intelligence</span>
+            <span style="font-size:12px; color:var(--text-muted);">IEEE Access • 2026</span>
           </div>
+          <h3 style="font-size:18px; color:var(--text-main); font-family:var(--font-serif); margin-bottom:10px; line-height:1.4;">
+            Autonomous Multi-Agent Networks in Decentralized Cloud Environments
+          </h3>
+          <p style="font-size:13px; color:var(--text-muted); line-height:1.6; margin-bottom:16px;">
+            This paper investigates latency optimization and dynamic load distribution across distributed serverless clusters using reinforcement learning algorithms.
+          </p>
         </div>
-        <div class="modal-footer">
-          <button class="btn btn-outline" onclick="closeLectureModal()">✕ Close Lecture</button>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ===== SECTION 3: ACADEMIC QUIZ ===== -->
-  <section class="section-wrapper" id="quizSection" style="max-width:100%; padding: 70px 40px;">
-    <div class="section-header" style="max-width:800px; margin:0 auto 50px;">
-      <span class="section-tag">📝 Test Your Knowledge</span>
-      <h2 class="section-title">Academic Challenge Quiz</h2>
-      <p class="section-desc">Challenge yourself with questions from our degree programs. Complete the quiz to discover which UEF program suits you best!</p>
-    </div>
-
-    <div style="max-width:800px; margin:0 auto;">
-      <!-- Quiz Subject Selector -->
-      <div id="quizStartScreen" style="text-align:center;">
-        <p style="color:var(--text-muted); margin-bottom:28px; font-size:15px;">Select a subject to begin your 5-question challenge:</p>
-        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px,1fr)); gap:16px; margin-bottom:32px;">
-          <div class="quiz-subject-card" onclick="startQuiz('cs')">
-            <div style="font-size:40px; margin-bottom:10px;">💻</div>
-            <div style="font-weight:700; color:#fff; font-size:16px;">Computer Science & AI</div>
-            <div style="font-size:12px; color:var(--text-muted); margin-top:4px;">5 Questions • Mixed</div>
+        <div>
+          <div style="font-size:12px; color:var(--text-gold); font-weight:600; margin-bottom:14px;">
+            ✍️ Authors: Dr. Marcus Vance, Prof. Elena Rostova (UEF CS Dept)
           </div>
-          <div class="quiz-subject-card" onclick="startQuiz('business')">
-            <div style="font-size:40px; margin-bottom:10px;">📊</div>
-            <div style="font-weight:700; color:#fff; font-size:16px;">Business & Finance</div>
-            <div style="font-size:12px; color:var(--text-muted); margin-top:4px;">5 Questions • Mixed</div>
-          </div>
-          <div class="quiz-subject-card" onclick="startQuiz('healthcare')">
-            <div style="font-size:40px; margin-bottom:10px;">🏥</div>
-            <div style="font-weight:700; color:#fff; font-size:16px;">Health Informatics</div>
-            <div style="font-size:12px; color:var(--text-muted); margin-top:4px;">5 Questions • Mixed</div>
-          </div>
+          <a href="#applySection" class="btn btn-outline" style="width:100%; text-align:center; padding:8px 14px; font-size:12px;">
+            📄 Read Abstract & Request Paper
+          </a>
         </div>
       </div>
 
-      <!-- Quiz Active Screen -->
-      <div id="quizActiveScreen" style="display:none;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-          <div style="font-size:13px; color:var(--gold-primary); font-weight:700;" id="quizSubjectLabel">CS & AI Quiz</div>
-          <div style="font-size:13px; color:var(--text-muted);">Question <span id="quizCurrentQ">1</span> of 5</div>
+      <!-- Research Paper 2 -->
+      <div class="news-card" style="display:flex; flex-direction:column; justify-content:space-between; padding:28px;">
+        <div>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <span class="online-tag" style="position:static; background:rgba(16,185,129,0.15); color:#34d399;">📊 Business Analytics</span>
+            <span style="font-size:12px; color:var(--text-muted);">Harvard Business Review • 2026</span>
+          </div>
+          <h3 style="font-size:18px; color:var(--text-main); font-family:var(--font-serif); margin-bottom:10px; line-height:1.4;">
+            Quantitative Risk Modeling in Cross-Border FinTech Ecosystems
+          </h3>
+          <p style="font-size:13px; color:var(--text-muted); line-height:1.6; margin-bottom:16px;">
+            An empirical study examining machine learning risk score models for cross-border digital transactions and regulatory compliance automation.
+          </p>
         </div>
-        <!-- Progress Bar -->
-        <div style="background:rgba(255,255,255,0.1); height:6px; border-radius:6px; margin-bottom:28px; overflow:hidden;">
-          <div id="quizProgressBar" style="height:100%; background:linear-gradient(90deg,#d4af37,#f7e096); width:20%; transition:width 0.4s ease; border-radius:6px;"></div>
-        </div>
-        <div class="quiz-question-card" id="quizQuestionCard">
-          <!-- Injected by JS -->
+        <div>
+          <div style="font-size:12px; color:var(--text-gold); font-weight:600; margin-bottom:14px;">
+            ✍️ Authors: Dr. Robert Sterling, Sarah Lin (UEF Business School)
+          </div>
+          <a href="#applySection" class="btn btn-outline" style="width:100%; text-align:center; padding:8px 14px; font-size:12px;">
+            📄 Read Abstract & Request Paper
+          </a>
         </div>
       </div>
 
-      <!-- Quiz Result Screen -->
-      <div id="quizResultScreen" style="display:none; text-align:center;">
-        <!-- Injected by JS -->
+      <!-- Research Paper 3 -->
+      <div class="news-card" style="display:flex; flex-direction:column; justify-content:space-between; padding:28px;">
+        <div>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <span class="online-tag" style="position:static; background:rgba(59,130,246,0.15); color:#60a5fa;">🏥 Health Informatics</span>
+            <span style="font-size:12px; color:var(--text-muted);">Journal of Digital Health • 2026</span>
+          </div>
+          <h3 style="font-size:18px; color:var(--text-main); font-family:var(--font-serif); margin-bottom:10px; line-height:1.4;">
+            Privacy-Preserving EHR Data Architecture using Zero-Knowledge Proofs
+          </h3>
+          <p style="font-size:13px; color:var(--text-muted); line-height:1.6; margin-bottom:16px;">
+            Evaluating cryptographic protocols for HIPAA-compliant patient record exchange across remote healthcare systems without central key vulnerability.
+          </p>
+        </div>
+        <div>
+          <div style="font-size:12px; color:var(--text-gold); font-weight:600; margin-bottom:14px;">
+            ✍️ Authors: Dr. Aris Thorne, Dr. Maya Patel (UEF Health Institute)
+          </div>
+          <a href="#applySection" class="btn btn-outline" style="width:100%; text-align:center; padding:8px 14px; font-size:12px;">
+            📄 Read Abstract & Request Paper
+          </a>
+        </div>
       </div>
+
     </div>
   </section>
 
@@ -1445,7 +1431,13 @@
           <div class="form-group">
             <label class="form-label" for="appTargetProgram">Target Degree Program *</label>
             <select id="appTargetProgram" class="form-select" required>
-              <!-- Populated by JS -->
+              <option value="" disabled selected>-- Select Target Degree Program --</option>
+              <option value="ms-cs-ai">Master of Science in Computer Science & Artificial Intelligence</option>
+              <option value="ms-ds">Master of Science in Data Science & Big Analytics</option>
+              <option value="bs-cs">Bachelor of Science in Computer Science (100% Remote)</option>
+              <option value="mba-tech">Master of Business Administration (Global FinTech & AI)</option>
+              <option value="ms-cyber">Master of Science in Cybersecurity & Cloud Governance</option>
+              <option value="ms-health">Master of Science in Health Informatics & Telemedicine</option>
             </select>
           </div>
 
@@ -2081,6 +2073,6 @@
   </div>
 
   <script src="js/firebase-config.js"></script>
-  <script src="js/app.js?v=19.0"></script>
+  <script src="js/app.js?v=20.0"></script>
 </body>
 </html>

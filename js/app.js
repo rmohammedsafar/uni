@@ -1250,10 +1250,12 @@ let selectedFilesList = [];
 
 function initApplicationUploadForm() {
   const select = document.getElementById("appTargetProgram");
-  if (select) {
-    select.innerHTML = DEGREE_PROGRAMS.map(p => `
-      <option value="${p.id}">${p.degree} in ${p.name || p.title}</option>
-    `).join('');
+  if (select && DEGREE_PROGRAMS && DEGREE_PROGRAMS.length > 0) {
+    const currentVal = select.value;
+    select.innerHTML = '<option value="" disabled selected>-- Select Target Degree Program --</option>' +
+      DEGREE_PROGRAMS.map(p => `
+        <option value="${p.id}" ${currentVal === p.id ? 'selected' : ''}>${p.degree} in ${p.name || p.title || 'Degree Program'}</option>
+      `).join('');
   }
 
   const dropZone = document.getElementById("marksheetDropZone");
