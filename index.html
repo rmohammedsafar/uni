@@ -633,9 +633,7 @@
       <li><a href="#campusTour" class="nav-link">Campus Tour</a></li>
       <li><a href="#researchPapersSection" class="nav-link">Research</a></li>
       <li><a href="#globalNewsSection" class="nav-link">News</a></li>
-      <li><a href="#studentDashboardSection" class="nav-link" id="navDashboardLink" style="display:none;">My Dashboard</a></li>
       <li><a href="#applySection" class="nav-link">Enroll Now</a></li>
-      <li><a href="#feedbackSection" class="nav-link">Feedback</a></li>
     </ul>
 
     <div class="nav-actions">
@@ -670,8 +668,6 @@
       <li><a href="#quizSection" onclick="toggleMobileMenu()">📝 Academic Challenge Quiz</a></li>
       <li><a href="#globalNewsSection" onclick="toggleMobileMenu()">🌍 Global Academic News</a></li>
       <li><a href="#applySection" onclick="toggleMobileMenu()" style="color: var(--gold-light); font-weight: 700;">✍️ Apply & Upload Marksheets</a></li>
-      <li><a href="#studentPortal" onclick="toggleMobileMenu()">📊 Student Portal & Referral Hub</a></li>
-      <li><a href="#feedbackSection" onclick="toggleMobileMenu()">⭐ Feedback & Reviews</a></li>
       <li><a href="#usaHeadquarters" onclick="toggleMobileMenu()">📍 USA Headquarters</a></li>
       <li style="border-top: 1px solid var(--border-gold); padding-top: 10px; margin-top: 6px;">
         <a href="javascript:void(0)" onclick="toggleMobileMenu(); openAdminLoginModal();" style="color: var(--gold-primary); display: flex; align-items: center; gap: 8px;">
@@ -1939,87 +1935,7 @@
     </div>
   </div>
 
-  <!-- OFFICIAL STUDENT FEEDBACK & REVIEWS SECTION -->
-  <section class="section-wrapper" id="feedbackSection">
-    <div class="section-header">
-      <span class="section-tag">Student Experience & Voice</span>
-      <h2 class="section-title">Student Feedback & Ratings</h2>
-      <p class="section-desc">
-        Your voice matters! Share your experience with our 100% online programs, virtual campus portal, or admissions process.
-      </p>
-    </div>
 
-    <div class="contact-grid">
-      <!-- Left Column: Interactive Feedback Submission Form -->
-      <div class="application-portal-box" style="margin-bottom: 0; padding: 32px;">
-        <h3 style="font-size: 22px; color: var(--gold-light); margin-bottom: 16px; font-family: var(--font-serif);">
-          ⭐ Submit Student Feedback
-        </h3>
-        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 20px;">
-          All reviews are saved to Cloud Firestore and dispatched directly to the Registrar Office (<strong style="color: var(--gold-light);">r.mohammedsafar@gmail.com</strong>).
-        </p>
-
-        <form id="studentFeedbackForm" onsubmit="handleFeedbackSubmit(event)">
-          <div class="form-group">
-            <label class="form-label" for="fbFullName">Your Full Name *</label>
-            <input type="text" id="fbFullName" class="form-control" placeholder="e.g. Eleanor Vance" required>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label" for="fbEmail">Your Student Email *</label>
-            <input type="email" id="fbEmail" class="form-control" placeholder="eleanor@example.com" required>
-          </div>
-
-          <div class="form-grid-2">
-            <div class="form-group">
-              <label class="form-label" for="fbCategory">Feedback Category *</label>
-              <select id="fbCategory" class="form-select" required>
-                <option value="Academic Excellence & Programs">Academic Excellence & Programs</option>
-                <option value="100% Online Learning Portal">100% Online Learning Portal</option>
-                <option value="Admissions & Registrar Support">Admissions & Registrar Support</option>
-                <option value="Tuition Fee & Scholarships">Tuition Fee & Scholarships</option>
-                <option value="General Student Experience">General Student Experience</option>
-              </select>
-            </div>
-
-            <div class="form-group">
-              <label class="form-label" for="fbRating">Star Rating *</label>
-              <select id="fbRating" class="form-select" required>
-                <option value="5">⭐⭐⭐⭐⭐ 5 Stars - Outstanding</option>
-                <option value="4">⭐⭐⭐⭐ 4 Stars - Excellent</option>
-                <option value="3">⭐⭐⭐ 3 Stars - Good</option>
-                <option value="2">⭐⭐ 2 Stars - Average</option>
-                <option value="1">⭐ 1 Star - Needs Improvement</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label" for="fbComments">Your Feedback & Experience Comments *</label>
-            <textarea id="fbComments" class="form-control" rows="4" placeholder="Share your experience studying 100% online with UEF..." required style="resize: vertical;"></textarea>
-          </div>
-
-          <button type="submit" class="btn btn-gold" style="width: 100%; padding: 12px; font-size: 15px;">
-            ⭐ Send Student Feedback to Firestore & Registrar
-          </button>
-        </form>
-      </div>
-
-      <!-- Right Column: Recent Student Testimonials Grid -->
-      <div class="address-box">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-          <h3 style="font-size: 22px; color: #fff; font-family: var(--font-serif); margin: 0;">
-            💬 Recent Student Reviews
-          </h3>
-          <span class="usa-flag-badge" style="background: rgba(245,158,11,0.2); color: #fbbf24;">VERIFIED REVIEWS</span>
-        </div>
-
-        <div id="publicTestimonialsContainer" style="display: flex; flex-direction: column; gap: 16px; max-height: 420px; overflow-y: auto; padding-right: 6px;">
-          <!-- Injected by JS -->
-        </div>
-      </div>
-    </div>
-  </section>
 
   <!-- Accreditation Disclaimer Banner -->
   <section class="section-wrapper" id="accreditation" style="padding-top: 0;">
@@ -2159,6 +2075,6 @@
   </div>
 
   <script src="js/firebase-config.js"></script>
-  <script src="js/app.js?v=30.0"></script>
+  <script src="js/app.js?v=31.0"></script>
 </body>
 </html>
