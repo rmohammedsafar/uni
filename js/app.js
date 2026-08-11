@@ -2819,6 +2819,9 @@ function openAddNewProgramModal() {
   const form = document.getElementById('adminProgramForm');
   if (form) form.reset();
   document.getElementById('progEditId').value = '';
+  document.getElementById('progTuition').value = '14400';
+  document.getElementById('progDuration').value = '1.5 Years (100% Remote)';
+  document.getElementById('progDescription').value = 'Comprehensive 100% remote theoretical curriculum covering core principles, analytical modeling, and digital case studies.';
   document.getElementById('adminProgramModalTitle').textContent = '➕ Add New Degree Program';
   document.getElementById('adminProgramModal').classList.add('open');
 }
@@ -2835,6 +2838,7 @@ async function deleteProgram(progId) {
     DEGREE_PROGRAMS.splice(idx, 1);
     renderProgramsCatalog(DEGREE_PROGRAMS);
     renderCMSProgramTable();
+    initApplicationUploadForm();
     await saveAdminCMSConfig(true);
   }
 }
@@ -2843,18 +2847,25 @@ async function handleSaveProgramSubmit(e) {
   e.preventDefault();
   const editId = document.getElementById('progEditId').value.trim();
   const progName = document.getElementById('progName').value.trim();
-  const tuitionVal = parseInt(document.getElementById('progTuition').value) || 12000;
+  if (!progName) {
+    alert('Please enter a degree program title.');
+    return;
+  }
+
+  const tuitionVal = parseInt(document.getElementById('progTuition').value) || 14400;
+  const durationVal = document.getElementById('progDuration').value.trim() || '1.5 Years (100% Remote)';
+  const descVal = document.getElementById('progDescription').value.trim() || 'Comprehensive 100% remote theoretical curriculum covering core principles, analytical modeling, and digital case studies.';
 
   const progData = {
     id: editId || ('uef-prog-' + Math.floor(100 + Math.random() * 900)),
     name: progName,
     title: progName,
-    degree: document.getElementById('progDegree').value.trim(),
-    category: document.getElementById('progCategory').value.trim(),
+    degree: document.getElementById('progDegree').value.trim() || 'Master of Science',
+    category: document.getElementById('progCategory').value.trim() || 'technology',
     tuition: `$${tuitionVal.toLocaleString()} USD`,
     numericFee: tuitionVal,
-    duration: document.getElementById('progDuration').value.trim(),
-    description: document.getElementById('progDescription').value.trim(),
+    duration: durationVal,
+    description: descVal,
     format: "100% Remote / Asynchronous",
     credits: "36 US Credit Hours (12 Core Modules)"
   };
