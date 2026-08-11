@@ -1252,7 +1252,7 @@ function initApplicationUploadForm() {
   const select = document.getElementById("appTargetProgram");
   if (select) {
     select.innerHTML = DEGREE_PROGRAMS.map(p => `
-      <option value="${p.id}">${p.degree} in ${p.title} (${p.tuition})</option>
+      <option value="${p.id}">${p.degree} in ${p.name || p.title}</option>
     `).join('');
   }
 
