@@ -798,10 +798,15 @@ function copyUserReferralCode() {
 
 // --- ADMIN DASHBOARD RENDERER & BROCHURE LEADS TABLE ---
 async function renderAdminDashboard() {
-  if (!isAdminLoggedIn || !window.firebaseManager) return;
   renderCMSProgramTable();
   renderAdminCampusTable();
   renderAdminLectureTable();
+
+  if (!isAdminLoggedIn) return;
+  if (!window.firebaseManager) {
+    console.log('Firebase manager not initialized yet. Static tables rendered.');
+    return;
+  }
 
   const applications = await window.firebaseManager.getApplications();
   const brochureLeads = await window.firebaseManager.getBrochureLeads();
@@ -2499,6 +2504,11 @@ function switchAdminTab(tabName) {
   const activeContent = document.getElementById(`adminTab-${tabName}`);
   if (activeBtn) activeBtn.classList.add('active');
   if (activeContent) activeContent.style.display = 'block';
+
+  if (tabName === 'courses') renderCMSProgramTable();
+  if (tabName === 'campus') renderAdminCampusTable();
+  if (tabName === 'lectures') renderAdminLectureTable();
+  if (tabName === 'admissions') renderAdminDashboard();
 }
 function renderAdminCampusTable() {
   const tbody = document.getElementById('adminCampusTableBody');
@@ -2712,18 +2722,28 @@ async function handleSaveLectureSubmit(e) {
 // ============================================================
 // DEGREE PROGRAM CATALOG MANAGER (INLINE ROW EDITING)
 // ============================================================
+let editingProgramId = null;
+
 function renderCMSProgramTable() {
   const tbody = document.getElementById('cmsProgramTableBody');
   if (!tbody) return;
 
+  if (!DEGREE_PROGRAMS || DEGREE_PROGRAMS.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:30px; color:var(--text-muted);">No degree programs found in catalog.</td></tr>`;
+    return;
+  }
+
   tbody.innerHTML = DEGREE_PROGRAMS.map(prog => {
     const isEditing = editingProgramId === prog.id;
+    const progName = prog.name || (prog.degree ? `${prog.degree} in ${prog.title || ''}` : prog.title) || prog.id;
+    const numericTuition = typeof prog.tuition === 'number' ? prog.tuition : (prog.numericFee || parseInt(String(prog.tuition || '').replace(/[^0-9]/g, '')) || 12000);
+    const durationText = prog.duration || '1.5 Years (100% Remote)';
 
     if (isEditing) {
       return `
         <tr style="background: rgba(212,175,55,0.15);">
           <td style="font-family:monospace; font-size:12px; color:var(--gold-light);">${prog.id}</td>
-          <td><input type="text" id="inlineProgName_${prog.id}" class="form-control" value="${escapeHtml(prog.name)}" style="padding:4px 8px; font-size:13px;"></td>
+          <td><input type="text" id="inlineProgName_${prog.id}" class="form-control" value="${escapeHtml(progName)}" style="padding:4px 8px; font-size:13px;"></td>
           <td>
             <select id="inlineProgCat_${prog.id}" class="form-select" style="padding:4px 8px; font-size:12px;">
               <option value="technology" ${prog.category==='technology'?'selected':''}>Computer & Data Tech</option>
@@ -2731,8 +2751,8 @@ function renderCMSProgramTable() {
               <option value="healthcare" ${prog.category==='healthcare'?'selected':''}>Health Informatics</option>
             </select>
           </td>
-          <td><input type="number" id="inlineProgTuition_${prog.id}" class="form-control" value="${prog.tuition}" style="padding:4px 8px; font-size:13px; color:#34d399; font-weight:bold;"></td>
-          <td><input type="text" id="inlineProgDuration_${prog.id}" class="form-control" value="${escapeHtml(prog.duration)}" style="padding:4px 8px; font-size:12px;"></td>
+          <td><input type="number" id="inlineProgTuition_${prog.id}" class="form-control" value="${numericTuition}" style="padding:4px 8px; font-size:13px; color:#34d399; font-weight:bold;"></td>
+          <td><input type="text" id="inlineProgDuration_${prog.id}" class="form-control" value="${escapeHtml(durationText)}" style="padding:4px 8px; font-size:12px;"></td>
           <td>
             <div style="display:flex; gap:6px;">
               <button class="btn btn-gold" onclick="saveInlineProgram('${prog.id}')" style="padding:4px 10px; font-size:11px;">💾 Save</button>
@@ -2746,10 +2766,10 @@ function renderCMSProgramTable() {
     return `
       <tr>
         <td style="font-family:monospace; font-size:12px; color:var(--gold-light);">${prog.id}</td>
-        <td style="font-weight:700;">${prog.name}</td>
+        <td style="font-weight:700;">${progName}</td>
         <td><span class="online-tag" style="position:static;">${prog.category}</span></td>
-        <td style="color:#34d399; font-weight:700;">$${prog.tuition.toLocaleString()}</td>
-        <td style="font-size:12px;">${prog.duration}</td>
+        <td style="color:#34d399; font-weight:700;">$${numericTuition.toLocaleString()} USD</td>
+        <td style="font-size:12px;">${durationText}</td>
         <td>
           <button class="btn btn-outline" onclick="editProgram('${prog.id}')" style="padding:4px 10px; font-size:11px;">✏️ Edit Line</button>
           <button class="btn btn-outline" onclick="deleteProgram('${prog.id}')" style="padding:4px 10px; font-size:11px; border-color:#ef4444; color:#f87171;">🗑️ Delete</button>
@@ -2778,9 +2798,15 @@ async function saveInlineProgram(progId) {
   const newTuition = parseInt(document.getElementById(`inlineProgTuition_${progId}`)?.value);
   const newDuration = document.getElementById(`inlineProgDuration_${progId}`)?.value.trim();
 
-  if (newName) prog.name = newName;
+  if (newName) {
+    prog.name = newName;
+    prog.title = newName;
+  }
   if (newCat) prog.category = newCat;
-  if (!isNaN(newTuition)) prog.tuition = newTuition;
+  if (!isNaN(newTuition)) {
+    prog.tuition = `$${newTuition.toLocaleString()} USD`;
+    prog.numericFee = newTuition;
+  }
   if (newDuration) prog.duration = newDuration;
 
   editingProgramId = null;
