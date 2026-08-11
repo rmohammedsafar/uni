@@ -56,8 +56,15 @@ body.light-theme {
   --gold-light: #92400e;
   --glass-bg: rgba(255, 255, 255, 0.96);
   --border-gold: rgba(212, 175, 55, 0.45);
-  background-color: #f8fafc;
-  color: #0f172a;
+  background: #f8fafc !important;
+  color: #0f172a !important;
+}
+
+body.light-theme .section-wrapper,
+body.light-theme section {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border-color: rgba(212, 175, 55, 0.3) !important;
 }
 
 body.light-theme h1,
@@ -66,7 +73,7 @@ body.light-theme h3,
 body.light-theme h4,
 body.light-theme h5,
 body.light-theme h6 {
-  color: #0f172a;
+  color: #0f172a !important;
 }
 
 body.light-theme .app-header {
@@ -76,28 +83,28 @@ body.light-theme .app-header {
 }
 
 body.light-theme .brand-title-group h1 {
-  color: #0f172a;
+  color: #0f172a !important;
 }
 
 body.light-theme .brand-title-group p {
-  color: #475569;
+  color: #475569 !important;
 }
 
 body.light-theme .nav-link {
-  color: #1e293b;
+  color: #1e293b !important;
   font-weight: 600;
 }
 
 body.light-theme .nav-link:hover, body.light-theme .nav-link.active {
-  color: #b45309;
+  color: #b45309 !important;
 }
 
 body.light-theme .hero-section {
-  background: radial-gradient(circle at 50% 30%, rgba(212, 175, 55, 0.15) 0%, rgba(248, 250, 252, 1) 75%);
+  background: radial-gradient(circle at 50% 30%, rgba(212, 175, 55, 0.15) 0%, rgba(248, 250, 252, 1) 75%) !important;
 }
 
 body.light-theme .hero-title {
-  color: #0f172a;
+  color: #0f172a !important;
 }
 
 body.light-theme .hero-desc {
@@ -106,8 +113,8 @@ body.light-theme .hero-desc {
 }
 
 body.light-theme .hero-badge {
-  background: rgba(212, 175, 55, 0.2);
-  border-color: #d4af37;
+  background: rgba(212, 175, 55, 0.2) !important;
+  border-color: #d4af37 !important;
 }
 
 body.light-theme .hero-badge span {
@@ -116,7 +123,7 @@ body.light-theme .hero-badge span {
 }
 
 body.light-theme .section-title {
-  color: #0f172a;
+  color: #0f172a !important;
 }
 
 body.light-theme .section-desc {
@@ -125,9 +132,9 @@ body.light-theme .section-desc {
 }
 
 body.light-theme .section-tag {
-  background: rgba(212, 175, 55, 0.2);
-  color: #78350f;
-  border-color: #d4af37;
+  background: rgba(212, 175, 55, 0.2) !important;
+  color: #78350f !important;
+  border: 1px solid #d4af37 !important;
   font-weight: 700;
 }
 
