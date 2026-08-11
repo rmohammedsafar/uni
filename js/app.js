@@ -2278,66 +2278,74 @@ function resetQuiz() {
 // ============================================================
 // GLOBAL NEWS FEED ENGINE — Live RSS via rss2json proxy
 // ============================================================
+// ============================================================
+// GLOBAL NEWS FEED ENGINE — Live RSS via rss2json proxy
+// ============================================================
 const SEED_NEWS = [
-  { title: 'AI Surpasses Human Performance on Medical Diagnosis Benchmarks', description: 'A new multimodal AI model developed by Google DeepMind has matched board-certified radiologists in detecting early-stage cancer across 14 medical imaging datasets.', source: 'Nature Medicine', url: '#', pubDate: new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}), image: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=400&q=80' },
-  { title: 'Global University Enrollment Hits Record 280 Million Students in 2025', description: 'UNESCO reports a historic surge in online higher education enrollment, with Asia-Pacific and Sub-Saharan Africa driving the majority of new student registrations.', source: 'UNESCO Report', url: '#', pubDate: new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}), image: 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=400&q=80' },
-  { title: 'Quantum Computing Achieves 1 Million Qubit Milestone', description: 'IBM unveils its Condor+ quantum processor exceeding 1 million qubits, marking a landmark breakthrough that could revolutionize cryptography, drug discovery, and logistics.', source: 'MIT Technology Review', url: '#', pubDate: new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}), image: 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=400&q=80' },
-  { title: 'Global FinTech Sector Reaches $310 Billion Valuation', description: 'The worldwide financial technology industry crosses the $310 billion threshold driven by digital payments, AI-powered lending, and blockchain-based settlement infrastructure.', source: 'Financial Times', url: '#', pubDate: new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}), image: 'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=400&q=80' },
-  { title: 'WHO Launches Global Digital Health Certification Framework', description: 'The World Health Organization unveils a universal digital health competency certification system, partnering with 140 universities across 90 countries for standardized telehealth training.', source: 'WHO Global Health', url: '#', pubDate: new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}), image: 'https://images.unsplash.com/photo-1532938911079-1b06ac7ceec7?w=400&q=80' },
-  { title: 'US Department of Education Expands Recognition of Online Degrees', description: 'Federal policy update validates 100% online degrees from accredited institutions as fully equivalent to on-campus qualifications for all federal employment, scholarships, and visa applications.', source: 'US Dept. of Education', url: '#', pubDate: new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}), image: 'https://images.unsplash.com/photo-1607237138185-eedd9c632b0b?w=400&q=80' }
+  { title: 'AI Surpasses Human Performance on Medical Diagnosis Benchmarks', description: 'A new multimodal AI model developed by Google DeepMind has matched board-certified radiologists in detecting early-stage cancer across 14 medical imaging datasets.', source: 'NATURE MEDICINE', url: '#applySection', pubDate: 'Aug 11, 2026', image: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=600&auto=format&fit=crop&q=80' },
+  { title: 'Global University Enrollment Hits Record 280 Million Students in 2025', description: 'UNESCO reports a historic surge in online higher education enrollment, with Asia-Pacific and Sub-Saharan Africa driving the majority of new student registrations.', source: 'UNESCO REPORT', url: '#applySection', pubDate: 'Aug 11, 2026', image: 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=600&auto=format&fit=crop&q=80' },
+  { title: 'Quantum Computing Achieves 1 Million Qubit Milestone', description: 'IBM unveils its Condor+ quantum processor exceeding 1 million qubits, marking a landmark breakthrough that could revolutionize cryptography, drug discovery, and logistics.', source: 'MIT TECHNOLOGY REVIEW', url: '#applySection', pubDate: 'Aug 11, 2026', image: 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=600&auto=format&fit=crop&q=80' }
 ];
 
-async function loadGlobalNews() {
+async function loadGlobalNews(isUserClick = false) {
   const grid = document.getElementById('globalNewsGrid');
   if (!grid) return;
 
-  grid.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:40px; color:var(--text-muted);">
-    <div style="font-size:36px; margin-bottom:12px; animation:logoPulse 1.5s ease-in-out infinite alternate;">🌍</div>
-    <p>Loading latest global news...</p>
-  </div>`;
+  if (isUserClick) {
+    grid.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:40px; color:var(--text-muted);">
+      <div style="font-size:36px; margin-bottom:12px; animation:logoPulse 1.5s ease-in-out infinite alternate;">🌍</div>
+      <p>Fetching latest live bulletins...</p>
+    </div>`;
+  }
 
   let articles = [];
 
   try {
     const rssUrl = encodeURIComponent('https://feeds.bbci.co.uk/news/technology/rss.xml');
-    const res = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${rssUrl}&count=6`, { signal: AbortSignal.timeout(6000) });
+    const res = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${rssUrl}&count=3`, { signal: AbortSignal.timeout(4000) });
     if (res.ok) {
       const data = await res.json();
       if (data.status === 'ok' && data.items && data.items.length > 0) {
         articles = data.items.map(item => ({
           title: item.title,
-          description: item.description?.replace(/<[^>]+>/g,'').substring(0, 160) + '...' || '',
-          source: 'BBC Technology',
-          url: item.link,
+          description: item.description?.replace(/<[^>]+>/g,'').substring(0, 150) + '...' || '',
+          source: 'BBC TECHNOLOGY',
+          url: item.link || '#applySection',
           pubDate: new Date(item.pubDate).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}),
-          image: item.thumbnail || item.enclosure?.link || 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=400&q=80'
+          image: item.thumbnail || item.enclosure?.link || 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=600&auto=format&fit=crop&q=80'
         }));
       }
     }
   } catch (e) {
-    console.log('Live news fetch fallback to seed data:', e.message);
+    console.log('Live news fetch fallback to pre-rendered cards:', e.message);
   }
 
-  if (articles.length === 0) articles = SEED_NEWS;
-
-  grid.innerHTML = articles.map(article => `
-    <div class="news-card">
-      <img class="news-card-image" src="${article.image}" alt="${article.title}"
-        onerror="this.src='https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=400&q=80'">
-      <div class="news-card-body">
-        <div class="news-source-badge">📰 ${article.source}</div>
-        <div class="news-card-title">${article.title}</div>
-        <div class="news-card-desc">${article.description}</div>
-        <div class="news-card-footer">
-          <span class="news-card-date">🕒 ${article.pubDate}</span>
-          <a href="${article.url}" target="_blank" rel="noopener noreferrer"
-            class="btn btn-outline" style="padding:5px 14px; font-size:12px;">
-            Read More →
-          </a>
+  if (articles.length > 0) {
+    grid.innerHTML = articles.map(article => `
+      <div class="news-card" style="display:flex; flex-direction:column; justify-content:space-between; overflow:hidden; padding:0; border-radius:16px;">
+        <div style="height:200px; overflow:hidden; position:relative;">
+          <img src="${article.image}" alt="${article.title}" style="width:100%; height:100%; object-fit:cover; transition:transform 0.4s ease;"
+            onerror="this.src='https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=600&auto=format&fit=crop&q=80'">
+        </div>
+        <div style="padding:24px; display:flex; flex-direction:column; flex:1; justify-content:space-between;">
+          <div>
+            <div style="font-size:11px; color:var(--gold-light); font-weight:700; text-transform:uppercase; letter-spacing:1px; margin-bottom:10px;">
+              📰 ${article.source}
+            </div>
+            <h3 class="news-title" style="font-size:17px; font-family:var(--font-serif); color:var(--text-main); margin-bottom:10px; line-height:1.35;">${article.title}</h3>
+            <p class="news-snippet" style="font-size:13px; color:var(--text-muted); line-height:1.55; margin-bottom:18px;">${article.description}</p>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--border-gold); padding-top:14px; font-size:12px; color:var(--text-muted);">
+            <span>📷 ${article.pubDate}</span>
+            <a href="${article.url}" ${article.url.startsWith('http') ? 'target="_blank" rel="noopener noreferrer"' : ''}
+              class="btn btn-outline" style="padding:4px 12px; font-size:11px; border-color:var(--border-gold); color:var(--gold-light);">
+              Read More →
+            </a>
+          </div>
         </div>
       </div>
-    </div>
-  `).join('');
+    `).join('');
+  }
 }
 
 // ============================================================
