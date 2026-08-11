@@ -766,23 +766,11 @@
       
       <div class="admin-header-row" style="margin-bottom: 24px;">
         <div>
-          <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px; flex-wrap: wrap;">
-            <h3 style="font-size: 24px; color: #fff; font-family: var(--font-serif); margin: 0;">
-              📊 Admissions Overview & Firebase Records
-            </h3>
-            <span class="usa-flag-badge" id="firebaseLiveStatusBadge" style="background: rgba(16,185,129,0.2); color: #34d399; font-size: 12px;">
-              🔥 Firebase Firestore: Live Connected
-            </span>
-            <span class="usa-flag-badge" id="cmsAutoSaveBadge" style="background: rgba(212,175,55,0.2); color: var(--gold-light); font-size: 12px;">
-              ⚡ Real-Time Auto-Save Active
-            </span>
-          </div>
-          <span style="font-size: 12px; color: var(--gold-light);">Syncing live with Cloud Firestore backend: <strong style="color: #fff;">university-8f798</strong></span>
+          <h3 style="font-size: 24px; color: #fff; font-family: var(--font-serif); margin: 0;">
+            📊 Admissions Overview & Student Records
+          </h3>
         </div>
         <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
-          <button class="btn btn-outline" onclick="testFirebaseConnection()" style="border-color: #34d399; color: #34d399; padding: 8px 14px; font-size: 13px;">
-            🧪 Test Sync
-          </button>
           <button class="btn btn-gold" onclick="exportApplicantsCSV()" style="padding: 8px 14px; font-size: 13px;">
             📥 Export CSV
           </button>
@@ -2134,6 +2122,6 @@
   </div>
 
   <script src="js/firebase-config.js"></script>
-  <script src="js/app.js?v=42.0"></script>
+  <script src="js/app.js?v=43.0"></script>
 </body>
 </html>
