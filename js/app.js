@@ -2845,6 +2845,72 @@ function editProgram(progId) {
   renderCMSProgramTable();
 }
 
+function toggleAddProgramPortal() {
+  const portal = document.getElementById('inlineAddProgramPortal');
+  const btn = document.getElementById('toggleProgramPortalBtn');
+  if (!portal) return;
+
+  const isOpen = portal.style.display !== 'none';
+  if (isOpen) {
+    portal.style.display = 'none';
+    if (btn) btn.innerHTML = '➕ Add New Degree Program';
+  } else {
+    portal.style.display = 'block';
+    portal.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    if (btn) btn.innerHTML = '✕ Close Creation Portal';
+  }
+}
+
+async function handleSaveInlineProgramSubmit(e) {
+  if (e && e.preventDefault) e.preventDefault();
+  const progName = document.getElementById('inlineProgTitleInput').value.trim();
+  if (!progName) {
+    alert('Please enter a degree program title.');
+    return;
+  }
+
+  const tuitionVal = parseInt(document.getElementById('inlineProgTuitionInput').value) || 14400;
+  const durationVal = document.getElementById('inlineProgDurationInput').value.trim() || '1.5 Years (100% Online)';
+  const descVal = document.getElementById('inlineProgDescInput').value.trim() || 'Comprehensive 100% remote theoretical curriculum covering core principles, analytical modeling, and digital case studies.';
+
+  const progData = {
+    id: 'uef-prog-' + Math.floor(100 + Math.random() * 900),
+    name: progName,
+    title: progName,
+    degree: document.getElementById('inlineProgDegreeSelect').value.trim() || 'Master of Science',
+    category: document.getElementById('inlineProgCatSelect').value.trim() || 'technology',
+    tuition: `$${tuitionVal.toLocaleString()} USD`,
+    numericFee: tuitionVal,
+    duration: durationVal,
+    description: descVal,
+    format: "100% Remote / Asynchronous",
+    credits: "36 US Credit Hours (12 Core Modules)"
+  };
+
+  DEGREE_PROGRAMS.push(progData);
+
+  // Close portal form
+  toggleAddProgramPortal();
+
+  // Reset form
+  const form = document.getElementById('inlineProgramForm');
+  if (form) form.reset();
+
+  // Update UI components
+  renderProgramsCatalog(DEGREE_PROGRAMS);
+  renderCMSProgramTable();
+  initApplicationUploadForm();
+
+  // Save to persistence (LocalStorage + Firestore)
+  try {
+    await saveAdminCMSConfig(true);
+  } catch (err) {
+    console.warn("Notice saving CMS config:", err);
+  }
+
+  alert(`🎉 Success! Degree program '${progName}' has been added and published live across the website!`);
+}
+
 function cancelInlineProgram() {
   editingProgramId = null;
   renderCMSProgramTable();

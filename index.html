@@ -953,9 +953,71 @@
                 Add, edit, or remove degree programs. Tuition fees, course duration, and credit hours update live across the entire website!
               </p>
             </div>
-            <button class="btn btn-gold" onclick="openAddNewProgramModal()">
+            <button class="btn btn-gold" onclick="toggleAddProgramPortal()" id="toggleProgramPortalBtn">
               ➕ Add New Degree Program
             </button>
+          </div>
+
+          <!-- EMBEDDED DEGREE PROGRAM CREATION PORTAL -->
+          <div id="inlineAddProgramPortal" style="display: none; background: rgba(20, 11, 14, 0.95); border: 1.5px solid var(--gold-primary); border-radius: 14px; padding: 24px; margin-bottom: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--border-gold); padding-bottom: 12px;">
+              <h4 style="font-size: 18px; color: var(--gold-light); font-family: var(--font-serif); margin: 0;">
+                ✨ Create & Publish New Degree Program
+              </h4>
+              <button class="btn btn-outline" onclick="toggleAddProgramPortal()" style="padding: 4px 10px; font-size: 12px;">✕ Close Form</button>
+            </div>
+
+            <form id="inlineProgramForm" onsubmit="handleSaveInlineProgramSubmit(event)">
+              <div class="form-group">
+                <label class="form-label" for="inlineProgTitleInput">Degree Title / Name *</label>
+                <input type="text" id="inlineProgTitleInput" class="form-control" placeholder="e.g. Master of Science in Robotics & Autonomous Systems" required style="padding: 10px 14px; font-size: 14px;">
+              </div>
+
+              <div class="form-grid-2">
+                <div class="form-group">
+                  <label class="form-label" for="inlineProgDegreeSelect">Degree Level *</label>
+                  <select id="inlineProgDegreeSelect" class="form-select" required style="padding: 10px 14px;">
+                    <option value="Master of Science">Master of Science (M.S.)</option>
+                    <option value="Bachelor of Science">Bachelor of Science (B.S.)</option>
+                    <option value="Master of Business Administration">Master of Business Administration (MBA)</option>
+                    <option value="Doctor of Philosophy">Doctor of Philosophy (Ph.D.)</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="inlineProgCatSelect">Category *</label>
+                  <select id="inlineProgCatSelect" class="form-select" required style="padding: 10px 14px;">
+                    <option value="technology">Computer & Data Tech</option>
+                    <option value="business">Business & FinTech</option>
+                    <option value="healthcare">Health Informatics</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-grid-2">
+                <div class="form-group">
+                  <label class="form-label" for="inlineProgTuitionInput">Total Tuition ($ USD) *</label>
+                  <input type="number" id="inlineProgTuitionInput" class="form-control" value="14400" placeholder="14400" required style="padding: 10px 14px; color: #34d399; font-weight: bold;">
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="inlineProgDurationInput">Duration *</label>
+                  <input type="text" id="inlineProgDurationInput" class="form-control" value="1.5 Years (100% Online)" placeholder="1.5 Years (100% Online)" required style="padding: 10px 14px;">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="inlineProgDescInput">Program Overview & Description</label>
+                <textarea id="inlineProgDescInput" class="form-control" rows="3" placeholder="Overview of curriculum, theoretical modules, and career outcomes..." style="padding: 10px 14px; resize: vertical;">Comprehensive 100% remote theoretical curriculum covering core principles, analytical modeling, and digital case studies.</textarea>
+              </div>
+
+              <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 20px;">
+                <button type="button" class="btn btn-outline" onclick="toggleAddProgramPortal()">Cancel</button>
+                <button type="submit" class="btn btn-gold" style="padding: 10px 24px; font-size: 14px;">
+                  🚀 Publish Degree Program Live
+                </button>
+              </div>
+            </form>
           </div>
           <div class="admin-table-container">
             <table class="admin-table">
@@ -2072,6 +2134,6 @@
   </div>
 
   <script src="js/firebase-config.js"></script>
-  <script src="js/app.js?v=39.0"></script>
+  <script src="js/app.js?v=40.0"></script>
 </body>
 </html>
